@@ -8,5 +8,6 @@ class CommandStabilizer
 		@commandProcessor.process(stableCommands)
 		@commandSource.finalizeState()
 		@commandOrganizer.deactivateCommands(stableCommands)
+		@commandProcessor.process(@commandOrganizer.activeCommands())
 
 return CommandStabilizer
