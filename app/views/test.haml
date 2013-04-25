@@ -1,0 +1,12 @@
+!!! 5
+%html
+  %head
+    = load_asset("commands.js", :base => "assets")
+
+    %script
+    	require("patches");
+
+      App = require("app");
+      app = new App(#{@command_source.id});
+
+  %body
