@@ -1,11 +1,18 @@
+Command = require "command_manager/command"
+
 class CommandManager
 
-	constructor: (@commandSource, @commandOrganizer, @commandProcessor, @commandSynchronizer, @commandFinalizer)->
+	constructor: (@commandOrganizer, @commandProcessor, @commandStabilizer, @commandSynchronizer)->
 		@pushFrequency = 1
 		@pullFrequency = 5
-		@commandSynchronizer.pushed.add(@commandsPushed)
-		@commandSynchronizer.pulled.add(@commandsPulled)
-		@commandOrganizer.commandsDeactivated.add(@finalizeCommands)
+
+	@default: (commandSource, handlers, syncBaseUrl)->
+		commandOrganizer = new CommandOrganizer()
+		commandProcessor = new CommandProcessor(handlers)
+		commandStabilizer = new CommandStabilizer(commandSource, commandOrganizer, commandProcessor)
+		commandSynchronizer = new CommandSynchronizer(syncBaseUrl, commandOrganizer, commandStabilizer)
+
+		new @(commandOrganizer, commandProcessor, commandStabilizer, commandSynchronizer)
 
 	startSync: ->
 		@pushInterval = setInterval(=> @commandSynchronizer.push(@commands), @pushFrequency)
@@ -15,15 +22,9 @@ class CommandManager
 		clearInterval @pushInterval
 		clearInterval @pullInterval
 
-	addCommand: (command)->
+	addCommand: (name, data)->
+		command = new Command(name, data)
 		@commandOrganizer.addCommand command
 		@commandProcessor.processCommand command
-
-	commandsPushed: (stableTimestamp)=>
-		@commandFinalizer.finalizeCommands stableTimestamp
-
-	commandsPulled: (commands, stableTimestamp)->
-		@commandOrganizer.addCommands commands, false
-		@commandFinalizer.finalizeCommands stableTimestamp
 
 return CommandManager

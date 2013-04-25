@@ -5,8 +5,11 @@
 
     %script
     	require("patches");
+    	require("environment");
 
-      App = require("app");
-      app = new App(#{@command_source.id});
+    	environment.addUrl("sync", "#{commands_url}");
+
+      var App = require("app");
+      var app = new App(#{@command_source.id});
 
   %body

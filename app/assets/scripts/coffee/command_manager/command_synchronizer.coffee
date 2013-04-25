@@ -1,45 +1,34 @@
 require "lib/jquery"
 
-Signal = require "lib/signals/signal"
-
 Command = require "command_manager/command"
 
 class CommandSynchronizer
 
-	constructor: ->
-		@pushed = new Signal()
-		@pulled = new Signal()
+	constructor: (@syncBaseUrl, @commandOrganizer, @commandStabilizer)->
 
-	push: (commands)=>
+	push: =>
 		$.ajax(
-			url: "/#{eventId}/sync"
+			url: "#{@syncBaseUrl}/sync"
 			method: "POST"
 			data: 
 				sourceId: source.id
 				commands: command.asHash() for command in commands
-			error: @handlePushError
-			success: @handlePushSuccess
+			error: =>
+				console.log "push error"
+			success: (response)=>
+				@commandStabilizer.stabilize response.data.stableTimestamp
 		)
-
-	handlePushError: =>
-		console.log "push error"
-
-	handlePushSuccess: (response)=>
-		@pushed.dispatch(response.data.inactiveTimestamp)
 
 	pull: =>
 		$.ajax(
-			url: "/#{eventId}/sync"
+			url: "#{@syncBaseUrl}/sync"
 			method: "GET"
-			error: @handlePullError
-			success: @handlePullSuccess
+			error: =>
+				console.log "pull error"
+			success: (response)=>
+				commands = new Command(command.name, command.data, command.timestamp)) for command in response.data.commands
+				@commandOrganizer.addCommands commands, false
+				@commandStabilizer.stabilize response.data.stableTimestamp
 		)
-
-	handlePullError: =>
-		console.log "pull error"
-
-	handlePullSuccess: (response)=>
-		commands = new Command(command.name, command.data, command.timestamp)) for command in response.data.commands
-		@pulled.dispatch(commands, response.data.inactiveTimestamp)
 
 return CommandSynchronizer
