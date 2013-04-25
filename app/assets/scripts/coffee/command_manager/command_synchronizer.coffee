@@ -7,15 +7,17 @@ class CommandSynchronizer
 	constructor: (@syncBaseUrl, @commandOrganizer, @commandStabilizer)->
 
 	push: =>
+		unsyncedCommands = @commandOrganizer.unsyncedCommands
 		$.ajax(
 			url: "#{@syncBaseUrl}/sync"
 			method: "POST"
 			data: 
 				sourceId: source.id
-				commands: command.asHash() for command in commands
+				commands: command.asHash() for command in unsyncedCommands
 			error: =>
 				console.log "push error"
 			success: (response)=>
+				@commandOrganizer.markAsSynced unsyncedCommands
 				@commandStabilizer.stabilize response.data.stableTimestamp
 		)
 
@@ -26,7 +28,7 @@ class CommandSynchronizer
 			error: =>
 				console.log "pull error"
 			success: (response)=>
-				commands = new Command(command.name, command.data, command.timestamp)) for command in response.data.commands
+				commands = new Command(command.name, command.data, command.timestamp) for command in response.data.commands
 				@commandOrganizer.addCommands commands, false
 				@commandStabilizer.stabilize response.data.stableTimestamp
 		)

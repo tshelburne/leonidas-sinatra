@@ -2,20 +2,24 @@ class CommandOrganizer
 
 	constructor: ->
 		@deactivatedCommands = [ ]
-		@externalCommands = [ ]
-		@localCommands = [ ]
+		@syncedCommands = [ ]
+		@unsyncedCommands = [ ]
 
-	addCommand: (command, local=true)-> local ? @localCommands.push command : @externalCommands.push command
+	addCommand: (command, unsynced=true)-> unsynced ? @unsyncedCommands.push command : @syncedCommands.push command
 		
-	addCommands: (commands, local=true)-> @addCommand(command, local) for command in commands
+	addCommands: (commands, unsynced=true)-> @addCommand(command, unsynced) for command in commands
 
 	deactivateCommands: (commands)-> 
 		@deactivatedCommands.push command for command in commands
-		@externalCommands = @externalCommands.filter (command)-> command isnt in commands
-		@localCommands = @localCommands.filter (command)-> command isnt in commands
+		@syncedCommands = @syncedCommands.filter (command)-> command isnt in commands
+		@unsyncedCommands = @unsyncedCommands.filter (command)-> command isnt in commands
+
+	markAsSynced: (commands)->
+		@syncedCommands.push command for command in commands when command isnt in @syncedCommands
+		@unsyncedCommands = @unsyncedCommands.filter (command)-> command isnt in commands
 
 	activeCommands: -> 
-		activeCommands = @localCommands.concat @externalCommands
+		activeCommands = @unsyncedCommands.concat @syncedCommands
 		activeCommands.sort (a,b)-> a.timestamp > b.timestamp ? 1 : -1
 
 return CommandOrganizer
