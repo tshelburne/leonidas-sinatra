@@ -8,21 +8,9 @@ GIT
       sass
       sinatra
 
-GIT
-  remote: git://github.com/jpeace/monger.git
-  revision: 5f24ae5f39934d38dcc2d1424e610d8d51e6f028
-  specs:
-    monger (0.0.1)
-      bson (= 1.8.3)
-      bson_ext (= 1.8.3)
-      mongo (= 1.8.3)
-
 GEM
   remote: http://rubygems.org/
   specs:
-    bson (1.8.3)
-    bson_ext (1.8.3)
-      bson (~> 1.8.3)
     childprocess (0.3.9)
       ffi (~> 1.0, >= 1.0.11)
     closure-compiler (1.1.8)
@@ -59,8 +47,6 @@ GEM
       rainbow
       sprockets (~> 2)
     json (1.7.7)
-    mongo (1.8.3)
-      bson (~> 1.8.3)
     multi_json (1.7.2)
     rack (1.5.2)
     rack-protection (1.5.0)
@@ -109,8 +95,6 @@ DEPENDENCIES
   jasmine-headless-webkit
   json
   keystone!
-  monger!
-  mongo
   rack
   rake
   require_all
