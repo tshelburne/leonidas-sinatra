@@ -15,7 +15,7 @@ class CommandManager
 		new @(commandOrganizer, commandProcessor, commandStabilizer, commandSynchronizer)
 
 	startSync: ->
-		@pushInterval = setInterval(=> @commandSynchronizer.push(@commands), @pushFrequency)
+		@pushInterval = setInterval(@commandSynchronizer.push, @pushFrequency)
 		@pullInterval = setInterval(@commandSynchronizer.pull, @pullFrequency)
 
 	stopSync: ->
