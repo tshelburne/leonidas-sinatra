@@ -1,11 +1,17 @@
 class CommandSource
 
   constructor: (@id, state)->
-    @lockedState = state
-    @activeState = state
+    @lockedState = { }
+    @activeState = { }
+    @copyState(@lockedState, state)
+    @copyState(@activeState, state)
 
-  revertState: -> @activeState = @lockedState
+  revertState: -> @copyState(@activeState, @lockedState)
 
-  lockState: -> @lockedState = @activeState
+  lockState: -> @copyState(@lockedState, @activeState)
+
+  copyState: (to, from)-> 
+    delete to[key] for key of to
+    to[key] = value for key, value of from
 
 return CommandSource

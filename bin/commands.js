@@ -459,16 +459,32 @@
   CommandSource = (function() {
     function CommandSource(id, state) {
       this.id = id;
-      this.lockedState = state;
-      this.activeState = state;
+      this.lockedState = {};
+      this.activeState = {};
+      this.copyState(this.lockedState, state);
+      this.copyState(this.activeState, state);
     }
 
     CommandSource.prototype.revertState = function() {
-      return this.activeState = this.lockedState;
+      return this.copyState(this.activeState, this.lockedState);
     };
 
     CommandSource.prototype.lockState = function() {
-      return this.lockedState = this.activeState;
+      return this.copyState(this.lockedState, this.activeState);
+    };
+
+    CommandSource.prototype.copyState = function(to, from) {
+      var key, value, _results;
+
+      for (key in to) {
+        delete to[key];
+      }
+      _results = [];
+      for (key in from) {
+        value = from[key];
+        _results.push(to[key] = value);
+      }
+      return _results;
     };
 
     return CommandSource;
@@ -513,17 +529,17 @@
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           command = _ref[_i];
-          if (command.timestamp < stableTimestamp) {
+          if (command.timestamp <= stableTimestamp) {
             _results.push(command);
           }
         }
         return _results;
       }).call(this);
       this.commandSource.revertState();
-      this.commandProcessor.process(stableCommands);
+      this.commandProcessor.processCommands(stableCommands);
       this.commandSource.lockState();
       this.commandOrganizer.deactivateCommands(stableCommands);
-      return this.commandProcessor.process(this.commandOrganizer.activeCommands());
+      return this.commandProcessor.processCommands(this.commandOrganizer.activeCommands());
     };
 
     return CommandStabilizer;
