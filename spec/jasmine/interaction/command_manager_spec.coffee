@@ -34,6 +34,8 @@ describe "CommandManager", ->
 	describe "#addCommand", ->
 
 		it "will generate an unsynchronized command", ->
+			manager.addCommand "pop-char", {}
+			expect(commandOrganizer.unsyncedCommands.length).toEqual 1
 
 		it "will run the command to update the local client state", ->
 			manager.addCommand "pop-char", {}
