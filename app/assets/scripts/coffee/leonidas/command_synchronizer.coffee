@@ -14,8 +14,7 @@ class CommandSynchronizer
 			data: 
 				sourceId: source.id
 				commands: (command.asHash() for command in unsyncedCommands)
-			error: =>
-				console.log "push error"
+			error: => console.log "push error"
 			success: (response)=>
 				@commandOrganizer.markAsSynced unsyncedCommands
 				@commandStabilizer.stabilize response.data.stableTimestamp
@@ -25,8 +24,7 @@ class CommandSynchronizer
 		$.ajax(
 			url: "#{@syncUrl}"
 			method: "GET"
-			error: =>
-				console.log "pull error"
+			error: => console.log "pull error"
 			success: (response)=>
 				commands = (new Command(command.name, command.data, command.timestamp) for command in response.data.commands)
 				@commandOrganizer.addCommands commands, false

@@ -1,5 +1,6 @@
-(exports ? this).globalize = (fxn)=>
-  (exports ? this)[fxn.name] = fxn
+(exports ? this).globalize = (fxn, name=null)=>
+  functionName = if name is null then fxn.name else name
+  (exports ? this)[functionName] = fxn
 
 
 # MOCKING #

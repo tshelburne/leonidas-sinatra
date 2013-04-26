@@ -6,17 +6,17 @@ describe "CommandProcessor", ->
 	source = null
 
 	beforeEach ->
-		source = new CommandSource("1234", { integer: 1, string: "test" })
+		source = buildSource()
 		processor = new CommandProcessor([ new IncrementHandler(source.activeState), new PopCharHandler(source.activeState)])
 
 	describe "#processCommand", ->
 
 		it "will run a command", ->
-			processor.processCommand mocks.command1
+			processor.processCommand buildCommand(1)
 			expect(source.activeState).toEqual { integer: 2, string: "test" }
 
 	describe "#processCommands", ->
 
 		it "will run multiple commands", ->
-			processor.processCommands [ mocks.command1, mocks.command2 ]
+			processor.processCommands [ buildCommand(1), buildCommand(2, "pop-char") ]
 			expect(source.activeState).toEqual { integer: 2, string: "tes" }

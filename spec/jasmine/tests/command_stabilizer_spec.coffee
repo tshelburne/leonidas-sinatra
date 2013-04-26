@@ -9,9 +9,9 @@ describe "CommandStabilizer", ->
 	organizer = null
 
 	beforeEach ->
-		source = new CommandSource("1234", { integer: 1, string: "test" })
+		source = buildSource()
 		organizer = new CommandOrganizer()
-		organizer.addCommands [ mocks.command1, mocks.command2, mocks.command3, mocks.command4 ], false
+		organizer.addCommands [ buildCommand(1), buildCommand(2, "pop-char"), buildCommand(3, "pop-char"), buildCommand(4) ], false
 		processor = new CommandProcessor([ new IncrementHandler(source.activeState), new PopCharHandler(source.activeState)])
 		stabilizer = new CommandStabilizer(source, organizer, processor)
 
@@ -23,7 +23,7 @@ describe "CommandStabilizer", ->
 
 		it "will deactivate the stable commands in the command organizer", ->
 			stabilizer.stabilize 2
-			expect(organizer.activeCommands()).toEqual [ mocks.command3, mocks.command4 ]
+			expect(organizer.activeCommands()).toEqual [ buildCommand(3, "pop-char"), buildCommand(4) ]
 
 		it "will process the remaining active commands to leave the active state entirely current", ->
 			stabilizer.stabilize 2

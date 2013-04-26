@@ -1,4 +1,3 @@
-CommandSource = require 'leonidas/command_source'
 CommandOrganizer = require "leonidas/command_organizer"
 CommandProcessor = require "leonidas/command_processor"
 CommandStabilizer = require "leonidas/command_stabilizer"
@@ -11,13 +10,21 @@ describe "CommandManager", ->
 	commandOrganizer = null
 
 	beforeEach ->
-		commandSource = new CommandSource("1234", { string: "value" })
+		commandSource = buildSource()
 		commandOrganizer = new CommandOrganizer()
 		commandProcessor = new CommandProcessor([ new PopCharHandler(commandSource.activeState) ])
 		commandStabilizer = new CommandStabilizer(commandSource, commandOrganizer, commandProcessor)
 		commandSynchronizer = new CommandSynchronizer("http://mydomain.com/sync", commandOrganizer, commandStabilizer)
 
 		manager = new CommandManager(commandOrganizer, commandProcessor, commandStabilizer, commandSynchronizer)
+
+	describe "::default", ->
+
+		it "will return a default command manager using the built in classes", ->
+			manager = CommandManager.default(buildSource(), [ new PopCharHandler("tim") ], "http://mydomain.com/sync")
+			expect(manager.startSync?).toBeTruthy()
+			expect(manager.stopSync?).toBeTruthy()
+			expect(manager.addCommand?).toBeTruthy()
 
 	describe "#startSync", ->
 
@@ -39,4 +46,4 @@ describe "CommandManager", ->
 
 		it "will run the command to update the local client state", ->
 			manager.addCommand "pop-char", {}
-			expect(commandSource.activeState.string).toEqual "valu"
+			expect(commandSource.activeState.string).toEqual "tes"

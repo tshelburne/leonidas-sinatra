@@ -20,8 +20,8 @@ stylesheets:
 helpers:
   - support/requirements.coffee
   - support/helpers.coffee
-  - support/classes/**/*.coffee
-  - support/mocks/**/*.coffee
+  - support/objects.coffee
+  - support/classes.coffee
 
 # spec_files
 #
