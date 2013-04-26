@@ -1,27 +1,22 @@
 addMock "command1",
-	name: "command1"
+	name: "increment"
 	data: { }
 	timestamp: 1
 
 addMock "command2",
-	name: "command2"
+	name: "pop-char"
 	data: { }
 	timestamp: 2
 
 addMock "command3",
-	name: "command3"
+	name: "pop-char"
 	data: { }
 	timestamp: 3
 
 addMock "command4",
-	name: "command4"
+	name: "increment"
 	data: { }
 	timestamp: 4
-
-addMock "commandSource",
-	id: "1234"
-	originalState: { test: true }
-	currentState: { test: true }
 
 addMock "commandOrganizer",
 	deactivatedCommands: [ mocks.command1 ]

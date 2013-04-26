@@ -1,20 +1,20 @@
 globalize class IncrementHandler
 
-	constructor: (@value)->
+	constructor: (@state)->
 
 	handles: (command)->
 		command.name is "increment"
 
 	run: (command)->
-		@value++
+		@state.integer++
 
 
 globalize class PopCharHandler
 
-	constructor: (@value)->
+	constructor: (@state)->
 
 	handles: (command)->
 		command.name is "pop-char"
 
 	run: (command)->
-		@value = @value.slice(0,-1)
+		@state.string = @state.string.slice(0,-1)
