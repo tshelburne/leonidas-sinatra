@@ -2,7 +2,7 @@ module Commands
 
 	class CommandSource
 		
-		attr_accessor :id, :last_update
+		attr_accessor :id, :commands, :last_update
 
 		def initialize(id)
 			self.id = id
