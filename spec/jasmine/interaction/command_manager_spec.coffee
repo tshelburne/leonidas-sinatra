@@ -11,9 +11,9 @@ describe "CommandManager", ->
 	commandOrganizer = null
 
 	beforeEach ->
-		commandSource = new CommandSource("1234", { value: "value" })
+		commandSource = new CommandSource("1234", { string: "value" })
 		commandOrganizer = new CommandOrganizer()
-		commandProcessor = new CommandProcessor([ new PopCharHandler(commandSource.currentState.value) ])
+		commandProcessor = new CommandProcessor([ new PopCharHandler(commandSource.activeState) ])
 		commandStabilizer = new CommandStabilizer(commandSource, commandOrganizer, commandProcessor)
 		commandSynchronizer = new CommandSynchronizer("http://mydomain.com/sync", commandOrganizer, commandStabilizer)
 
@@ -37,4 +37,4 @@ describe "CommandManager", ->
 
 		it "will run the command to update the local client state", ->
 			manager.addCommand "pop-char", {}
-			expect(commandSource.currentState.value).toEqual "valu"
+			expect(commandSource.activeState.string).toEqual "valu"

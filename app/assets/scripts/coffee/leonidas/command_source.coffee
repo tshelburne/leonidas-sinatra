@@ -1,11 +1,11 @@
 class CommandSource
 
   constructor: (@id, state)->
-    @originalState = state
-    @currentState = state
+    @lockedState = state
+    @activeState = state
 
-  revertState: -> @currentState = @originalState
+  revertState: -> @activeState = @lockedState
 
-  finalizeState: -> @originalState = @currentState
+  lockState: -> @lockedState = @activeState
 
 return CommandSource

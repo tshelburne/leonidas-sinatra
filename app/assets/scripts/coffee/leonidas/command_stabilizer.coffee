@@ -6,7 +6,7 @@ class CommandStabilizer
 		stableCommands = (command for command in @commandOrganizer.activeCommands() when command.timestamp < stableTimestamp)
 		@commandSource.revertState()
 		@commandProcessor.process(stableCommands)
-		@commandSource.finalizeState()
+		@commandSource.lockState()
 		@commandOrganizer.deactivateCommands(stableCommands)
 		@commandProcessor.process(@commandOrganizer.activeCommands())
 

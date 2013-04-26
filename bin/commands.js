@@ -459,16 +459,16 @@
   CommandSource = (function() {
     function CommandSource(id, state) {
       this.id = id;
-      this.originalState = state;
-      this.currentState = state;
+      this.lockedState = state;
+      this.activeState = state;
     }
 
     CommandSource.prototype.revertState = function() {
-      return this.currentState = this.originalState;
+      return this.activeState = this.lockedState;
     };
 
-    CommandSource.prototype.finalizeState = function() {
-      return this.originalState = this.currentState;
+    CommandSource.prototype.lockState = function() {
+      return this.lockedState = this.activeState;
     };
 
     return CommandSource;
@@ -521,7 +521,7 @@
       }).call(this);
       this.commandSource.revertState();
       this.commandProcessor.process(stableCommands);
-      this.commandSource.finalizeState();
+      this.commandSource.lockState();
       this.commandOrganizer.deactivateCommands(stableCommands);
       return this.commandProcessor.process(this.commandOrganizer.activeCommands());
     };
