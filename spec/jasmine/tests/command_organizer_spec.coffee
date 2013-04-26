@@ -43,16 +43,16 @@ describe "CommandOrganizer", ->
 			organizer.markAsSynced [ command1, command2 ]
 			expect(organizer.unsyncedCommands).toEqual [ command3 ]
 
-	describe "#deactivateCommands", ->
+	describe "#markAsInactive", ->
 
-		it "will add the requested commands to the deactivatedCommands list", ->
+		it "will add the requested commands to the inactiveCommands list", ->
 			organizer.addCommands [ command1, command2, command3 ]
-			organizer.deactivateCommands [ command1, command2 ]
-			expect(organizer.deactivatedCommands).toEqual [ command1, command2 ]
+			organizer.markAsInactive [ command1, command2 ]
+			expect(organizer.inactiveCommands).toEqual [ command1, command2 ]
 
 		it "will remove requested commands from the syncedCommands list", ->
 			organizer.addCommands [ command1, command2, command3 ], false
-			organizer.deactivateCommands [ command1, command2 ]
+			organizer.markAsInactive [ command1, command2 ]
 			expect(organizer.syncedCommands).toEqual [ command3 ]
 
 	describe "#activeCommands", ->

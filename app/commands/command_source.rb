@@ -6,6 +6,7 @@ module Commands
 
 		def initialize(id)
 			self.id = id
+			self.last_update = Time.now.to_i
 		end
 
 	end

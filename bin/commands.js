@@ -16,17 +16,17 @@
 
   App = (function() {
     function App(sourceId) {
-      this.commandSource = new CommandSource(sourceId, {
+      this.source = new CommandSource(sourceId, {
         currentValue: 0
       });
-      this.commandManager = this.buildCommandManager(this.commandSource);
+      this.commander = this.buildCommandManager(this.source);
     }
 
-    App.prototype.buildCommandManager = function(commandSource) {
+    App.prototype.buildCommandManager = function(source) {
       var handlers;
 
-      handlers = [new LogHandler(), new IncrementHandler(commandSource.currentState.currentValue)];
-      return CommandManager["default"](commandSource, handlers, environment.url("sync"));
+      handlers = [new LogHandler(), new IncrementHandler(source.activeState)];
+      return CommandManager["default"](source, handlers, environment.url("sync"));
     };
 
     return App;
@@ -176,7 +176,7 @@
       this.timestamp = timestamp != null ? timestamp : new Date().getTime();
     }
 
-    Command.prototype.asHash = function() {
+    Command.prototype.toHash = function() {
       return {
         name: this.name,
         data: this.data,
@@ -220,28 +220,28 @@
   CommandSynchronizer = require("leonidas/command_synchronizer");
 
   CommandManager = (function() {
-    function CommandManager(commandOrganizer, commandProcessor, commandStabilizer, commandSynchronizer) {
-      this.commandOrganizer = commandOrganizer;
-      this.commandProcessor = commandProcessor;
-      this.commandStabilizer = commandStabilizer;
-      this.commandSynchronizer = commandSynchronizer;
+    function CommandManager(organizer, processor, stabilizer, synchronizer) {
+      this.organizer = organizer;
+      this.processor = processor;
+      this.stabilizer = stabilizer;
+      this.synchronizer = synchronizer;
       this.pushFrequency = 1;
       this.pullFrequency = 5;
     }
 
     CommandManager["default"] = function(commandSource, handlers, syncUrl) {
-      var commandOrganizer, commandProcessor, commandStabilizer, commandSynchronizer;
+      var organizer, processor, stabilizer, synchronizer;
 
-      commandOrganizer = new CommandOrganizer();
-      commandProcessor = new CommandProcessor(handlers);
-      commandStabilizer = new CommandStabilizer(commandSource, commandOrganizer, commandProcessor);
-      commandSynchronizer = new CommandSynchronizer(syncUrl, commandSource, commandOrganizer, commandStabilizer);
-      return new this(commandOrganizer, commandProcessor, commandStabilizer, commandSynchronizer);
+      organizer = new CommandOrganizer();
+      processor = new CommandProcessor(handlers);
+      stabilizer = new CommandStabilizer(commandSource, organizer, processor);
+      synchronizer = new CommandSynchronizer(syncUrl, commandSource, organizer, stabilizer);
+      return new this(organizer, processor, stabilizer, synchronizer);
     };
 
     CommandManager.prototype.startSync = function() {
-      this.pushInterval = setInterval(this.commandSynchronizer.push, this.pushFrequency);
-      return this.pullInterval = setInterval(this.commandSynchronizer.pull, this.pullFrequency);
+      this.pushInterval = setInterval(this.synchronizer.push, this.pushFrequency);
+      return this.pullInterval = setInterval(this.synchronizer.pull, this.pullFrequency);
     };
 
     CommandManager.prototype.stopSync = function() {
@@ -253,8 +253,8 @@
       var command;
 
       command = new Command(name, data);
-      this.commandOrganizer.addCommand(command);
-      return this.commandProcessor.processCommand(command);
+      this.organizer.addCommand(command);
+      return this.processor.processCommand(command);
     };
 
     return CommandManager;
@@ -285,9 +285,9 @@
 
   CommandOrganizer = (function() {
     function CommandOrganizer() {
-      this.deactivatedCommands = [];
-      this.syncedCommands = [];
       this.unsyncedCommands = [];
+      this.syncedCommands = [];
+      this.inactiveCommands = [];
     }
 
     CommandOrganizer.prototype.addCommand = function(command, unsynced) {
@@ -339,12 +339,12 @@
       }).call(this);
     };
 
-    CommandOrganizer.prototype.deactivateCommands = function(commands) {
+    CommandOrganizer.prototype.markAsInactive = function(commands) {
       var command, _i, _len;
 
       for (_i = 0, _len = commands.length; _i < _len; _i++) {
         command = commands[_i];
-        this.deactivatedCommands.push(command);
+        this.inactiveCommands.push(command);
       }
       return this.syncedCommands = (function() {
         var _j, _len1, _ref, _results;
@@ -513,10 +513,10 @@
   var CommandStabilizer;
 
   CommandStabilizer = (function() {
-    function CommandStabilizer(commandSource, commandOrganizer, commandProcessor) {
-      this.commandSource = commandSource;
-      this.commandOrganizer = commandOrganizer;
-      this.commandProcessor = commandProcessor;
+    function CommandStabilizer(source, organizer, processor) {
+      this.source = source;
+      this.organizer = organizer;
+      this.processor = processor;
     }
 
     CommandStabilizer.prototype.stabilize = function(stableTimestamp) {
@@ -525,7 +525,7 @@
       stableCommands = (function() {
         var _i, _len, _ref, _results;
 
-        _ref = this.commandOrganizer.activeCommands();
+        _ref = this.organizer.activeCommands();
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           command = _ref[_i];
@@ -535,11 +535,11 @@
         }
         return _results;
       }).call(this);
-      this.commandSource.revertState();
-      this.commandProcessor.processCommands(stableCommands);
-      this.commandSource.lockState();
-      this.commandOrganizer.deactivateCommands(stableCommands);
-      return this.commandProcessor.processCommands(this.commandOrganizer.activeCommands());
+      this.source.revertState();
+      this.processor.processCommands(stableCommands);
+      this.source.lockState();
+      this.organizer.markAsInactive(stableCommands);
+      return this.processor.processCommands(this.organizer.activeCommands());
     };
 
     return CommandStabilizer;
@@ -573,32 +573,43 @@
   Command = require("leonidas/command");
 
   CommandSynchronizer = (function() {
-    function CommandSynchronizer(syncUrl, commandSource, commandOrganizer, commandStabilizer) {
+    function CommandSynchronizer(syncUrl, source, organizer, stabilizer) {
       this.syncUrl = syncUrl;
-      this.commandSource = commandSource;
-      this.commandOrganizer = commandOrganizer;
-      this.commandStabilizer = commandStabilizer;
+      this.source = source;
+      this.organizer = organizer;
+      this.stabilizer = stabilizer;
       this.pull = __bind(this.pull, this);
       this.push = __bind(this.push, this);
+      this.externalSources = [];
     }
 
     CommandSynchronizer.prototype.push = function() {
       var command, unsyncedCommands,
         _this = this;
 
-      unsyncedCommands = this.commandOrganizer.unsyncedCommands;
+      unsyncedCommands = (function() {
+        var _i, _len, _ref, _results;
+
+        _ref = this.organizer.unsyncedCommands;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          command = _ref[_i];
+          _results.push(command);
+        }
+        return _results;
+      }).call(this);
       return $.ajax({
         url: "" + this.syncUrl,
         method: "POST",
         data: {
-          sourceId: this.commandSource.id,
+          sourceId: this.source.id,
           commands: (function() {
             var _i, _len, _results;
 
             _results = [];
             for (_i = 0, _len = unsyncedCommands.length; _i < _len; _i++) {
               command = unsyncedCommands[_i];
-              _results.push(command.asHash());
+              _results.push(command.toHash());
             }
             return _results;
           })()
@@ -607,8 +618,7 @@
           return console.log("push error");
         },
         success: function(response) {
-          _this.commandOrganizer.markAsSynced(unsyncedCommands);
-          return _this.commandStabilizer.stabilize(response.data.stableTimestamp);
+          return _this.organizer.markAsSynced(unsyncedCommands);
         }
       });
     };
@@ -619,12 +629,17 @@
       return $.ajax({
         url: "" + this.syncUrl,
         method: "GET",
+        data: {
+          sourceId: this.source.id,
+          sources: this.externalSources
+        },
         error: function() {
           return console.log("pull error");
         },
         success: function(response) {
           var command, commands;
 
+          _this.externalSources = response.data.currentSources;
           commands = (function() {
             var _i, _len, _ref, _results;
 
@@ -636,8 +651,8 @@
             }
             return _results;
           })();
-          _this.commandOrganizer.addCommands(commands, false);
-          return _this.commandStabilizer.stabilize(response.data.stableTimestamp);
+          _this.organizer.addCommands(commands, false);
+          return _this.stabilizer.stabilize(response.data.stableTimestamp);
         }
       });
     };
@@ -656,216 +671,6 @@
       command_synchronizerCache = command_synchronizerFunc();
     }
     return command_synchronizerCache;
-  };
-  window.modules = modules;
-})();
-
-(function() {
-  var modules = window.modules || [];
-  var multi_signal_relayCache = null;
-  var multi_signal_relayFunc = function() {
-    return (function() {
-  var MultiSignalRelay, Signal,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Signal = require("lib/signals/signal");
-
-  MultiSignalRelay = (function(_super) {
-    __extends(MultiSignalRelay, _super);
-
-    function MultiSignalRelay(signals) {
-      var signal, _i, _len;
-
-      MultiSignalRelay.__super__.constructor.call(this);
-      for (_i = 0, _len = signals.length; _i < _len; _i++) {
-        signal = signals[_i];
-        signal.add(this.dispatch);
-      }
-    }
-
-    MultiSignalRelay.prototype.applyListeners = function(rest) {
-      var listener, _i, _len, _ref, _results;
-
-      _ref = this.listeners;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        listener = _ref[_i];
-        _results.push(listener.apply(listener, rest));
-      }
-      return _results;
-    };
-
-    return MultiSignalRelay;
-
-  })(Signal);
-
-  return MultiSignalRelay;
-
-}).call(this);
-
-  };
-  modules.lib__signals__multi_signal_relay = function() {
-    if (multi_signal_relayCache === null) {
-      multi_signal_relayCache = multi_signal_relayFunc();
-    }
-    return multi_signal_relayCache;
-  };
-  window.modules = modules;
-})();
-
-(function() {
-  var modules = window.modules || [];
-  var signalCache = null;
-  var signalFunc = function() {
-    return (function() {
-  var Signal,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __slice = [].slice;
-
-  Signal = (function() {
-    function Signal() {
-      this.dispatch = __bind(this.dispatch, this);      this.isApplyingListeners = false;
-      this.listeners = [];
-      this.onceListeners = [];
-      this.removeCache = [];
-    }
-
-    Signal.prototype.add = function(listener) {
-      return this.listeners.push(listener);
-    };
-
-    Signal.prototype.addOnce = function(listener) {
-      this.onceListeners.push(listener);
-      return this.add(listener);
-    };
-
-    Signal.prototype.remove = function(listener) {
-      if (this.isApplyingListeners) {
-        return this.removeCache.push(listener);
-      } else {
-        if (this.listeners.indexOf(listener) !== -1) {
-          return this.listeners.splice(this.listeners.indexOf(listener), 1);
-        }
-      }
-    };
-
-    Signal.prototype.removeAll = function() {
-      return this.listeners = [];
-    };
-
-    Signal.prototype.numListeners = function() {
-      return this.listeners.length;
-    };
-
-    Signal.prototype.dispatch = function() {
-      var rest;
-
-      rest = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      this.isApplyingListeners = true;
-      this.applyListeners(rest);
-      this.removeOnceListeners();
-      this.isApplyingListeners = false;
-      return this.clearRemoveCache();
-    };
-
-    Signal.prototype.applyListeners = function(rest) {
-      var listener, _i, _len, _ref, _results;
-
-      _ref = this.listeners;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        listener = _ref[_i];
-        _results.push(listener.apply(listener, rest));
-      }
-      return _results;
-    };
-
-    Signal.prototype.removeOnceListeners = function() {
-      var listener, _i, _len, _ref;
-
-      _ref = this.onceListeners;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        listener = _ref[_i];
-        this.remove(listener);
-      }
-      return this.onceListeners = [];
-    };
-
-    Signal.prototype.clearRemoveCache = function() {
-      var listener, _i, _len, _ref;
-
-      _ref = this.removeCache;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        listener = _ref[_i];
-        this.remove(listener);
-      }
-      return this.removeCache = [];
-    };
-
-    return Signal;
-
-  })();
-
-  return Signal;
-
-}).call(this);
-
-  };
-  modules.lib__signals__signal = function() {
-    if (signalCache === null) {
-      signalCache = signalFunc();
-    }
-    return signalCache;
-  };
-  window.modules = modules;
-})();
-
-(function() {
-  var modules = window.modules || [];
-  var signal_relayCache = null;
-  var signal_relayFunc = function() {
-    return (function() {
-  var Signal, SignalRelay,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Signal = require("lib/signals/signal");
-
-  SignalRelay = (function(_super) {
-    __extends(SignalRelay, _super);
-
-    function SignalRelay(signal) {
-      SignalRelay.__super__.constructor.call(this);
-      signal.add(this.dispatch);
-    }
-
-    SignalRelay.prototype.applyListeners = function(rest) {
-      var listener, _i, _len, _ref, _results;
-
-      _ref = this.listeners;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        listener = _ref[_i];
-        _results.push(listener.apply(listener, rest));
-      }
-      return _results;
-    };
-
-    return SignalRelay;
-
-  })(Signal);
-
-  return SignalRelay;
-
-}).call(this);
-
-  };
-  modules.lib__signals__signal_relay = function() {
-    if (signal_relayCache === null) {
-      signal_relayCache = signal_relayFunc();
-    }
-    return signal_relayCache;
   };
   window.modules = modules;
 })();

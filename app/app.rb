@@ -3,6 +3,10 @@ class SyncApp < Sinatra::Base
 
 	get '/test' do
 		@command_source = Commands::CommandSource.new("1234")
+		@external_sources = [
+			Commands::CommandSource.new("2345"),
+			Commands::CommandSource.new("3456")
+		]
 		haml :test
 	end
 

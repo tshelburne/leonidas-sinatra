@@ -7,7 +7,7 @@ class CommandStabilizer
 		@source.revertState()
 		@processor.processCommands(stableCommands)
 		@source.lockState()
-		@organizer.deactivateCommands(stableCommands)
+		@organizer.markAsInactive(stableCommands)
 		@processor.processCommands(@organizer.activeCommands())
 
 return CommandStabilizer
