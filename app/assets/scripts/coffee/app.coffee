@@ -7,14 +7,14 @@ IncrementHandler = require "handlers/increment_handler"
 class App
 
 	constructor: (sourceId)->
-		@commandSource = new CommandSource(sourceId, { currentValue: 0 })
-		@commandManager = @buildCommandManager(@commandSource)
+		@source = new CommandSource(sourceId, { currentValue: 0 })
+		@commander = @buildCommandManager(@source)
 
-	buildCommandManager: (commandSource)->
+	buildCommandManager: (source)->
 		handlers = [
 			new LogHandler(),
-			new IncrementHandler(commandSource.currentState.currentValue)
+			new IncrementHandler(source.activeState)
 		]
-		CommandManager.default(commandSource, handlers, environment.url("sync"))
+		CommandManager.default(source, handlers, environment.url("sync"))
 
 return App

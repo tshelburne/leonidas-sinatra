@@ -20,7 +20,11 @@ describe "CommandSynchronizer", ->
 
 	describe "#push", ->
 
+		beforeEach ->
+			spyOn($,"ajax").andCallFake( (params)-> params.success(mocks.syncPushResponse))
+
 		it "will send a source id for reference to the client", ->
+			synchronizer 
 
 		it "will send a list of all currently unsynced commands", ->
 
@@ -29,10 +33,6 @@ describe "CommandSynchronizer", ->
 			it "will mark the commands pushed as synced", ->
 
 			it "will not mark unsynced commands added since push was called as synced", ->
-
-			it "will lock to a new stable state", ->
-
-			it "will deactivate stable commands", ->
 
 	describe "#pull", ->
 

@@ -6,21 +6,21 @@ CommandSynchronizer = require "leonidas/command_synchronizer"
 
 class CommandManager
 
-	constructor: (@commandOrganizer, @commandProcessor, @commandStabilizer, @commandSynchronizer)->
+	constructor: (@organizer, @processor, @stabilizer, @synchronizer)->
 		@pushFrequency = 1
 		@pullFrequency = 5
 
 	@default: (commandSource, handlers, syncUrl)->
-		commandOrganizer = new CommandOrganizer()
-		commandProcessor = new CommandProcessor(handlers)
-		commandStabilizer = new CommandStabilizer(commandSource, commandOrganizer, commandProcessor)
-		commandSynchronizer = new CommandSynchronizer(syncUrl, commandSource, commandOrganizer, commandStabilizer)
+		organizer = new CommandOrganizer()
+		processor = new CommandProcessor(handlers)
+		stabilizer = new CommandStabilizer(commandSource, organizer, processor)
+		synchronizer = new CommandSynchronizer(syncUrl, commandSource, organizer, stabilizer)
 
-		new @(commandOrganizer, commandProcessor, commandStabilizer, commandSynchronizer)
+		new @(organizer, processor, stabilizer, synchronizer)
 
 	startSync: ->
-		@pushInterval = setInterval(@commandSynchronizer.push, @pushFrequency)
-		@pullInterval = setInterval(@commandSynchronizer.pull, @pullFrequency)
+		@pushInterval = setInterval(@synchronizer.push, @pushFrequency)
+		@pullInterval = setInterval(@synchronizer.pull, @pullFrequency)
 
 	stopSync: ->
 		clearInterval @pushInterval
@@ -28,7 +28,7 @@ class CommandManager
 
 	addCommand: (name, data)->
 		command = new Command(name, data)
-		@commandOrganizer.addCommand command
-		@commandProcessor.processCommand command
+		@organizer.addCommand command
+		@processor.processCommand command
 
 return CommandManager

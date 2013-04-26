@@ -22,6 +22,7 @@ helpers:
   - support/helpers.coffee
   - support/objects.coffee
   - support/classes.coffee
+  - support/mocks.coffee
 
 # spec_files
 #

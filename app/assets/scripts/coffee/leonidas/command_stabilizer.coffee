@@ -1,13 +1,13 @@
 class CommandStabilizer
 
-	constructor: (@commandSource, @commandOrganizer, @commandProcessor)->
+	constructor: (@source, @organizer, @processor)->
 
 	stabilize: (stableTimestamp)->
-		stableCommands = (command for command in @commandOrganizer.activeCommands() when command.timestamp <= stableTimestamp)
-		@commandSource.revertState()
-		@commandProcessor.processCommands(stableCommands)
-		@commandSource.lockState()
-		@commandOrganizer.deactivateCommands(stableCommands)
-		@commandProcessor.processCommands(@commandOrganizer.activeCommands())
+		stableCommands = (command for command in @organizer.activeCommands() when command.timestamp <= stableTimestamp)
+		@source.revertState()
+		@processor.processCommands(stableCommands)
+		@source.lockState()
+		@organizer.deactivateCommands(stableCommands)
+		@processor.processCommands(@organizer.activeCommands())
 
 return CommandStabilizer

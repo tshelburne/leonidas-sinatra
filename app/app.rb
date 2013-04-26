@@ -28,10 +28,8 @@ class SyncApp < Sinatra::Base
 
     {
     	success: true,
-    	message: 'commands saved',
-    	data: { 
-    		stableTimestamp: 1
-    	}
+    	message: 'commands received',
+    	data: { }
     }.to_json
 	end 
 
