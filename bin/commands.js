@@ -121,13 +121,13 @@
       this.pullFrequency = 5;
     }
 
-    CommandManager["default"] = function(commandSource, handlers, syncBaseUrl) {
+    CommandManager["default"] = function(commandSource, handlers, syncUrl) {
       var commandOrganizer, commandProcessor, commandStabilizer, commandSynchronizer;
 
       commandOrganizer = new CommandOrganizer();
       commandProcessor = new CommandProcessor(handlers);
       commandStabilizer = new CommandStabilizer(commandSource, commandOrganizer, commandProcessor);
-      commandSynchronizer = new CommandSynchronizer(syncBaseUrl, commandOrganizer, commandStabilizer);
+      commandSynchronizer = new CommandSynchronizer(syncUrl, commandOrganizer, commandStabilizer);
       return new this(commandOrganizer, commandProcessor, commandStabilizer, commandSynchronizer);
     };
 

@@ -10,11 +10,11 @@ class CommandManager
 		@pushFrequency = 1
 		@pullFrequency = 5
 
-	@default: (commandSource, handlers, syncBaseUrl)->
+	@default: (commandSource, handlers, syncUrl)->
 		commandOrganizer = new CommandOrganizer()
 		commandProcessor = new CommandProcessor(handlers)
 		commandStabilizer = new CommandStabilizer(commandSource, commandOrganizer, commandProcessor)
-		commandSynchronizer = new CommandSynchronizer(syncBaseUrl, commandOrganizer, commandStabilizer)
+		commandSynchronizer = new CommandSynchronizer(syncUrl, commandOrganizer, commandStabilizer)
 
 		new @(commandOrganizer, commandProcessor, commandStabilizer, commandSynchronizer)
 
