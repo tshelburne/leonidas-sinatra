@@ -28,6 +28,7 @@ helpers:
 #  Return an array of filepaths relative to spec_dir to include.
 # Default: ["**/*[sS]pec.js"]
 spec_files:
+  - ./**/*_spec.coffee
 
 # src_dir
 #
