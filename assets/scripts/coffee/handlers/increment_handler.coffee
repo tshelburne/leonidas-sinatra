@@ -1,11 +1,11 @@
 class IncrementHandler
 
-	constructor: (@value)->
+	constructor: (@state)->
 
 	handles: (command)->
 		command.name is "increment"
 
 	run: (command)->
-		@value++
+		@state.currentValue++
 
 return IncrementHandler
