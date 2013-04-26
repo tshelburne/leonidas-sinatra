@@ -7,8 +7,8 @@ CommandSynchronizer = require "leonidas/command_synchronizer"
 class CommandManager
 
 	constructor: (@organizer, @processor, @stabilizer, @synchronizer)->
-		@pushFrequency = 1
-		@pullFrequency = 5
+		@pushFrequency = 1000
+		@pullFrequency = 5000
 
 	@default: (commandSource, handlers, syncUrl)->
 		organizer = new CommandOrganizer()
@@ -26,7 +26,7 @@ class CommandManager
 		clearInterval @pushInterval
 		clearInterval @pullInterval
 
-	addCommand: (name, data)->
+	issueCommand: (name, data)->
 		command = new Command(name, data)
 		@organizer.addCommand command
 		@processor.processCommand command

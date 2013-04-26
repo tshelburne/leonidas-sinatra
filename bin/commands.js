@@ -225,8 +225,8 @@
       this.processor = processor;
       this.stabilizer = stabilizer;
       this.synchronizer = synchronizer;
-      this.pushFrequency = 1;
-      this.pullFrequency = 5;
+      this.pushFrequency = 1000;
+      this.pullFrequency = 5000;
     }
 
     CommandManager["default"] = function(commandSource, handlers, syncUrl) {
@@ -249,7 +249,7 @@
       return clearInterval(this.pullInterval);
     };
 
-    CommandManager.prototype.addCommand = function(name, data) {
+    CommandManager.prototype.issueCommand = function(name, data) {
       var command;
 
       command = new Command(name, data);
