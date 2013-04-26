@@ -1,8 +1,8 @@
-Command = require "command_manager/command"
-CommandOrganizer = require "command_manager/command_organizer"
-CommandProcessor = require "command_manager/command_processor"
-CommandStabilizer = require "command_manager/command_stabilizer"
-CommandSynchronizer = require "command_manager/command_synchronizer"
+Command = require "leonidas/command"
+CommandOrganizer = require "leonidas/command_organizer"
+CommandProcessor = require "leonidas/command_processor"
+CommandStabilizer = require "leonidas/command_stabilizer"
+CommandSynchronizer = require "leonidas/command_synchronizer"
 
 class CommandManager
 

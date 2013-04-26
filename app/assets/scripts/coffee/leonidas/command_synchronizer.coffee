@@ -1,6 +1,6 @@
 require "lib/jquery"
 
-Command = require "command_manager/command"
+Command = require "leonidas/command"
 
 class CommandSynchronizer
 
