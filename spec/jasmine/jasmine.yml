@@ -33,7 +33,7 @@ spec_files:
 #
 # Source directory path. Your src_files must be returned relative to this path. Will use root if left blank.
 # Default: project root
-src_dir: app
+src_dir:
 
 # spec_dir
 #
