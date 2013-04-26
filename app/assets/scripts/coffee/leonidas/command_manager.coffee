@@ -14,7 +14,7 @@ class CommandManager
 		commandOrganizer = new CommandOrganizer()
 		commandProcessor = new CommandProcessor(handlers)
 		commandStabilizer = new CommandStabilizer(commandSource, commandOrganizer, commandProcessor)
-		commandSynchronizer = new CommandSynchronizer(syncUrl, commandOrganizer, commandStabilizer)
+		commandSynchronizer = new CommandSynchronizer(syncUrl, commandSource, commandOrganizer, commandStabilizer)
 
 		new @(commandOrganizer, commandProcessor, commandStabilizer, commandSynchronizer)
 

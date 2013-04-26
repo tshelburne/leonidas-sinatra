@@ -6,25 +6,26 @@ CommandManager = require 'leonidas/command_manager'
 
 describe "CommandManager", ->
 	manager = null
-	commandSource = null
-	commandOrganizer = null
+	source = null
+	organizer = null
 
 	beforeEach ->
-		commandSource = buildSource()
-		commandOrganizer = new CommandOrganizer()
-		commandProcessor = new CommandProcessor([ new PopCharHandler(commandSource.activeState) ])
-		commandStabilizer = new CommandStabilizer(commandSource, commandOrganizer, commandProcessor)
-		commandSynchronizer = new CommandSynchronizer("http://mydomain.com/sync", commandOrganizer, commandStabilizer)
+		source = buildSource()
+		organizer = new CommandOrganizer()
+		processor = new CommandProcessor([ new PopCharHandler(source.activeState) ])
+		stabilizer = new CommandStabilizer(source, organizer, processor)
+		synchronizer = new CommandSynchronizer("http://mydomain.com/sync", source, organizer, stabilizer)
 
-		manager = new CommandManager(commandOrganizer, commandProcessor, commandStabilizer, commandSynchronizer)
+		manager = new CommandManager(organizer, processor, stabilizer, synchronizer)
 
 	describe "::default", ->
 
 		it "will return a default command manager using the built in classes", ->
-			manager = CommandManager.default(buildSource(), [ new PopCharHandler("tim") ], "http://mydomain.com/sync")
+			manager = CommandManager.default(source, [ new PopCharHandler("tim") ], "http://mydomain.com/sync")
 			expect(manager.startSync?).toBeTruthy()
 			expect(manager.stopSync?).toBeTruthy()
 			expect(manager.addCommand?).toBeTruthy()
+			# expect(manager::name).toEqual "CommandManager"
 
 	describe "#startSync", ->
 
@@ -42,8 +43,8 @@ describe "CommandManager", ->
 
 		it "will generate an unsynchronized command", ->
 			manager.addCommand "pop-char", {}
-			expect(commandOrganizer.unsyncedCommands.length).toEqual 1
+			expect(organizer.unsyncedCommands.length).toEqual 1
 
 		it "will run the command to update the local client state", ->
 			manager.addCommand "pop-char", {}
-			expect(commandSource.activeState.string).toEqual "tes"
+			expect(source.activeState.string).toEqual "tes"

@@ -4,7 +4,7 @@ Command = require "leonidas/command"
 
 class CommandSynchronizer
 
-	constructor: (@syncUrl, @commandOrganizer, @commandStabilizer)->
+	constructor: (@syncUrl, @commandSource, @commandOrganizer, @commandStabilizer)->
 
 	push: =>
 		unsyncedCommands = @commandOrganizer.unsyncedCommands
@@ -12,7 +12,7 @@ class CommandSynchronizer
 			url: "#{@syncUrl}"
 			method: "POST"
 			data: 
-				sourceId: source.id
+				sourceId: @commandSource.id
 				commands: (command.asHash() for command in unsyncedCommands)
 			error: => console.log "push error"
 			success: (response)=>

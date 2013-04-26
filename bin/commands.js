@@ -235,7 +235,7 @@
       commandOrganizer = new CommandOrganizer();
       commandProcessor = new CommandProcessor(handlers);
       commandStabilizer = new CommandStabilizer(commandSource, commandOrganizer, commandProcessor);
-      commandSynchronizer = new CommandSynchronizer(syncUrl, commandOrganizer, commandStabilizer);
+      commandSynchronizer = new CommandSynchronizer(syncUrl, commandSource, commandOrganizer, commandStabilizer);
       return new this(commandOrganizer, commandProcessor, commandStabilizer, commandSynchronizer);
     };
 
@@ -573,8 +573,9 @@
   Command = require("leonidas/command");
 
   CommandSynchronizer = (function() {
-    function CommandSynchronizer(syncUrl, commandOrganizer, commandStabilizer) {
+    function CommandSynchronizer(syncUrl, commandSource, commandOrganizer, commandStabilizer) {
       this.syncUrl = syncUrl;
+      this.commandSource = commandSource;
       this.commandOrganizer = commandOrganizer;
       this.commandStabilizer = commandStabilizer;
       this.pull = __bind(this.pull, this);
@@ -590,7 +591,7 @@
         url: "" + this.syncUrl,
         method: "POST",
         data: {
-          sourceId: source.id,
+          sourceId: this.commandSource.id,
           commands: (function() {
             var _i, _len, _results;
 
