@@ -1,4 +1,8 @@
 Command = require "command_manager/command"
+CommandOrganizer = require "command_manager/command_organizer"
+CommandProcessor = require "command_manager/command_processor"
+CommandStabilizer = require "command_manager/command_stabilizer"
+CommandSynchronizer = require "command_manager/command_synchronizer"
 
 class CommandManager
 

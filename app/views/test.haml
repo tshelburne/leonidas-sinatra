@@ -4,10 +4,10 @@
     = load_asset("commands.js", :base => "assets")
 
     %script
-    	require("patches");
-    	require("environment");
+      require("patches");
+      require("environment");
 
-    	environment.addUrl("sync", "#{commands_url}");
+      environment.addUrl("sync", "http://localhost:9393/sync");
 
       var App = require("app");
       var app = new App(#{@command_source.id});

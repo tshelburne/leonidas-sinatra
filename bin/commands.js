@@ -19,7 +19,7 @@
       this.commandSource = new CommandSource(sourceId, {
         currentValue: 0
       });
-      this.commandManager = this.buildCommandManager();
+      this.commandManager = this.buildCommandManager(this.commandSource);
     }
 
     App.prototype.buildCommandManager = function(commandSource) {
@@ -99,9 +99,17 @@
   var command_managerCache = null;
   var command_managerFunc = function() {
     return (function() {
-  var Command, CommandManager;
+  var Command, CommandManager, CommandOrganizer, CommandProcessor, CommandStabilizer, CommandSynchronizer;
 
   Command = require("command_manager/command");
+
+  CommandOrganizer = require("command_manager/command_organizer");
+
+  CommandProcessor = require("command_manager/command_processor");
+
+  CommandStabilizer = require("command_manager/command_stabilizer");
+
+  CommandSynchronizer = require("command_manager/command_synchronizer");
 
   CommandManager = (function() {
     function CommandManager(commandOrganizer, commandProcessor, commandStabilizer, commandSynchronizer) {

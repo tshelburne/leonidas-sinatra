@@ -8,7 +8,7 @@ class App
 
 	constructor: (sourceId)->
 		@commandSource = new CommandSource(sourceId, { currentValue: 0 })
-		@commandManager = @buildCommandManager()
+		@commandManager = @buildCommandManager(@commandSource)
 
 	buildCommandManager: (commandSource)->
 		handlers = [

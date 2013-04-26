@@ -2,7 +2,7 @@ class SyncApp < Sinatra::Base
 	include Keystone::Server::Helpers
 
 	get '/test' do
-		@command_source = CommandSource.new("1234")
+		@command_source = Commands::CommandSource.new("1234")
 		haml :test
 	end
 
