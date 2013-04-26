@@ -4,16 +4,16 @@ Command = require "command_manager/command"
 
 class CommandSynchronizer
 
-	constructor: (@syncBaseUrl, @commandOrganizer, @commandStabilizer)->
+	constructor: (@syncUrl, @commandOrganizer, @commandStabilizer)->
 
 	push: =>
 		unsyncedCommands = @commandOrganizer.unsyncedCommands
 		$.ajax(
-			url: "#{@syncBaseUrl}/sync"
+			url: "#{@syncUrl}"
 			method: "POST"
 			data: 
 				sourceId: source.id
-				commands: command.asHash() for command in unsyncedCommands
+				commands: (command.asHash() for command in unsyncedCommands)
 			error: =>
 				console.log "push error"
 			success: (response)=>
@@ -23,12 +23,12 @@ class CommandSynchronizer
 
 	pull: =>
 		$.ajax(
-			url: "#{@syncBaseUrl}/sync"
+			url: "#{@syncUrl}"
 			method: "GET"
 			error: =>
 				console.log "pull error"
 			success: (response)=>
-				commands = new Command(command.name, command.data, command.timestamp) for command in response.data.commands
+				commands = (new Command(command.name, command.data, command.timestamp) for command in response.data.commands)
 				@commandOrganizer.addCommands commands, false
 				@commandStabilizer.stabilize response.data.stableTimestamp
 		)
