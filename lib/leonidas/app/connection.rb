@@ -4,12 +4,14 @@ module Leonidas
 		class Connection
 			include Leonidas::Commands::Aggregator
 			
-			attr_accessor :id, :last_update
+			attr_reader :id, :active_commands
+			attr_accessor :last_update
 
-			def initialize(id)
-				@id = id
+			def initialize
+				@id = SecureRandom.uuid
 				@last_update = Time.now.to_i
-				@commands = [ ]
+				@active_commands = [ ]
+				@inactive_commands = [ ]
 			end
 
 		end

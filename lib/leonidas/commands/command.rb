@@ -13,7 +13,7 @@ module Leonidas
 			end
 
 			def source=(val)
-				raise TypeError, "Argument must be a Commands::CommandSource." unless val.is_a? Commands::CommandSource
+				raise TypeError, "Argument must be a Leonidas::App::Connection." unless val.is_a? Leonidas::App::Connection
 				@source = val
 			end
 

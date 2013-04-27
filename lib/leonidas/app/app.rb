@@ -1,16 +1,10 @@
 module Leonidas
 	module App
 
-		class App
-			include Leonidas::Commands::Aggregator
-			
-			attr_reader :id, :state, :connections
+		module App
 
-			def initialize(id, state)
-				@locked_state = state.dup
-				@active_state = state.dup
-				@id = id
-				@connections = [ ]
+			def id
+				@id
 			end
 
 			def revert_state!
@@ -21,8 +15,8 @@ module Leonidas
 				@locked_state = @active_state.dup
 			end
 
-			def create_connection!(id)
-				connection = Leonidas::App::Connection.new()
+			def create_connection!
+				connection = Leonidas::App::Connection.new
 				@connections << connection
 			end
 
@@ -36,6 +30,27 @@ module Leonidas
 
 			def connections
 				@connections
+			end
+
+			def stable_timestamp
+				now = Time.now.to_i
+				stable_time = @connections.reduce(now) {|min, connection| connection.last_update < min ? connection.last_update : min }
+				stable_time == now ? nil : stable_time
+			end
+
+			def process_commands!
+				stabilizer.stabilize
+				@processor.process active_commands
+			end
+
+			def active_commands
+				@connections.reduce([ ]) {|commands, connection| commands.concat! connection.active_commands}
+			end
+
+			private 
+
+			def stabilizer
+				@stabilizer ||= Leonidas::Commands::Stabilizer.new(self, @processor)
 			end
 
 		end

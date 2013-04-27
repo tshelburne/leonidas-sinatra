@@ -6,7 +6,7 @@ module Leonidas
 			@@apps = [ ]
 
 			def self.register_app!(app)
-				raise TypeError, "Argument must be a Leonidas::App::App" unless app.is_a? Leonidas::App::App
+				raise TypeError, "Argument must include Leonidas::App::App" unless app < Leonidas::App::App
 				@@apps[app.id] = app
 			end
 

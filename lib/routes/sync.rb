@@ -28,9 +28,12 @@ module Leonidas
 		    content_type "application/json"
 
 		    app = Leonidas::MemoryLayer::AppRegistry.retrieve_app params[:app_id]
-		    source = app.source(params[:sourceId])
+		    connection = app.source(params[:sourceId])
 
 		    commands = params[:commands].map {|command| Leonidas::Commands::Command.new(command.name, command.data, command.timestamp, source)}
+		    connection.add_commands! commands
+
+		    app.
 
 		    {
 		    	success: true,
