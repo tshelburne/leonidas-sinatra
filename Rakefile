@@ -3,13 +3,22 @@ require 'jasmine-headless-webkit'
 require 'keystone'
 
 desc "Default"
-task default: :test
+task default: :'test:rspec'
 
-desc "Run tests"
-Jasmine::Headless::Task.new(test: :assets) do |t|
-  t.colors = true
-  t.keep_on_error = true
-  t.jasmine_config = './spec/jasmine/jasmine.yml'
+namespace :test do
+
+	desc "Run Rspec tests"
+  RSpec::Core::RakeTask.new(:rspec) do |t|
+    t.rspec_opts = "-dcfd --require rspec/spec_helper"
+  end
+
+	desc "Run Jasmine tests"
+	Jasmine::Headless::Task.new(jasmine: :assets) do |t|
+	  t.colors = true
+	  t.keep_on_error = true
+	  t.jasmine_config = './spec/jasmine/jasmine.yml'
+	end
+	
 end
 
 desc "Build assets"

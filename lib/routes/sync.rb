@@ -33,8 +33,6 @@ module Leonidas
 		    commands = params[:commands].map {|command| Leonidas::Commands::Command.new(command.name, command.data, command.timestamp, source)}
 		    connection.add_commands! commands
 
-		    app.
-
 		    {
 		    	success: true,
 		    	message: 'commands received',

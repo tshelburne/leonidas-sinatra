@@ -1,29 +1,45 @@
 describe Leonidas::App::App do
-
+	include TestObjects
+	
 	subject do
-		Test::TestApp.new
+		TestClasses::TestApp.new
+	end
+
+	describe '#id' do 
+	
+		it "will return the id defined in the includer class" do
+			subject.id.should eq "1234"
+		end
+	
+	end
+
+	describe '#current_state' do 
+		
+		it "will return the current state of the application" do
+			subject.current_state.should eq({ value: 1 })
+		end
+	
 	end
 	
 	describe '#create_connection!' do
 		
-		it "will return a new connection" do 
-			false.should be_true
+		it "will return a Leonidas::App::Connection" do 
+			subject.create_connection!.should be_a Leonidas::App::Connection
 		end
 
-		it "will add the new connection the the apps list of connections" do 
-			false.should be_true
+		it "will add the new connection the the app's list of connections" do 
+			conn = subject.create_connection!
+			subject.has_connection?(conn.id).should be_true
 		end
 
 	end
 
 	describe '#close_connection!' do
-		
-		it "will do nothing if the connection doesn't exist" do 
-			false.should be_true
-		end
 
 		it "will remove the connection" do 
-			false.should be_true
+			conn = subject.create_connection!
+			subject.close_connection! conn.id
+			subject.has_connection?(conn.id).should be_false
 		end
 
 	end
@@ -31,53 +47,125 @@ describe Leonidas::App::App do
 	describe '#connection' do
 		
 		it "will return nil if the requested connection doesn't exist" do
-			false.should be_true
+			subject.connection('badid').should be_nil
 		end
 
 		it "will retrieve the requested connection" do
-			false.should be_true
+			conn = subject.create_connection!
+			subject.connection(conn.id).should eq conn
 		end
 
 	end
 
-	describe '#connections' do 
-	
-		it "will return the list of all connections" do
-			false.should be_true
+	describe '#has_connection?' do 
+
+		it "will return true if it has the requested connection" do
+			conn = subject.create_connection!
+			subject.has_connection?(conn.id).should be_true
 		end
-	
+
+		it "will return false if it doesn't have the requested connection" do
+			subject.has_connection?("badid").should be_false
+		end
+
 	end
 
 	describe '#stable_timestamp' do 
 		
-		it "will default to nil if there are no connections" do 
-			false.should be_true
+		it "will default to 0 if there are no connections" do 
+			subject.stable_timestamp.should eq 0
 		end
 
 		it "will return the current minimum timestamp between all connections" do
-			false.should be_true
+			conn1 = subject.create_connection!
+			conn2 = subject.create_connection!
+			conn3 = subject.create_connection!
+			subject.stable_timestamp.should eq conn1.last_update
+			conn3.last_update = Time.now.to_i
+			subject.stable_timestamp.should eq conn2.last_update
+			conn3.last_update = conn1.last_update - 10
+			subject.stable_timestamp.should eq conn3.last_update
 		end
-	
+
+	end
+
+	describe '#stabilize!' do 
+
+		before :each do
+			conn1 = subject.create_connection!
+			conn2 = subject.create_connection!
+			@command3 = build_command(conn1, conn1.last_update+5)
+			conn1.add_commands! [ build_command(conn1, conn1.last_update-5), @command3 ]
+			conn2.add_command! build_command(conn2, conn2.last_update-5)
+		end
+
+		context "when the app is set to be persistent" do
+			
+			it "will persist all commands which occured at or before the stable timestamp" do
+				subject.instance_variable_set :@persistent, true
+				subject.stabilize!
+				'but it is not'.should eq 'this to be done'
+			end
+
+		end
+
+		it "will reduce the active commands by the stable commands" do
+			subject.stabilize!
+			subject.active_commands.should eq [ @command3 ]
+		end
+
+		it "will set the current state to the state when all stable commands have been run" do 
+			subject.stabilize!
+			subject.current_state.should eq({ value: 2 })
+		end
+
 	end
 
 	describe '#process_commands!' do 
 
-		it "will update the locked state" do
-			false.should be_true
+		before :each do
+			conn1 = subject.create_connection!
+			conn2 = subject.create_connection!
+			@command3 = build_command(conn1, conn1.last_update+5)
+			conn1.add_commands! [ build_command(conn1, conn1.last_update-5), @command3 ]
+			conn2.add_command! build_command(conn2, conn2.last_update-5)
 		end
 
-		it "will set the active state to the most up to date" do 
-			false.should be_true
+		context "when the app is set to be persistent" do
+			
+			it "will persist all commands which occured at or before the stable timestamp" do
+				subject.instance_variable_set :@persistent, true
+				subject.process_commands!
+				'but it is not'.should eq 'this to be done'
+			end
+
+		end
+
+		it "will reduce the active commands by the stable commands" do
+			subject.stabilize!
+			subject.active_commands.should eq [ @command3 ]
+		end
+
+		it "will set the current state to the state when all active commands have been run" do
+			subject.process_commands!
+			subject.current_state.should eq({ value: 3 })
 		end
 
 	end
 
 	describe '#active_commands' do 
-	
+
 		it "will return a list of all active commands" do
-			false.should be_true
+			conn1 = subject.create_connection!
+			conn2 = subject.create_connection!
+			command1 = build_command(conn1, 1)
+			command2 = build_command(conn2, 2)
+			command3 = build_command(conn1, 3)
+			conn1.add_commands! [ command1, command3 ]
+			conn2.add_command! command2
+			subject.active_commands.should eq [ command1, command3, command2 ]
 		end
-	
+
 	end
 
 end

@@ -7,50 +7,63 @@ module Leonidas
 				@id
 			end
 
-			def revert_state!
-				@active_state = @locked_state.dup
-			end
-
-			def lock_state!
-				@locked_state = @active_state.dup
+			def current_state
+				@active_state
 			end
 
 			def create_connection!
 				connection = Leonidas::App::Connection.new
 				@connections << connection
+				connection
 			end
 
-			def remove_connection!(id)
-				@connections.delete connection(id)
+			def close_connection!(id)
+				@connections.delete connection(id) if has_connection? id
 			end
 
 			def connection(id)
 				@connections.select {|connection| connection.id == id}.first
 			end
 
-			def connections
-				@connections
+			def has_connection?(id)
+				not connection(id).nil?
 			end
 
 			def stable_timestamp
+				return 0 if @connections.empty?
 				now = Time.now.to_i
-				stable_time = @connections.reduce(now) {|min, connection| connection.last_update < min ? connection.last_update : min }
-				stable_time == now ? nil : stable_time
+				@connections.reduce(now) {|min, connection| connection.last_update < min ? connection.last_update : min }
+			end
+
+			def stabilize!
+				revert_state!
+				@processor.process stable_commands, @persistent
+				lock_state!
+				@connections.each {|connection| connection.deactivate_commands!(stable_commands)}
 			end
 
 			def process_commands!
-				stabilizer.stabilize
-				@processor.process active_commands
+				stabilize!
+				@processor.process active_commands, @persistent
 			end
 
 			def active_commands
-				@connections.reduce([ ]) {|commands, connection| commands.concat! connection.active_commands}
+				@connections.reduce([ ]) {|commands, connection| commands.concat connection.active_commands}
 			end
+
 
 			private 
 
-			def stabilizer
-				@stabilizer ||= Leonidas::Commands::Stabilizer.new(self, @processor)
+			def stable_commands 
+				@connections.reduce([ ]) {|commands, connection| commands.concat connection.commands_through(stable_timestamp)}
+			end
+
+			def revert_state!
+				@active_state = @locked_state.dup
+			end
+
+			def lock_state!
+				@locked_state = @active_state.dup
 			end
 
 		end
