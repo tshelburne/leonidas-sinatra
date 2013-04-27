@@ -1,10 +1,8 @@
 class CommandSource
 
-  constructor: (@id, state)->
-    @lockedState = { }
+  constructor: (@id, @lockedState)->
     @activeState = { }
-    @copyState(@lockedState, state)
-    @copyState(@activeState, state)
+    @copyState(@activeState, @lockedState)
 
   revertState: -> @copyState(@activeState, @lockedState)
 
