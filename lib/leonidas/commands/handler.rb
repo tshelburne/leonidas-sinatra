@@ -1,7 +1,7 @@
 module Leonidas
 	module Commands
 
-		module CommandHandler
+		module Handler
 
 			def handles?(command)
 				false

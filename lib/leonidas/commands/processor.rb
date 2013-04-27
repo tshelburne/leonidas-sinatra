@@ -1,11 +1,11 @@
 module Leonidas
 	module Commands
 
-		class CommandProcessor
+		class Processor
 
 			def initialize(handlers)
 				handlers.each do |handler|
-					raise TypeError, "Argument must be an extension of Commands::CommandHandler" unless handler < Commands::CommandHandler
+					raise TypeError, "Argument must be an extension of Commands::Handler" unless handler < Commands::Handler
 				end
 				@command_handlers = handlers
 			end

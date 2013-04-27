@@ -6,11 +6,11 @@ class TestApp < Sinatra::Base
 		if Leonidas::MemoryLayer::AppRegistry.app_is_registered?("1234") 
 			@app = Leonidas::MemoryLayer::AppRegistry.retrieve_app("1234")
 		else	
-			@app = Leonidas::MemoryLayer::App.new({ integer: 1, string: "test" }, "1234")
+			@app = Leonidas::App::App.new({ integer: 1, string: "test" }, "1234")
 			Leonidas::MemoryLayer::register_app!(app)
 		end
 		
-		@command_source = Commands::CommandSource.new("1234")
+		@connection = @app.create_connection!
 		haml :test
 	end
 

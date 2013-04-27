@@ -10,6 +10,6 @@
       environment.addUrl("sync", "http://localhost:9393/sync");
 
       var App = require("app");
-      var app = new App(#{@command_source.id});
+      var app = new App("#{@app.id}", "#{@connection.id}");
 
   %body
