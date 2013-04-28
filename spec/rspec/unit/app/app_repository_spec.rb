@@ -1,4 +1,4 @@
-describe Leonidas::App::AppRepository do
+describe Leonidas::App::Repository do
 
 	before :each do
 		Leonidas::MemoryLayer::MemoryRegistry.clear_registry!
@@ -34,6 +34,14 @@ describe Leonidas::App::AppRepository do
 			subject.watch app
 			subject.archive app
 			Leonidas::MemoryLayer::MemoryRegistry.should_not have_app 'app 1'
+		end
+	
+	end
+
+	describe 'AppRepository mixin' do 
+	
+		it "Leonidas::App::AppRepository can be used as a mixin to provide #app_repository" do
+			TestClasses::TestRepositoryContainer.new.app_repository.should be_a Leonidas::App::Repository
 		end
 	
 	end

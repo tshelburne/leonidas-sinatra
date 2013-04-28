@@ -14,6 +14,10 @@ module TestClasses
 
 	end
 
+	class TestRepositoryContainer
+		include Leonidas::App::AppRepository
+	end
+
 	class IncrementHandler 
 		include Leonidas::Commands::Handler
 

@@ -1,7 +1,12 @@
 module Leonidas
 	module App
+		module AppRepository
+			def app_repository
+				@repository ||= Repository.new
+			end
+		end
 		
-		class AppRepository
+		class Repository
 
 			def find(app_name)
 				Leonidas::MemoryLayer::MemoryRegistry.retrieve_app app_name
