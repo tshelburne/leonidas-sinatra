@@ -4,7 +4,7 @@ describe "CommandSource", ->
 	source = null
 
 	beforeEach ->
-		source = new CommandSource("1234", { test: "test" })
+		source = new CommandSource("app 1", { test: "test" })
 		source.activeState = { test: "different" }
 
 	describe "#revertState", ->

@@ -9,10 +9,10 @@ describe Leonidas::App::App do
 		TestClasses::PersistentState.reset
 	end
 
-	describe '#id' do 
+	describe '#name' do 
 	
-		it "will return the id defined in the includer class" do
-			subject.id.should eq "1234"
+		it "will return the name defined in the includer class" do
+			subject.name.should eq "app 1"
 		end
 	
 	end

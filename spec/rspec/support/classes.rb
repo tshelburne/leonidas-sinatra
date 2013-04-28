@@ -4,7 +4,7 @@ module TestClasses
 		include Leonidas::App::App
 		
 		def initialize
-			@id = "1234"
+			@name = "app 1"
 			@persistent = false
 			@locked_state = { value: 0 }
 			@active_state = { value: 1 }

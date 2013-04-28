@@ -3,8 +3,8 @@ module Leonidas
 
 		module App
 
-			def id
-				@id
+			def name
+				@name
 			end
 
 			def current_state
@@ -41,7 +41,7 @@ module Leonidas
 
 			def stabilize!
 				revert_state!
-				@processor.process stable_commands, @persistent
+				@processor.process stable_commands, @persistent || false
 				lock_state!
 				@connections.each {|connection| connection.deactivate_commands!(stable_commands)}
 			end
