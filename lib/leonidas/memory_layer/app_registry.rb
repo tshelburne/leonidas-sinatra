@@ -3,7 +3,7 @@ module Leonidas
 
 		class AppRegistry
 			
-			@@apps = [ ]
+			@@apps = { }
 
 			def self.register_app!(app)
 				raise TypeError, "Argument must include Leonidas::App::App" unless app.class < Leonidas::App::App
@@ -14,12 +14,12 @@ module Leonidas
 				@@apps[id]
 			end
 
-			def self.app_is_registered?(id)
-				AppRegistry.retrieve_app(id).nil?
+			def self.has_app_registered?(id)
+				not AppRegistry.retrieve_app(id).nil?
 			end
 
 			def self.close_app!(id)
-				@@apps[id] = nil
+				@@apps.delete id
 			end
 
 		end
