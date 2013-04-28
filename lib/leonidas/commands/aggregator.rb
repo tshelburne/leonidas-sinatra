@@ -9,7 +9,7 @@ module Leonidas
 			end
 
 			def add_commands!(commands)
-				commands.each {|command| add_command!(command, false)}
+				commands.each {|command| add_command!(command)}
 			end
 
 			def commands_through(timestamp)

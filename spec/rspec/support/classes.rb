@@ -33,8 +33,8 @@ module TestClasses
 	class MultiplyHandler 
 		include Leonidas::Commands::Handler
 
-		def initialize(state)
-			@state = state
+		def initialize(app)
+			@app = app
 		end
 
 		def handles?(command)

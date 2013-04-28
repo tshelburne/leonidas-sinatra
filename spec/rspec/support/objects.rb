@@ -4,4 +4,8 @@ module TestObjects
 		Leonidas::Commands::Command.new(name, data, timestamp, connection)
 	end
 
+	def build_connection
+		Leonidas::App::Connection.new
+	end
+
 end
