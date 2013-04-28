@@ -5,6 +5,10 @@ describe Leonidas::App::App do
 		TestClasses::TestApp.new
 	end
 
+	before :each do
+		TestClasses::PersistentState.reset
+	end
+
 	describe '#id' do 
 	
 		it "will return the id defined in the includer class" do
@@ -114,7 +118,7 @@ describe Leonidas::App::App do
 			it "will persist all commands which occured at or before the stable timestamp" do
 				subject.instance_variable_set :@persistent, true
 				subject.stabilize!
-				'but it is not'.should eq 'this to be done'
+				TestClasses::PersistentState.value.should eq 2
 			end
 
 		end
@@ -146,7 +150,7 @@ describe Leonidas::App::App do
 			it "will persist all commands which occured at or before the stable timestamp" do
 				subject.instance_variable_set :@persistent, true
 				subject.process_commands!
-				'but it is not'.should eq 'this to be done'
+				TestClasses::PersistentState.value.should eq 2
 			end
 
 		end

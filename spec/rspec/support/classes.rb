@@ -28,6 +28,10 @@ module TestClasses
 		def run(command)
 			@app.current_state[:value] += command.data[:increment_by]
 		end
+
+		def commit(command)
+			TestClasses::PersistentState.value += command.data[:increment_by]
+		end
 	end
 
 	class MultiplyHandler 
@@ -44,6 +48,10 @@ module TestClasses
 		def run(command)
 			@app.current_state[:value] *= command.data[:multiply_by]
 		end
+
+		def commit(command)
+			TestClasses::PersistentState.value *= command.data[:multiply_by]
+		end
 	end
 
 	class TestAggregator
@@ -53,6 +61,21 @@ module TestClasses
 				@active_commands = [ ]
 				@inactive_commands = [ ]
 			end
+	end
+
+	class PersistentState
+		
+		def self.reset
+			@@value = 0
+		end
+
+		def self.value
+			@@value
+		end
+
+		def self.value=(val)
+			@@value = val
+		end
 	end
 
 end

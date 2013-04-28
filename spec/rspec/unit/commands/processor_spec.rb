@@ -7,6 +7,7 @@ describe Leonidas::Commands::Processor do
 	end
 
 	before :each do
+		TestClasses::PersistentState.reset
 		@command1 = build_command(build_connection, 1)
 		@command2 = build_command(build_connection, 2, "multiply", { multiply_by: 3 })
 		@command3 = build_command(build_connection, 3, "increment", { increment_by: 4 })
@@ -20,7 +21,8 @@ describe Leonidas::Commands::Processor do
 		end
 
 		it "will persist the list of commands when persist is true" do 
-			'but it is not'.should eq 'this to be done'
+			subject.process([ @command3, @command1, @command2 ], true)
+			TestClasses::PersistentState.value.should eq 7
 		end
 
 	end

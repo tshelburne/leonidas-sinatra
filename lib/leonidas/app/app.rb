@@ -48,7 +48,7 @@ module Leonidas
 
 			def process_commands!
 				stabilize!
-				@processor.process active_commands, @persistent
+				@processor.process active_commands
 			end
 
 			def active_commands

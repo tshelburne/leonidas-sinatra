@@ -9,17 +9,15 @@ module Leonidas
 
 		    app = Leonidas::App::AppRepository.find params[:app_id]
 
+		    new_commands = params[:sources].reduce([ ]) {|commands, source| commands.concat app.connection(source[:id]).commands_since(source[:lastUpdate])}
+
 				{
 					success: true,
 					message: 'commands retrieved',
 					data: {
-						commands: [
-							{ name: 'log', data: { message: 'received command'}, timestamp: 2 },
-							{ name: 'increment', data: { }, timestamp: 1 },
-							{ name: 'increment', data: { }, timestamp: 3 }
-						],
+						commands: new_commands.map {|command| command.to_hash},
 						currentSources: app.connections.map {|connection| { id: connection.id, lastUpdate: connection.last_update }},
-						stableTimestamp: 1
+						stableTimestamp: app.stable_timestamp
 					}
 				}.to_json
 			end
