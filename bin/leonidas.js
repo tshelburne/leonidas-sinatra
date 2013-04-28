@@ -4,11 +4,11 @@
   var appCache = null;
   var appFunc = function() {
     return (function() {
-  var App, Client, CommandManager, IncrementHandler, LogHandler;
+  var App, Client, Commander, IncrementHandler, LogHandler;
 
   Client = require("leonidas/client");
 
-  CommandManager = require("leonidas/command_manager");
+  Commander = require("leonidas/commander");
 
   LogHandler = require("handlers/log_handler");
 
@@ -19,14 +19,14 @@
       this.client = new Client(clientId, {
         currentValue: 0
       });
-      this.commander = this.buildCommandManager(this.client);
+      this.commander = this.buildCommander(this.client);
     }
 
-    App.prototype.buildCommandManager = function(client) {
+    App.prototype.buildCommander = function(client) {
       var handlers;
 
       handlers = [new LogHandler(), new IncrementHandler(client.activeState)];
-      return CommandManager["default"](client, handlers, environment.url("sync"));
+      return Commander["default"](client, handlers, environment.url("sync"));
     };
 
     return App;
@@ -216,6 +216,79 @@
 
 (function() {
   var modules = window.modules || [];
+  var commanderCache = null;
+  var commanderFunc = function() {
+    return (function() {
+  var Command, Commander, Organizer, Processor, Stabilizer, Synchronizer;
+
+  Command = require("leonidas/commands/command");
+
+  Organizer = require("leonidas/commands/organizer");
+
+  Processor = require("leonidas/commands/processor");
+
+  Stabilizer = require("leonidas/commands/stabilizer");
+
+  Synchronizer = require("leonidas/commands/synchronizer");
+
+  Commander = (function() {
+    function Commander(organizer, processor, stabilizer, synchronizer) {
+      this.organizer = organizer;
+      this.processor = processor;
+      this.stabilizer = stabilizer;
+      this.synchronizer = synchronizer;
+      this.pushFrequency = 1000;
+      this.pullFrequency = 5000;
+    }
+
+    Commander["default"] = function(commandSource, handlers, syncUrl) {
+      var organizer, processor, stabilizer, synchronizer;
+
+      organizer = new Organizer();
+      processor = new Processor(handlers);
+      stabilizer = new Stabilizer(commandSource, organizer, processor);
+      synchronizer = new Synchronizer(syncUrl, commandSource, organizer, stabilizer);
+      return new this(organizer, processor, stabilizer, synchronizer);
+    };
+
+    Commander.prototype.startSync = function() {
+      this.pushInterval = setInterval(this.synchronizer.push, this.pushFrequency);
+      return this.pullInterval = setInterval(this.synchronizer.pull, this.pullFrequency);
+    };
+
+    Commander.prototype.stopSync = function() {
+      clearInterval(this.pushInterval);
+      return clearInterval(this.pullInterval);
+    };
+
+    Commander.prototype.issueCommand = function(name, data) {
+      var command;
+
+      command = new Command(name, data);
+      this.organizer.addCommand(command);
+      return this.processor.processCommand(command);
+    };
+
+    return Commander;
+
+  })();
+
+  return Commander;
+
+}).call(this);
+
+  };
+  modules.leonidas__commander = function() {
+    if (commanderCache === null) {
+      commanderCache = commanderFunc();
+    }
+    return commanderCache;
+  };
+  window.modules = modules;
+})();
+
+(function() {
+  var modules = window.modules || [];
   var commandCache = null;
   var commandFunc = function() {
     return (function() {
@@ -248,7 +321,7 @@
 }).call(this);
 
   };
-  modules.leonidas__command = function() {
+  modules.leonidas__commands__command = function() {
     if (commandCache === null) {
       commandCache = commandFunc();
     }
@@ -259,93 +332,20 @@
 
 (function() {
   var modules = window.modules || [];
-  var command_managerCache = null;
-  var command_managerFunc = function() {
+  var organizerCache = null;
+  var organizerFunc = function() {
     return (function() {
-  var Command, CommandManager, CommandOrganizer, CommandProcessor, CommandStabilizer, CommandSynchronizer;
-
-  Command = require("leonidas/command");
-
-  CommandOrganizer = require("leonidas/command_organizer");
-
-  CommandProcessor = require("leonidas/command_processor");
-
-  CommandStabilizer = require("leonidas/command_stabilizer");
-
-  CommandSynchronizer = require("leonidas/command_synchronizer");
-
-  CommandManager = (function() {
-    function CommandManager(organizer, processor, stabilizer, synchronizer) {
-      this.organizer = organizer;
-      this.processor = processor;
-      this.stabilizer = stabilizer;
-      this.synchronizer = synchronizer;
-      this.pushFrequency = 1000;
-      this.pullFrequency = 5000;
-    }
-
-    CommandManager["default"] = function(commandSource, handlers, syncUrl) {
-      var organizer, processor, stabilizer, synchronizer;
-
-      organizer = new CommandOrganizer();
-      processor = new CommandProcessor(handlers);
-      stabilizer = new CommandStabilizer(commandSource, organizer, processor);
-      synchronizer = new CommandSynchronizer(syncUrl, commandSource, organizer, stabilizer);
-      return new this(organizer, processor, stabilizer, synchronizer);
-    };
-
-    CommandManager.prototype.startSync = function() {
-      this.pushInterval = setInterval(this.synchronizer.push, this.pushFrequency);
-      return this.pullInterval = setInterval(this.synchronizer.pull, this.pullFrequency);
-    };
-
-    CommandManager.prototype.stopSync = function() {
-      clearInterval(this.pushInterval);
-      return clearInterval(this.pullInterval);
-    };
-
-    CommandManager.prototype.issueCommand = function(name, data) {
-      var command;
-
-      command = new Command(name, data);
-      this.organizer.addCommand(command);
-      return this.processor.processCommand(command);
-    };
-
-    return CommandManager;
-
-  })();
-
-  return CommandManager;
-
-}).call(this);
-
-  };
-  modules.leonidas__command_manager = function() {
-    if (command_managerCache === null) {
-      command_managerCache = command_managerFunc();
-    }
-    return command_managerCache;
-  };
-  window.modules = modules;
-})();
-
-(function() {
-  var modules = window.modules || [];
-  var command_organizerCache = null;
-  var command_organizerFunc = function() {
-    return (function() {
-  var CommandOrganizer,
+  var Organizer,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  CommandOrganizer = (function() {
-    function CommandOrganizer() {
+  Organizer = (function() {
+    function Organizer() {
       this.unsyncedCommands = [];
       this.syncedCommands = [];
       this.inactiveCommands = [];
     }
 
-    CommandOrganizer.prototype.addCommand = function(command, unsynced) {
+    Organizer.prototype.addCommand = function(command, unsynced) {
       if (unsynced == null) {
         unsynced = true;
       }
@@ -356,7 +356,7 @@
       }
     };
 
-    CommandOrganizer.prototype.addCommands = function(commands, unsynced) {
+    Organizer.prototype.addCommands = function(commands, unsynced) {
       var command, _i, _len, _results;
 
       if (unsynced == null) {
@@ -370,7 +370,7 @@
       return _results;
     };
 
-    CommandOrganizer.prototype.markAsSynced = function(commands) {
+    Organizer.prototype.markAsSynced = function(commands) {
       var command, _i, _len;
 
       for (_i = 0, _len = commands.length; _i < _len; _i++) {
@@ -394,7 +394,7 @@
       }).call(this);
     };
 
-    CommandOrganizer.prototype.markAsInactive = function(commands) {
+    Organizer.prototype.markAsInactive = function(commands) {
       var command, _i, _len;
 
       for (_i = 0, _len = commands.length; _i < _len; _i++) {
@@ -416,7 +416,7 @@
       }).call(this);
     };
 
-    CommandOrganizer.prototype.activeCommands = function() {
+    Organizer.prototype.activeCommands = function() {
       var activeCommands;
 
       activeCommands = this.unsyncedCommands.concat(this.syncedCommands);
@@ -429,37 +429,37 @@
       });
     };
 
-    return CommandOrganizer;
+    return Organizer;
 
   })();
 
-  return CommandOrganizer;
+  return Organizer;
 
 }).call(this);
 
   };
-  modules.leonidas__command_organizer = function() {
-    if (command_organizerCache === null) {
-      command_organizerCache = command_organizerFunc();
+  modules.leonidas__commands__organizer = function() {
+    if (organizerCache === null) {
+      organizerCache = organizerFunc();
     }
-    return command_organizerCache;
+    return organizerCache;
   };
   window.modules = modules;
 })();
 
 (function() {
   var modules = window.modules || [];
-  var command_processorCache = null;
-  var command_processorFunc = function() {
+  var processorCache = null;
+  var processorFunc = function() {
     return (function() {
-  var CommandProcessor;
+  var Processor;
 
-  CommandProcessor = (function() {
-    function CommandProcessor(handlers) {
+  Processor = (function() {
+    function Processor(handlers) {
       this.handlers = handlers;
     }
 
-    CommandProcessor.prototype.processCommand = function(command) {
+    Processor.prototype.processCommand = function(command) {
       var handler, _i, _len, _ref, _results;
 
       _ref = this.handlers;
@@ -475,7 +475,7 @@
       return _results;
     };
 
-    CommandProcessor.prototype.processCommands = function(commands) {
+    Processor.prototype.processCommands = function(commands) {
       var command, _i, _len, _results;
 
       _results = [];
@@ -486,39 +486,39 @@
       return _results;
     };
 
-    return CommandProcessor;
+    return Processor;
 
   })();
 
-  return CommandProcessor;
+  return Processor;
 
 }).call(this);
 
   };
-  modules.leonidas__command_processor = function() {
-    if (command_processorCache === null) {
-      command_processorCache = command_processorFunc();
+  modules.leonidas__commands__processor = function() {
+    if (processorCache === null) {
+      processorCache = processorFunc();
     }
-    return command_processorCache;
+    return processorCache;
   };
   window.modules = modules;
 })();
 
 (function() {
   var modules = window.modules || [];
-  var command_stabilizerCache = null;
-  var command_stabilizerFunc = function() {
+  var stabilizerCache = null;
+  var stabilizerFunc = function() {
     return (function() {
-  var CommandStabilizer;
+  var Stabilizer;
 
-  CommandStabilizer = (function() {
-    function CommandStabilizer(client, organizer, processor) {
+  Stabilizer = (function() {
+    function Stabilizer(client, organizer, processor) {
       this.client = client;
       this.organizer = organizer;
       this.processor = processor;
     }
 
-    CommandStabilizer.prototype.stabilize = function(stableTimestamp) {
+    Stabilizer.prototype.stabilize = function(stableTimestamp) {
       var command, stableCommands;
 
       stableCommands = (function() {
@@ -541,38 +541,38 @@
       return this.processor.processCommands(this.organizer.activeCommands());
     };
 
-    return CommandStabilizer;
+    return Stabilizer;
 
   })();
 
-  return CommandStabilizer;
+  return Stabilizer;
 
 }).call(this);
 
   };
-  modules.leonidas__command_stabilizer = function() {
-    if (command_stabilizerCache === null) {
-      command_stabilizerCache = command_stabilizerFunc();
+  modules.leonidas__commands__stabilizer = function() {
+    if (stabilizerCache === null) {
+      stabilizerCache = stabilizerFunc();
     }
-    return command_stabilizerCache;
+    return stabilizerCache;
   };
   window.modules = modules;
 })();
 
 (function() {
   var modules = window.modules || [];
-  var command_synchronizerCache = null;
-  var command_synchronizerFunc = function() {
+  var synchronizerCache = null;
+  var synchronizerFunc = function() {
     return (function() {
-  var Command, CommandSynchronizer,
+  var Command, Synchronizer,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   require("lib/jquery");
 
-  Command = require("leonidas/command");
+  Command = require("leonidas/commands/command");
 
-  CommandSynchronizer = (function() {
-    function CommandSynchronizer(syncUrl, client, organizer, stabilizer) {
+  Synchronizer = (function() {
+    function Synchronizer(syncUrl, client, organizer, stabilizer) {
       this.syncUrl = syncUrl;
       this.client = client;
       this.organizer = organizer;
@@ -582,7 +582,7 @@
       this.externalClients = [];
     }
 
-    CommandSynchronizer.prototype.push = function() {
+    Synchronizer.prototype.push = function() {
       var command, unsyncedCommands,
         _this = this;
 
@@ -622,7 +622,7 @@
       });
     };
 
-    CommandSynchronizer.prototype.pull = function() {
+    Synchronizer.prototype.pull = function() {
       var _this = this;
 
       return $.ajax({
@@ -656,20 +656,20 @@
       });
     };
 
-    return CommandSynchronizer;
+    return Synchronizer;
 
   })();
 
-  return CommandSynchronizer;
+  return Synchronizer;
 
 }).call(this);
 
   };
-  modules.leonidas__command_synchronizer = function() {
-    if (command_synchronizerCache === null) {
-      command_synchronizerCache = command_synchronizerFunc();
+  modules.leonidas__commands__synchronizer = function() {
+    if (synchronizerCache === null) {
+      synchronizerCache = synchronizerFunc();
     }
-    return command_synchronizerCache;
+    return synchronizerCache;
   };
   window.modules = modules;
 })();

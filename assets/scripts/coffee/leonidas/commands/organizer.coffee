@@ -1,4 +1,4 @@
-class CommandOrganizer
+class Organizer
 
 	constructor: ->
 		@unsyncedCommands = [ ]
@@ -21,4 +21,4 @@ class CommandOrganizer
 		activeCommands = @unsyncedCommands.concat @syncedCommands
 		activeCommands.sort (a,b)-> if a.timestamp > b.timestamp then 1 else -1
 
-return CommandOrganizer
+return Organizer

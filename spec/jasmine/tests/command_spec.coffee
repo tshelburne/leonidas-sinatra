@@ -1,4 +1,4 @@
-Command = require 'leonidas/command'
+Command = require 'leonidas/commands/command'
 
 describe "Command", ->
 	command = null

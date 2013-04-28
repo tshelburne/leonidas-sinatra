@@ -1,6 +1,6 @@
-CommandOrganizer = require 'leonidas/command_organizer'
+Organizer = require 'leonidas/commands/organizer'
 
-describe "CommandOrganizer", ->
+describe "Organizer", ->
 	command1 = command2 = command3 = command4 = null
 	organizer = null
 
@@ -9,7 +9,7 @@ describe "CommandOrganizer", ->
 		command2 = buildCommand(2, "pop-char")
 		command3 = buildCommand(3, "pop-char")
 		command4 = buildCommand(4)
-		organizer = new CommandOrganizer()
+		organizer = new Organizer()
 
 	describe "#addCommand", ->
 

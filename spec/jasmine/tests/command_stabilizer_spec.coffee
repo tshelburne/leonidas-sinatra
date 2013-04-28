@@ -1,19 +1,19 @@
 Client = require 'leonidas/client'
-CommandOrganizer = require 'leonidas/command_organizer'
-CommandProcessor = require 'leonidas/command_processor'
-CommandStabilizer = require 'leonidas/command_stabilizer'
+Organizer = require 'leonidas/commands/organizer'
+Processor = require 'leonidas/commands/processor'
+Stabilizer = require 'leonidas/commands/stabilizer'
 
-describe "CommandStabilizer", ->
+describe "Stabilizer", ->
 	stabilizer = null
 	client = null
 	organizer = null
 
 	beforeEach ->
 		client = buildClient()
-		organizer = new CommandOrganizer()
+		organizer = new Organizer()
 		organizer.addCommands [ buildCommand(1), buildCommand(2, "pop-char"), buildCommand(3, "pop-char"), buildCommand(4) ], false
-		processor = new CommandProcessor([ new IncrementHandler(client.activeState), new PopCharHandler(client.activeState)])
-		stabilizer = new CommandStabilizer(client, organizer, processor)
+		processor = new Processor([ new IncrementHandler(client.activeState), new PopCharHandler(client.activeState)])
+		stabilizer = new Stabilizer(client, organizer, processor)
 
 	describe "#stabilize", ->
 

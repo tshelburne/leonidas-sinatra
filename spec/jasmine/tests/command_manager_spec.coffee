@@ -1,10 +1,10 @@
-CommandOrganizer = require "leonidas/command_organizer"
-CommandProcessor = require "leonidas/command_processor"
-CommandStabilizer = require "leonidas/command_stabilizer"
-CommandSynchronizer = require "leonidas/command_synchronizer"
-CommandManager = require 'leonidas/command_manager'
+Organizer = require "leonidas/commands/organizer"
+Processor = require "leonidas/commands/processor"
+Stabilizer = require "leonidas/commands/stabilizer"
+Synchronizer = require "leonidas/commands/synchronizer"
+Commander = require 'leonidas/commander'
 
-describe "CommandManager", ->
+describe "Commander", ->
 	manager = null
 	client = null
 	organizer = null
@@ -12,19 +12,19 @@ describe "CommandManager", ->
 
 	beforeEach ->
 		client = buildClient()
-		organizer = new CommandOrganizer()
-		processor = new CommandProcessor([ new PopCharHandler(client.activeState) ])
-		stabilizer = new CommandStabilizer(client, organizer, processor)
-		synchronizer = new CommandSynchronizer("http://mydomain.com/sync", client, organizer, stabilizer)
+		organizer = new Organizer()
+		processor = new Processor([ new PopCharHandler(client.activeState) ])
+		stabilizer = new Stabilizer(client, organizer, processor)
+		synchronizer = new Synchronizer("http://mydomain.com/sync", client, organizer, stabilizer)
 		spyOn(synchronizer, "push")
 		spyOn(synchronizer, "pull")
-		manager = new CommandManager(organizer, processor, stabilizer, synchronizer)
+		manager = new Commander(organizer, processor, stabilizer, synchronizer)
 
 	describe "::default", ->
 
 		it "will return a default command manager using the built in classes", ->
-			manager = CommandManager.default(client, [ new PopCharHandler("tim") ], "http://mydomain.com/sync")
-			expect(manager.constructor.name).toEqual "CommandManager"
+			manager = Commander.default(client, [ new PopCharHandler("tim") ], "http://mydomain.com/sync")
+			expect(manager.constructor.name).toEqual "Commander"
 
 	describe "#startSync", ->
 

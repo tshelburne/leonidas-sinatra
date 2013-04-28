@@ -1,4 +1,4 @@
-class CommandStabilizer
+class Stabilizer
 
 	constructor: (@client, @organizer, @processor)->
 
@@ -10,4 +10,4 @@ class CommandStabilizer
 		@organizer.markAsInactive(stableCommands)
 		@processor.processCommands(@organizer.activeCommands())
 
-return CommandStabilizer
+return Stabilizer

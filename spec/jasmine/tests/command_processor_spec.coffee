@@ -1,13 +1,13 @@
 Client = require 'leonidas/client'
-CommandProcessor = require 'leonidas/command_processor'
+Processor = require 'leonidas/commands/processor'
 
-describe "CommandProcessor", ->
+describe "Processor", ->
 	processor = null
 	client = null
 
 	beforeEach ->
 		client = buildClient()
-		processor = new CommandProcessor([ new IncrementHandler(client.activeState), new PopCharHandler(client.activeState)])
+		processor = new Processor([ new IncrementHandler(client.activeState), new PopCharHandler(client.activeState)])
 
 	describe "#processCommand", ->
 

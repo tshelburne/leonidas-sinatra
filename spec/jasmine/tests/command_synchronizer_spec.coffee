@@ -1,9 +1,9 @@
-CommandOrganizer = require 'leonidas/command_organizer'
-CommandProcessor = require 'leonidas/command_processor'
-CommandStabilizer = require 'leonidas/command_stabilizer'
-CommandSynchronizer = require 'leonidas/command_synchronizer'
+Organizer = require 'leonidas/commands/organizer'
+Processor = require 'leonidas/commands/processor'
+Stabilizer = require 'leonidas/commands/stabilizer'
+Synchronizer = require 'leonidas/commands/synchronizer'
 
-describe "CommandSynchronizer", ->
+describe "Synchronizer", ->
 	command1 = command4 = command5 = command7 = null
 	client = null
 	organizer = null
@@ -11,14 +11,14 @@ describe "CommandSynchronizer", ->
 
 	beforeEach ->
 		client = buildClient()
-		organizer = new CommandOrganizer()
+		organizer = new Organizer()
 		command1 = buildCommand(1)
 		command4 = buildCommand(4, "pop-char")
 		command5 = buildCommand(5, "pop-char")
 		command7 = buildCommand(7)
-		processor = new CommandProcessor([ new IncrementHandler(client.activeState), new PopCharHandler(client.activeState)])
-		stabilizer = new CommandStabilizer(client, organizer, processor)
-		synchronizer = new CommandSynchronizer("http://mydomain.com/sync", client, organizer, stabilizer)
+		processor = new Processor([ new IncrementHandler(client.activeState), new PopCharHandler(client.activeState)])
+		stabilizer = new Stabilizer(client, organizer, processor)
+		synchronizer = new Synchronizer("http://mydomain.com/sync", client, organizer, stabilizer)
 
 	describe "#push", ->
 

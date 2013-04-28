@@ -1,8 +1,8 @@
 require "lib/jquery"
 
-Command = require "leonidas/command"
+Command = require "leonidas/commands/command"
 
-class CommandSynchronizer
+class Synchronizer
 
 	constructor: (@syncUrl, @client, @organizer, @stabilizer)->
 		@externalClients = [ ]
@@ -35,4 +35,4 @@ class CommandSynchronizer
 				@stabilizer.stabilize response.data.stableTimestamp
 		)
 
-return CommandSynchronizer
+return Synchronizer

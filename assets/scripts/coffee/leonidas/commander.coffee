@@ -1,20 +1,20 @@
-Command = require "leonidas/command"
-CommandOrganizer = require "leonidas/command_organizer"
-CommandProcessor = require "leonidas/command_processor"
-CommandStabilizer = require "leonidas/command_stabilizer"
-CommandSynchronizer = require "leonidas/command_synchronizer"
+Command = require "leonidas/commands/command"
+Organizer = require "leonidas/commands/organizer"
+Processor = require "leonidas/commands/processor"
+Stabilizer = require "leonidas/commands/stabilizer"
+Synchronizer = require "leonidas/commands/synchronizer"
 
-class CommandManager
+class Commander
 
 	constructor: (@organizer, @processor, @stabilizer, @synchronizer)->
 		@pushFrequency = 1000
 		@pullFrequency = 5000
 
 	@default: (commandSource, handlers, syncUrl)->
-		organizer = new CommandOrganizer()
-		processor = new CommandProcessor(handlers)
-		stabilizer = new CommandStabilizer(commandSource, organizer, processor)
-		synchronizer = new CommandSynchronizer(syncUrl, commandSource, organizer, stabilizer)
+		organizer = new Organizer()
+		processor = new Processor(handlers)
+		stabilizer = new Stabilizer(commandSource, organizer, processor)
+		synchronizer = new Synchronizer(syncUrl, commandSource, organizer, stabilizer)
 
 		new @(organizer, processor, stabilizer, synchronizer)
 
@@ -31,4 +31,4 @@ class CommandManager
 		@organizer.addCommand command
 		@processor.processCommand command
 
-return CommandManager
+return Commander

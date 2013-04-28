@@ -1,4 +1,4 @@
-Command = require 'leonidas/command'
+Command = require 'leonidas/commands/command'
 Client = require 'leonidas/client'
 
 buildCommand = (timestamp, name="increment", data={})->

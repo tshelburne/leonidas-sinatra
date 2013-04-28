@@ -1,5 +1,4 @@
-
-class CommandProcessor
+class Processor
 	
 	constructor: (@handlers)->
 
@@ -11,4 +10,4 @@ class CommandProcessor
 		for command in commands
 			@processCommand command
 
-return CommandProcessor
+return Processor
