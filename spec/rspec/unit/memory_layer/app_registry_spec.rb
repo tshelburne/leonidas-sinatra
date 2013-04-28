@@ -1,4 +1,4 @@
-describe Leonidas::MemoryLayer::AppRegistry do
+describe Leonidas::MemoryLayer::MemoryRegistry do
 
 	subject do
 		described_class

@@ -70,6 +70,16 @@ describe Leonidas::App::App do
 
 	end
 
+	describe '#connections' do 
+	
+		it "will return the full list of connections" do
+			conn1 = subject.create_connection!
+			conn2 = subject.create_connection!
+			subject.connections.should eq [ conn1, conn2 ]
+		end
+	
+	end
+
 	describe '#stable_timestamp' do 
 		
 		it "will default to 0 if there are no connections" do 

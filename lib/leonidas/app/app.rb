@@ -29,6 +29,10 @@ module Leonidas
 				not connection(id).nil?
 			end
 
+			def connections
+				@connections
+			end
+
 			def stable_timestamp
 				return 0 if @connections.empty?
 				now = Time.now.to_i

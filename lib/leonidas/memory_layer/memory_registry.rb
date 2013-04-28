@@ -1,7 +1,7 @@
 module Leonidas
 	module MemoryLayer
 
-		class AppRegistry
+		class MemoryRegistry
 			
 			@@apps = { }
 
@@ -15,7 +15,7 @@ module Leonidas
 			end
 
 			def self.has_app_registered?(id)
-				not AppRegistry.retrieve_app(id).nil?
+				not MemoryRegistry.retrieve_app(id).nil?
 			end
 
 			def self.close_app!(id)

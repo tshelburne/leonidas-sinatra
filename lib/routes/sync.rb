@@ -7,7 +7,7 @@ module Leonidas
 			get '/:app_id' do
 		    content_type "application/json"
 
-		    app = Leonidas::MemoryLayer::AppRegistry.retrieve_app params[:app_id]
+		    app = Leonidas::App::AppRepository.find params[:app_id]
 
 				{
 					success: true,
@@ -18,7 +18,7 @@ module Leonidas
 							{ name: 'increment', data: { }, timestamp: 1 },
 							{ name: 'increment', data: { }, timestamp: 3 }
 						],
-						currentSources: app.sources.map {|source| { id: source.id, lastUpdate: source.last_update }},
+						currentSources: app.connections.map {|connection| { id: connection.id, lastUpdate: connection.last_update }},
 						stableTimestamp: 1
 					}
 				}.to_json
@@ -27,10 +27,10 @@ module Leonidas
 			post '/:app_id' do
 		    content_type "application/json"
 
-		    app = Leonidas::MemoryLayer::AppRegistry.retrieve_app params[:app_id]
-		    connection = app.source(params[:sourceId])
+		    app = Leonidas::App::AppRepository.find params[:app_id]
+		    connection = app.connection params[:sourceId]
 
-		    commands = params[:commands].map {|command| Leonidas::Commands::Command.new(command.name, command.data, command.timestamp, source)}
+		    commands = params[:commands].map {|command| Leonidas::Commands::Command.new(command.name, command.data, command.timestamp, connection)}
 		    connection.add_commands! commands
 
 		    {
