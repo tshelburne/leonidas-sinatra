@@ -27,15 +27,6 @@ describe Leonidas::App::AppRepository do
 	
 	end
 
-	describe '#save' do 
-	
-		it "will register the app in the memory layer" do
-			subject.save TestClasses::TestApp.new
-			Leonidas::MemoryLayer::MemoryRegistry.should have_app 'app 1'
-		end
-	
-	end
-
 	describe '#archive' do 
 	
 		it "will close the app in the memory layer" do

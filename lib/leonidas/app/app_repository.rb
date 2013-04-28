@@ -11,10 +11,6 @@ module Leonidas
 				Leonidas::MemoryLayer::MemoryRegistry.register_app! app
 			end
 
-			def save(app)
-				Leonidas::MemoryLayer::MemoryRegistry.register_app! app
-			end
-
 			def archive(app)
 				Leonidas::MemoryLayer::MemoryRegistry.close_app! app.name
 			end
