@@ -116,7 +116,7 @@ describe Leonidas::App::App do
 		context "when the app is set to be persistent" do
 			
 			it "will persist all commands which occured at or before the stable timestamp" do
-				subject.instance_variable_set :@persistent, true
+				subject.instance_variable_set :@persist_state, true
 				subject.stabilize!
 				TestClasses::PersistentState.value.should eq 2
 			end
@@ -148,7 +148,7 @@ describe Leonidas::App::App do
 		context "when the app is set to be persistent" do
 			
 			it "will persist all commands which occured at or before the stable timestamp" do
-				subject.instance_variable_set :@persistent, true
+				subject.instance_variable_set :@persist_state, true
 				subject.process_commands!
 				TestClasses::PersistentState.value.should eq 2
 			end

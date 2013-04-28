@@ -41,7 +41,7 @@ module Leonidas
 
 			def stabilize!
 				revert_state!
-				@processor.process stable_commands, @persistent || false
+				@processor.process stable_commands, persistent_state?
 				lock_state!
 				@connections.each {|connection| connection.deactivate_commands!(stable_commands)}
 			end
@@ -68,6 +68,10 @@ module Leonidas
 
 			def lock_state!
 				@locked_state = @active_state.dup
+			end
+
+			def persistent_state?
+				@persist_state || false
 			end
 
 		end

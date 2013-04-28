@@ -1,23 +1,5 @@
 module TestClasses
 
-	class TestApp
-		include Leonidas::App::App
-		
-		def initialize(name="app 1")
-			@name = name
-			@persistent = false
-			@locked_state = { value: 0 }
-			@active_state = { value: 1 }
-			@connections = [ ]
-			@processor = Leonidas::Commands::Processor.new([ IncrementHandler.new(self), MultiplyHandler.new(self) ])
-		end
-
-	end
-
-	class TestRepositoryContainer
-		include Leonidas::App::AppRepository
-	end
-
 	class IncrementHandler 
 		include Leonidas::Commands::Handler
 
@@ -65,21 +47,6 @@ module TestClasses
 				@active_commands = [ ]
 				@inactive_commands = [ ]
 			end
-	end
-
-	class PersistentState
-		
-		def self.reset
-			@@value = 0
-		end
-
-		def self.value
-			@@value
-		end
-
-		def self.value=(val)
-			@@value = val
-		end
 	end
 
 end
