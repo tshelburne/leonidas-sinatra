@@ -1,4 +1,4 @@
-CommandSource = require "leonidas/command_source"
+Client = require "leonidas/client"
 CommandManager = require "leonidas/command_manager"
 
 LogHandler = require "handlers/log_handler"
@@ -6,15 +6,15 @@ IncrementHandler = require "handlers/increment_handler"
 
 class App
 
-	constructor: (sourceId)->
-		@source = new CommandSource(sourceId, { currentValue: 0 })
-		@commander = @buildCommandManager(@source)
+	constructor: (clientId)->
+		@client = new Client(clientId, { currentValue: 0 })
+		@commander = @buildCommandManager(@client)
 
-	buildCommandManager: (source)->
+	buildCommandManager: (client)->
 		handlers = [
 			new LogHandler(),
-			new IncrementHandler(source.activeState)
+			new IncrementHandler(client.activeState)
 		]
-		CommandManager.default(source, handlers, environment.url("sync"))
+		CommandManager.default(client, handlers, environment.url("sync"))
 
 return App

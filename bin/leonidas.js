@@ -4,9 +4,9 @@
   var appCache = null;
   var appFunc = function() {
     return (function() {
-  var App, CommandManager, CommandSource, IncrementHandler, LogHandler;
+  var App, Client, CommandManager, IncrementHandler, LogHandler;
 
-  CommandSource = require("leonidas/command_source");
+  Client = require("leonidas/client");
 
   CommandManager = require("leonidas/command_manager");
 
@@ -15,18 +15,18 @@
   IncrementHandler = require("handlers/increment_handler");
 
   App = (function() {
-    function App(sourceId) {
-      this.source = new CommandSource(sourceId, {
+    function App(clientId) {
+      this.client = new Client(clientId, {
         currentValue: 0
       });
-      this.commander = this.buildCommandManager(this.source);
+      this.commander = this.buildCommandManager(this.client);
     }
 
-    App.prototype.buildCommandManager = function(source) {
+    App.prototype.buildCommandManager = function(client) {
       var handlers;
 
-      handlers = [new LogHandler(), new IncrementHandler(source.activeState)];
-      return CommandManager["default"](source, handlers, environment.url("sync"));
+      handlers = [new LogHandler(), new IncrementHandler(client.activeState)];
+      return CommandManager["default"](client, handlers, environment.url("sync"));
     };
 
     return App;
@@ -155,6 +155,61 @@
       log_handlerCache = log_handlerFunc();
     }
     return log_handlerCache;
+  };
+  window.modules = modules;
+})();
+
+(function() {
+  var modules = window.modules || [];
+  var clientCache = null;
+  var clientFunc = function() {
+    return (function() {
+  var Client;
+
+  Client = (function() {
+    function Client(id, lockedState) {
+      this.id = id;
+      this.lockedState = lockedState;
+      this.activeState = {};
+      this.copyState(this.activeState, this.lockedState);
+    }
+
+    Client.prototype.revertState = function() {
+      return this.copyState(this.activeState, this.lockedState);
+    };
+
+    Client.prototype.lockState = function() {
+      return this.copyState(this.lockedState, this.activeState);
+    };
+
+    Client.prototype.copyState = function(to, from) {
+      var key, value, _results;
+
+      for (key in to) {
+        delete to[key];
+      }
+      _results = [];
+      for (key in from) {
+        value = from[key];
+        _results.push(to[key] = value);
+      }
+      return _results;
+    };
+
+    return Client;
+
+  })();
+
+  return Client;
+
+}).call(this);
+
+  };
+  modules.leonidas__client = function() {
+    if (clientCache === null) {
+      clientCache = clientFunc();
+    }
+    return clientCache;
   };
   window.modules = modules;
 })();
@@ -451,69 +506,14 @@
 
 (function() {
   var modules = window.modules || [];
-  var command_sourceCache = null;
-  var command_sourceFunc = function() {
-    return (function() {
-  var CommandSource;
-
-  CommandSource = (function() {
-    function CommandSource(id, lockedState) {
-      this.id = id;
-      this.lockedState = lockedState;
-      this.activeState = {};
-      this.copyState(this.activeState, this.lockedState);
-    }
-
-    CommandSource.prototype.revertState = function() {
-      return this.copyState(this.activeState, this.lockedState);
-    };
-
-    CommandSource.prototype.lockState = function() {
-      return this.copyState(this.lockedState, this.activeState);
-    };
-
-    CommandSource.prototype.copyState = function(to, from) {
-      var key, value, _results;
-
-      for (key in to) {
-        delete to[key];
-      }
-      _results = [];
-      for (key in from) {
-        value = from[key];
-        _results.push(to[key] = value);
-      }
-      return _results;
-    };
-
-    return CommandSource;
-
-  })();
-
-  return CommandSource;
-
-}).call(this);
-
-  };
-  modules.leonidas__command_source = function() {
-    if (command_sourceCache === null) {
-      command_sourceCache = command_sourceFunc();
-    }
-    return command_sourceCache;
-  };
-  window.modules = modules;
-})();
-
-(function() {
-  var modules = window.modules || [];
   var command_stabilizerCache = null;
   var command_stabilizerFunc = function() {
     return (function() {
   var CommandStabilizer;
 
   CommandStabilizer = (function() {
-    function CommandStabilizer(source, organizer, processor) {
-      this.source = source;
+    function CommandStabilizer(client, organizer, processor) {
+      this.client = client;
       this.organizer = organizer;
       this.processor = processor;
     }
@@ -534,9 +534,9 @@
         }
         return _results;
       }).call(this);
-      this.source.revertState();
+      this.client.revertState();
       this.processor.processCommands(stableCommands);
-      this.source.lockState();
+      this.client.lockState();
       this.organizer.markAsInactive(stableCommands);
       return this.processor.processCommands(this.organizer.activeCommands());
     };
@@ -572,14 +572,14 @@
   Command = require("leonidas/command");
 
   CommandSynchronizer = (function() {
-    function CommandSynchronizer(syncUrl, source, organizer, stabilizer) {
+    function CommandSynchronizer(syncUrl, client, organizer, stabilizer) {
       this.syncUrl = syncUrl;
-      this.source = source;
+      this.client = client;
       this.organizer = organizer;
       this.stabilizer = stabilizer;
       this.pull = __bind(this.pull, this);
       this.push = __bind(this.push, this);
-      this.externalSources = [];
+      this.externalClients = [];
     }
 
     CommandSynchronizer.prototype.push = function() {
@@ -601,7 +601,7 @@
         url: "" + this.syncUrl,
         method: "POST",
         data: {
-          sourceId: this.source.id,
+          clientId: this.client.id,
           commands: (function() {
             var _i, _len, _results;
 
@@ -629,8 +629,8 @@
         url: "" + this.syncUrl,
         method: "GET",
         data: {
-          sourceId: this.source.id,
-          sources: this.externalSources
+          clientId: this.client.id,
+          clients: this.externalClients
         },
         error: function() {
           return console.log("pull error");
@@ -638,7 +638,7 @@
         success: function(response) {
           var command, commands;
 
-          _this.externalSources = response.data.currentSources;
+          _this.externalClients = response.data.currentClients;
           commands = (function() {
             var _i, _len, _ref, _results;
 

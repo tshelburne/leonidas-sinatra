@@ -6,16 +6,16 @@ CommandManager = require 'leonidas/command_manager'
 
 describe "CommandManager", ->
 	manager = null
-	source = null
+	client = null
 	organizer = null
 	synchronizer = null
 
 	beforeEach ->
-		source = buildSource()
+		client = buildClient()
 		organizer = new CommandOrganizer()
-		processor = new CommandProcessor([ new PopCharHandler(source.activeState) ])
-		stabilizer = new CommandStabilizer(source, organizer, processor)
-		synchronizer = new CommandSynchronizer("http://mydomain.com/sync", source, organizer, stabilizer)
+		processor = new CommandProcessor([ new PopCharHandler(client.activeState) ])
+		stabilizer = new CommandStabilizer(client, organizer, processor)
+		synchronizer = new CommandSynchronizer("http://mydomain.com/sync", client, organizer, stabilizer)
 		spyOn(synchronizer, "push")
 		spyOn(synchronizer, "pull")
 		manager = new CommandManager(organizer, processor, stabilizer, synchronizer)
@@ -23,7 +23,7 @@ describe "CommandManager", ->
 	describe "::default", ->
 
 		it "will return a default command manager using the built in classes", ->
-			manager = CommandManager.default(source, [ new PopCharHandler("tim") ], "http://mydomain.com/sync")
+			manager = CommandManager.default(client, [ new PopCharHandler("tim") ], "http://mydomain.com/sync")
 			expect(manager.constructor.name).toEqual "CommandManager"
 
 	describe "#startSync", ->
@@ -66,4 +66,4 @@ describe "CommandManager", ->
 
 		it "will run the command to update the local client state", ->
 			manager.issueCommand "pop-char", {}
-			expect(source.activeState.string).toEqual "tes"
+			expect(client.activeState.string).toEqual "tes"

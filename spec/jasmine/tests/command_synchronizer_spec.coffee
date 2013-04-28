@@ -5,20 +5,20 @@ CommandSynchronizer = require 'leonidas/command_synchronizer'
 
 describe "CommandSynchronizer", ->
 	command1 = command4 = command5 = command7 = null
-	source = null
+	client = null
 	organizer = null
 	synchronizer = null
 
 	beforeEach ->
-		source = buildSource()
+		client = buildClient()
 		organizer = new CommandOrganizer()
 		command1 = buildCommand(1)
 		command4 = buildCommand(4, "pop-char")
 		command5 = buildCommand(5, "pop-char")
 		command7 = buildCommand(7)
-		processor = new CommandProcessor([ new IncrementHandler(source.activeState), new PopCharHandler(source.activeState)])
-		stabilizer = new CommandStabilizer(source, organizer, processor)
-		synchronizer = new CommandSynchronizer("http://mydomain.com/sync", source, organizer, stabilizer)
+		processor = new CommandProcessor([ new IncrementHandler(client.activeState), new PopCharHandler(client.activeState)])
+		stabilizer = new CommandStabilizer(client, organizer, processor)
+		synchronizer = new CommandSynchronizer("http://mydomain.com/sync", client, organizer, stabilizer)
 
 	describe "#push", ->
 
@@ -50,9 +50,9 @@ describe "CommandSynchronizer", ->
 				organizer.addCommands [ command1, command4 ], false
 				spyOn($,"ajax").andCallFake( (params)-> params.success(mocks.syncPullResponse))
 
-			it "will update the list of external sources and their latest timestamps", ->
+			it "will update the list of external clients and their latest timestamps", ->
 				synchronizer.pull()
-				expect(synchronizer.externalSources).toEqual [ { id: "2345", lastUpdate: 2 }, { id: "3456", lastUpdate: 8 } ]
+				expect(synchronizer.externalClients).toEqual [ { id: "2345", lastUpdate: 2 }, { id: "3456", lastUpdate: 8 } ]
 
 			it "will add the list of received commands as synced commands", ->
 				synchronizer.pull()
@@ -63,7 +63,7 @@ describe "CommandSynchronizer", ->
 
 			it "will lock to a new stable state", ->
 				synchronizer.pull()
-				expect(source.lockedState).toEqual { integer: 2, string: "tes" }
+				expect(client.lockedState).toEqual { integer: 2, string: "tes" }
 
 			it "will deactivate stable commands", ->
 				synchronizer.pull()

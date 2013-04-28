@@ -1,4 +1,4 @@
-class CommandSource
+class Client
 
   constructor: (@id, @lockedState)->
     @activeState = { }
@@ -12,4 +12,4 @@ class CommandSource
     delete to[key] for key of to
     to[key] = value for key, value of from
 
-return CommandSource
+return Client

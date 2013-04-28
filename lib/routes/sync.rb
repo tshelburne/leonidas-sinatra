@@ -4,29 +4,30 @@ module Leonidas
 		class SyncApp < Sinatra::Base
 			include Keystone::Server::Helpers
 
-			get '/:app_id' do
+			get '/:app_name' do
 		    content_type "application/json"
 
-		    app = Leonidas::App::AppRepository.find params[:app_id]
+		    app = Leonidas::App::AppRepository.find params[:app_name]
 
-		    new_commands = params[:sources].reduce([ ]) {|commands, source| commands.concat app.connection(source[:id]).commands_since(source[:lastUpdate])}
+		    new_commands = params[:clients].reduce([ ]) {|commands, client| commands.concat app.connection(client[:id]).commands_since(client[:lastUpdate])}
+		    additional_clients = app.connections.select {|connection| connection.id != params[:clientId]}
 
 				{
 					success: true,
 					message: 'commands retrieved',
 					data: {
 						commands: new_commands.map {|command| command.to_hash},
-						currentSources: app.connections.map {|connection| { id: connection.id, lastUpdate: connection.last_update }},
+						currentClients: additional_clients.map {|connection| { id: connection.id, lastUpdate: connection.last_update }},
 						stableTimestamp: app.stable_timestamp
 					}
 				}.to_json
 			end
 
-			post '/:app_id' do
+			post '/:app_name' do
 		    content_type "application/json"
 
-		    app = Leonidas::App::AppRepository.find params[:app_id]
-		    connection = app.connection params[:sourceId]
+		    app = Leonidas::App::AppRepository.find params[:app_name]
+		    connection = app.connection params[:clientId]
 
 		    commands = params[:commands].map {|command| Leonidas::Commands::Command.new(command.name, command.data, command.timestamp, connection)}
 		    connection.add_commands! commands

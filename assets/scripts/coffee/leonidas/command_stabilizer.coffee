@@ -1,12 +1,12 @@
 class CommandStabilizer
 
-	constructor: (@source, @organizer, @processor)->
+	constructor: (@client, @organizer, @processor)->
 
 	stabilize: (stableTimestamp)->
 		stableCommands = (command for command in @organizer.activeCommands() when command.timestamp <= stableTimestamp)
-		@source.revertState()
+		@client.revertState()
 		@processor.processCommands(stableCommands)
-		@source.lockState()
+		@client.lockState()
 		@organizer.markAsInactive(stableCommands)
 		@processor.processCommands(@organizer.activeCommands())
 

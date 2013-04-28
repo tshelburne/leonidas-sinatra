@@ -12,7 +12,7 @@ addMock "syncPullResponse",
 			{ name: 'increment', data: { }, timestamp: 6 },
 			{ name: 'increment', data: { }, timestamp: 8 }
 		]
-		currentSources: [
+		currentClients: [
 			{ id: "2345", lastUpdate: 2 },
 			{ id: "3456", lastUpdate: 8 }
 		]

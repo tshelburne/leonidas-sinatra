@@ -4,8 +4,8 @@ Command = require "leonidas/command"
 
 class CommandSynchronizer
 
-	constructor: (@syncUrl, @source, @organizer, @stabilizer)->
-		@externalSources = [ ]
+	constructor: (@syncUrl, @client, @organizer, @stabilizer)->
+		@externalClients = [ ]
 
 	push: =>
 		unsyncedCommands = (command for command in @organizer.unsyncedCommands)
@@ -13,7 +13,7 @@ class CommandSynchronizer
 			url: "#{@syncUrl}"
 			method: "POST"
 			data: 
-				sourceId: @source.id
+				clientId: @client.id
 				commands: (command.toHash() for command in unsyncedCommands)
 			error: => console.log "push error"
 			success: (response)=>
@@ -25,11 +25,11 @@ class CommandSynchronizer
 			url: "#{@syncUrl}"
 			method: "GET"
 			data:
-				sourceId: @source.id
-				sources: @externalSources
+				clientId: @client.id
+				clients: @externalClients
 			error: => console.log "pull error"
 			success: (response)=>
-				@externalSources = response.data.currentSources
+				@externalClients = response.data.currentClients
 				commands = (new Command(command.name, command.data, command.timestamp) for command in response.data.commands)
 				@organizer.addCommands commands, false
 				@stabilizer.stabilize response.data.stableTimestamp
