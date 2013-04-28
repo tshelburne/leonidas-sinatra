@@ -29,7 +29,7 @@ describe Leonidas::App::App do
 
 		it "will add the new connection the the app's list of connections" do 
 			conn = subject.create_connection!
-			subject.has_connection?(conn.id).should be_true
+			subject.should have_connection(conn.id)
 		end
 
 	end
@@ -39,7 +39,7 @@ describe Leonidas::App::App do
 		it "will remove the connection" do 
 			conn = subject.create_connection!
 			subject.close_connection! conn.id
-			subject.has_connection?(conn.id).should be_false
+			subject.should_not have_connection(conn.id)
 		end
 
 	end
@@ -61,11 +61,11 @@ describe Leonidas::App::App do
 
 		it "will return true if it has the requested connection" do
 			conn = subject.create_connection!
-			subject.has_connection?(conn.id).should be_true
+			subject.should have_connection(conn.id)
 		end
 
 		it "will return false if it doesn't have the requested connection" do
-			subject.has_connection?("badid").should be_false
+			subject.should_not have_connection("badid")
 		end
 
 	end
