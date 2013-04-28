@@ -1,7 +1,7 @@
 !!! 5
 %html
   %head
-    = load_asset("commands.js", :base => "assets")
+    = load_asset("commands.js", base: "assets")
 
     %script
       require("patches");
@@ -14,8 +14,6 @@
 
   %body
 
-  	k
+    %button#increment Increment
 
-  	%button#increment Increment
-
-  	%button#multiply Multiply
+    %button#multiply Multiply
