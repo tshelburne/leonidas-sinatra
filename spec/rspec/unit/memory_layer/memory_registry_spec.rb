@@ -5,7 +5,7 @@ describe Leonidas::MemoryLayer::MemoryRegistry do
 	end
 
 	before :each do
-		subject.class_variable_set(:@@apps, { })
+		subject.clear_registry!
 	end
 
 	describe '::register_app!' do 
@@ -64,6 +64,20 @@ describe Leonidas::MemoryLayer::MemoryRegistry do
 			subject.register_app! TestClasses::TestApp.new
 			subject.close_app! "app 1"
 			subject.should_not have_app "app 1"
+		end
+	
+	end
+
+	describe '#clear_registry!' do 
+	
+		it "removes all apps registered" do
+			app1 = TestClasses::TestApp.new
+			app2 = TestClasses::TestApp.new("app 2")
+			subject.register_app! app1
+			subject.register_app! app2
+			subject.clear_registry!
+			subject.should_not have_app app1.name
+			subject.should_not have_app app2.name
 		end
 	
 	end

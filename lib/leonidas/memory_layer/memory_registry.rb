@@ -23,6 +23,10 @@ module Leonidas
 				@@apps.delete name
 			end
 
+			def self.clear_registry!
+				@@apps = { }
+			end
+
 		end
 
 	end

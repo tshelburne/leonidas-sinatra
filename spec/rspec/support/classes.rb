@@ -3,8 +3,8 @@ module TestClasses
 	class TestApp
 		include Leonidas::App::App
 		
-		def initialize
-			@name = "app 1"
+		def initialize(name="app 1")
+			@name = name
 			@persistent = false
 			@locked_state = { value: 0 }
 			@active_state = { value: 1 }
