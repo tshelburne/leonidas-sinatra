@@ -1,6 +1,6 @@
 describe Leonidas::PersistenceLayer::Persister do
 
-	def set_default_persister
+	def clear_persistence_layer
 		Leonidas::PersistenceLayer::Persister.class_variable_set(:@@persister, nil)
 		Leonidas::PersistenceLayer::Persister.class_variable_get(:@@state_loader).instance_variable_set(:@builders, [])
 	end
@@ -15,7 +15,7 @@ describe Leonidas::PersistenceLayer::Persister do
 	end
 
 	after :each do
-		set_default_persister
+		clear_persistence_layer
 	end
 
 	describe '::set_app_persister' do 

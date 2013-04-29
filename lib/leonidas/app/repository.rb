@@ -10,7 +10,10 @@ module Leonidas
 
 			def find(app_name)
 				app = Leonidas::MemoryLayer::MemoryRegistry.retrieve_app app_name
-				app = Leonidas::PersistenceLayer::Persister.load app_name if app.nil?
+				if app.nil?
+					app = Leonidas::PersistenceLayer::Persister.load app_name
+					watch app unless app.nil?
+				end
 				app
 			end
 
