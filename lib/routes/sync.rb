@@ -2,7 +2,6 @@ module Leonidas
 	module Routes
 
 		class SyncApp < Sinatra::Base
-			include Keystone::Server::Helpers
 
 			get '/:app_name' do
 		    content_type "application/json"

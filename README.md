@@ -96,7 +96,7 @@ First, you should create at least one command handler. Note that the handler wil
 
       def run(command)
         peasant_id = command.data.peasantId # probably camel-cased - it came from js, after all
-        ... find peasant in @app.current_state.peasants by peasant_id
+        ... # find peasant in @app.current_state.peasants by peasant_id
         peasant.status = :humbled
       end
 
@@ -111,7 +111,7 @@ Then, you can create an App:
       include Leonidas::App::App # this is the neat part that gives you a Leonidas App
 
       def initialize
-        @name = "Kingdom Zamunda" # this name must be unique amongst all your apps
+        @name = "Kingdom-Zamunda" # this name must be unique amongst all your apps
         @persist_state = true # this means that commands with be persisted when they are run
         @locked_state = { peasants: [ ... ] } # this is the stable state of your application
         @active_state = { peasants: [ ... ] } # this is the active state (memory only, never persisted) of your application 
@@ -137,7 +137,7 @@ Eventually you need to load your app:
     
     ...
     get "/i-want-to-rule-zamunda-too" do
-      app = app_repository.find "Kingdom Zamunda"
+      app = app_repository.find "Kingdom-Zamunda"
       ...
       haml :see_your_kingdom
     end
@@ -186,6 +186,14 @@ Create your application's state builder:
       end
 
     end
+
+Lastly, if you want to use the Sinatra endpoints provided by Leonidas for automatically syncing between your clients and server, the Rack app is available:
+
+    map "/path/you/like" do
+      run Leonidas::Routes::SyncApp
+    end
+
+This will mean the frontend syncUrl you pass in Commander.default would look something like "http://yourdomain.com/path/you/like/[your-app-name]"
 
 Voilá, your app should be good to go.
 
