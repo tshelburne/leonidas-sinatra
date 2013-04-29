@@ -28,7 +28,7 @@ module Leonidas
 			@@state_loader = Leonidas::PersistenceLayer::StateLoader.new
 
 			def self.add_state_builder!(builder)
-				@@state_loader.add_builder builder	
+				@@state_loader.add_builder! builder	
 			end
 			
 			def self.load(app_name)
