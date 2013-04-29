@@ -1,0 +1,66 @@
+describe Leonidas::PersistenceLayer::Persister do
+
+	subject do
+		described_class
+	end
+
+	before :each do
+		@app = TestClasses::TestApp.new
+		@persister = TestClasses::TestAppPersister.new([ @app ])
+	end
+
+	describe '::set_app_persister' do 
+
+		it "will reject any argument that doesn't include AppPersister" do
+			persister = { fake_persister: "maybe it'll work this time" }
+			expect { subject.set_app_persister! persister }.to raise_error(TypeError, "Argument must include Leonidas::PersistenceLayer::AppPersister")
+			subject.class_variable_get(:@@persister).should be_nil
+		end
+
+		it "will set the persister to use for saving an app" do
+			persister = TestClasses::TestAppPersister.new
+			subject.set_app_persister! persister
+			subject.class_variable_get(:@@persister).should eq persister
+		end
+
+	end
+
+	describe '::load' do 
+
+		before :each do 
+			described_class.set_app_persister! @persister
+		end
+	
+		it "will load an app with the given name" do
+			subject.load("app 1").should eq @app
+		end
+
+		it "will return nil if no app with the given name exists" do
+			subject.load("badname").should be_nil
+		end
+	
+	end
+
+	describe '::persist' do 
+	
+		it "will persist the app" do
+			described_class.set_app_persister! @persister
+			@persister.clear_apps!
+			subject.load("app 1").should be_nil
+			subject.persist @app
+			subject.load("app 1").should eq @app
+		end
+	
+	end
+
+	describe '::delete' do 
+	
+		it "will delete the app" do
+			described_class.set_app_persister! @persister
+			subject.delete @app
+			subject.load("app 1").should be_nil
+		end
+	
+	end
+
+end

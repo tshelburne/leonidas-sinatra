@@ -18,16 +18,24 @@ module TestClasses
 	class TestAppPersister
 		include Leonidas::PersistenceLayer::AppPersister
 
-		def load(app_name)
+		def initialize(apps=[])
+			@apps = apps
+		end
 
+		def clear_apps!
+			@apps = [ ]
+		end
+
+		def load(app_name)
+			@apps.select {|app| app.name == app_name}.first
 		end
 
 		def persist(app)
-
+			@apps << app
 		end
 
 		def delete(app)
-
+			@apps.delete app
 		end
 
 	end

@@ -53,7 +53,7 @@ describe Leonidas::MemoryLayer::MemoryRegistry do
 		end
 	
 		it "will return false if the requested app is not registered" do 
-			subject.should_not have_app "badid"
+			subject.should_not have_app "badname"
 		end
 
 	end
