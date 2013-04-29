@@ -144,15 +144,54 @@ Eventually you need to load your app:
 
 Great! We now have an app running in memory, updating state, and if you did well, communicating to the client(s) at regular intervals.
 
-But what if you (a) need to restart the machine and lose all of your state from memory, or (b) want to revive an old closed application? This is where a persistent application comes into play.
+But what if you (a) need to restart the machine and lose all of your state from memory, or (b) want to revive an old closed application? This is where a persistent application comes into play. A persistent application means simply that you have stored your application details, active connections, and commands in some sort of database. In order to reopen an application that has been closed, or restore an application to memory from disk, we need to be able to load the app from the database via a generalized solution. 
 
-A persistent application means simply that you have stored your application details, active connections, and commands in some sort of database. In order to reopen an application that has been closed, or restore an application to memory from disk, we need to be able to load the app from the database via a generalized solution.
+Enter the persister:
 
+    class SaveMyTransgressions
+      include Leonidas::PersistenceLayer::AppPersister # this guarantees that the static Persister can use your class
 
+      def load(app_name)
+        ... # your read / build logic (note that you don't need to worry hear about app state)
+      end
 
+      def persist(app_name)
+        ... # your write logic
+      end
 
+      def delete(app)
+        ... # your remove logic
+      end
+    end
 
+The gist of filling out this class is to allow communication between your database and code to read / write app details (name, persist_state, connections) and connection details (id, last_update, active / inactive commands).
 
+Once you have created your app persister, your application skeleton can be loaded - this just leaves catching the state up with whatever was current. All you need to do in this case is make sure you build the previous locked state of the application. All commands that happened after that locked state will be run again in memory to return your application to a live state.
+
+Create your application's state builder:
+
+    module Builders
+
+      class PeasantStateBuilder
+        include Leonidas::PersistenceLayer::StateBuilder # this lets the state factory use this builder
+
+        def handles?(app)
+          app.is_a? PeasantSubjugationApp
+        end
+
+        def build_state(app)
+          ... # return the peasants to the fields, so to speak
+        end
+
+      end
+
+    end
+
+Voilá, your app should be good to go.
+
+## If (and when) it isn't
+
+Please feel free to contribute, or submit issues to the tracker!
 
 
 
