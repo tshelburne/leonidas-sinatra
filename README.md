@@ -10,6 +10,9 @@ Leonidas.rb is an integration built to support Leonidas commands on the server-s
 
 * Command - Any granular action taken within an application
 * Command Handler - An class representing an action taken on the application state in response to a command 
+* Stable Command - A command that happened before or at the minimum timestamp of all client connections to the app 
+* Locked State - The state of an application when only stable commands have been run
+* Active State - The state of an application when all available commands have been run
 
 ### Javascript
 
@@ -26,8 +29,138 @@ Leonidas.rb is an integration built to support Leonidas commands on the server-s
 
 ## Configuration
 
+### Javascript
 
+No configuration is needed on the client side.
 
+### Ruby
+
+Persistence of commands in your system will be handled in the server side command handlers, but if your application details need to be persisted, there are only two functions necessary to configure Leonidas:
+
+* persister\_class\_is(persister\_class) - The class responsible for handling persisting the application will be passed into this function
+
+* add\_app\_state\_builder(builder\_class) - For every application you need to support, you will likely need a custom state builder to generate the appropriate state for that application
+
+And example config would resemble the following:
+
+    persister_class_is SaveMyTransgressions
+
+    add_app_state_builder Builders::PeasantStateBuilder
+    add_app_state_builder Buidlers::AristocraticStateBuilder
 
 ## Usage
+
+### Javascript
+
+First, create at least one handler for commands in your system (I'm going to use Coffeescript, because it's so nice):
+
+    class PeasantHitHandler
+
+      constructor: (@app)-> # this is temporary - I would much rather be passing in @peasants, but object duplication in Javascript is tricky
+
+      handles: (command)->
+        command.name == "peasant-hit"
+
+      run: (command)->
+        peasantId = command.data.peasantId
+        ... find peasant in @app.state by peasantId
+        peasant.status = "humbled"
+
+Then, you can create a Commander (I would suggest using the default configuration, unless you need custom functionality in the nitty gritty):
+
+    var supremeRuler = Commander.default("app name", [ new PeasantHitHandler() ], "http://mydomain.com/my/sync/url")
+
+Now you can start and stop syncing and issue commands to your hearts content:
+
+    supremeRuler.startSync() # not the funniest line... oh well
+    supremeRuler.issueCommand("peasant-hit", { peasantId: 10 })
+
+This will automatically be handled and synced with your server, most importantly so that you will know if any ruthless rulers from other clients have been hitting your peasants.
+
+### Ruby
+
+As always, the server side is a bit more complicated.
+
+First, you should create at least one command handler. Note that the handler will have the logic necessary to persist your changes - the mechanism for running commands is agnostic, so all persistence options are supported:
+    
+    class PeasantHitHandler
+      include Leonidas::Commands::Handler # this just ensures that all necessary functions are available
+
+      def initialize(app) # similar problem - have to make sure object references work properly
+        @app = app
+      end
+
+      def handles?(command)
+        command.name == "peasant-hit"
+      end
+
+      def run(command)
+        peasant_id = command.data.peasantId # probably camel-cased - it came from js, after all
+        ... find peasant in @app.current_state.peasants by peasant_id
+        peasant.status = :humbled
+      end
+
+      def persist(command)
+        ... # persistence logic - up to you, homie
+      end
+    end
+
+Then, you can create an App:
+
+    class PeasantSubjugationApp
+      include Leonidas::App::App # this is the neat part that gives you a Leonidas App
+
+      def initialize
+        @name = "Kingdom Zamunda" # this name must be unique amongst all your apps
+        @persist_state = true # this means that commands with be persisted when they are run
+        @locked_state = { peasants: [ ... ] } # this is the stable state of your application
+        @active_state = { peasants: [ ... ] } # this is the active state (memory only, never persisted) of your application 
+        @connections = [ ] # an empty list of connections when an app is first built
+        @processor = Leonidas::Commands::Processor.new([ PeasantHitHandler.new(self) ]) # a processor initialized with the necessary command handlers
+      end
+
+    end
+
+This is enough to have a functioning Leonidas app - of course, it's likely you will need customization to handle the semantic details of your state.
+
+Now you want to run your app and rule your kingdom (from an endpoint in Sinatra):
+
+    include Leonidas::App::AppRepository # I recommend using the mixin, it makes the function available
+
+    get "/rule-zamunda" do
+      app = PeasantSubjugationApp.new
+      app_repository.watch app # now the app is being stored and referenced from memory
+      ...
+    end
+
+Eventually you need to load your app:
+    
+    ...
+    get "/i-want-to-rule-zamunda-too" do
+      app = app_repository.find "Kingdom Zamunda"
+      ...
+      haml :see_your_kingdom
+    end
+
+Great! We now have an app running in memory, updating state, and if you did well, communicating to the client(s) at regular intervals.
+
+But what if you (a) need to restart the machine and lose all of our state, or (b) want to revive an old closed application? This is where a persistent application comes into play.
+
+A persistent application means simply that you have stored your application details, active connections, and commands in some sort of database. In order to reopen an application that has been closed, or restore an application to memory from disk, we need to be able to load the app from the database via a generalized solution.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
