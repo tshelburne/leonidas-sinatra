@@ -5,7 +5,7 @@ Synchronizer = require "leonidas/commands/synchronizer"
 Commander = require 'leonidas/commander'
 
 describe "Commander", ->
-	manager = null
+	commander = null
 	client = null
 	organizer = null
 	synchronizer = null
@@ -18,13 +18,13 @@ describe "Commander", ->
 		synchronizer = new Synchronizer("http://mydomain.com/sync", client, organizer, stabilizer)
 		spyOn(synchronizer, "push")
 		spyOn(synchronizer, "pull")
-		manager = new Commander(organizer, processor, stabilizer, synchronizer)
+		commander = new Commander(organizer, processor, stabilizer, synchronizer)
 
 	describe "::default", ->
 
-		it "will return a default command manager using the built in classes", ->
-			manager = Commander.default(client, [ new PopCharHandler("tim") ], "http://mydomain.com/sync")
-			expect(manager.constructor.name).toEqual "Commander"
+		it "will return a default commander using the built in classes", ->
+			commander = Commander.default(client, [ new PopCharHandler("tim") ], "http://mydomain.com/sync")
+			expect(commander.constructor).toEqual Commander
 
 	describe "#startSync", ->
 
@@ -32,12 +32,12 @@ describe "Commander", ->
       jasmine.Clock.useMock()
 
 		it "will set the synchronizer to begin pushing updates", ->
-     	manager.startSync()
+     	commander.startSync()
      	jasmine.Clock.tick(5500)
      	expect(synchronizer.push.calls.length).toEqual 5
 
 		it "will set the synchronizer to begin pulling updates", ->
-     	manager.startSync()
+     	commander.startSync()
      	jasmine.Clock.tick(11000)
      	expect(synchronizer.pull.calls.length).toEqual 2
 
@@ -47,23 +47,23 @@ describe "Commander", ->
       jasmine.Clock.useMock()
 
 		it "will stop the synchronizer from pushing updates", ->
-			manager.startSync()
-			manager.stopSync()
+			commander.startSync()
+			commander.stopSync()
 			jasmine.Clock.tick(10000)
 			expect(synchronizer.push).not.toHaveBeenCalled()
 
 		it "will stop the synchronizer from pulling updates", ->
-			manager.startSync()
-			manager.stopSync()
+			commander.startSync()
+			commander.stopSync()
 			jasmine.Clock.tick(10000)
 			expect(synchronizer.pull).not.toHaveBeenCalled()
 
 	describe "#issueCommand", ->
 
 		it "will generate an unsynchronized command", ->
-			manager.issueCommand "pop-char", {}
+			commander.issueCommand "pop-char", {}
 			expect(organizer.unsyncedCommands.length).toEqual 1
 
 		it "will run the command to update the local client state", ->
-			manager.issueCommand "pop-char", {}
+			commander.issueCommand "pop-char", {}
 			expect(client.activeState.string).toEqual "tes"
