@@ -12,9 +12,9 @@ describe Leonidas::Dsl::ConfigurationExpression do
 	describe '#persister_class_is' do 
 
 		it "will set the class used to persist apps in Persister" do
-			persister = TestClasses::TestAppPersister.new
-			subject.persister_class_is persister
-			Leonidas::PersistenceLayer::Persister.class_variable_get(:@@persister).should eq persister
+			persister_class = TestClasses::TestAppPersister
+			subject.persister_class_is persister_class
+			Leonidas::PersistenceLayer::Persister.class_variable_get(:@@persister).should_not be_nil
 		end
 
 	end
@@ -22,9 +22,9 @@ describe Leonidas::Dsl::ConfigurationExpression do
 	describe '#add_app_state_builder' do 
 	
 		it "will add a state builder to the persister's state loader" do
-			builder = TestClasses::TestAppStateBuilder.new
-			subject.add_app_state_builder builder
-			Leonidas::PersistenceLayer::Persister.class_variable_get(:@@state_loader).instance_variable_get(:@builders).should eq [ builder ]
+			builder_class = TestClasses::TestAppStateBuilder
+			subject.add_app_state_builder builder_class
+			Leonidas::PersistenceLayer::Persister.class_variable_get(:@@state_loader).instance_variable_get(:@builders).should_not be_empty
 		end
 	
 	end
