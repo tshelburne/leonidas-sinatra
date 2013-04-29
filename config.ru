@@ -7,7 +7,3 @@ end
 map '/sync' do
 	run Leonidas::Routes::SyncApp
 end
-
-map '/' do
-	run TestApp
-end
