@@ -1,4 +1,5 @@
 describe Leonidas::PersistenceLayer::Persister do
+	include TestObjects
 
 	def clear_persistence_layer
 		Leonidas::PersistenceLayer::Persister.class_variable_set(:@@persister, nil)
@@ -38,6 +39,7 @@ describe Leonidas::PersistenceLayer::Persister do
 
 		before :each do 
 			described_class.set_app_persister! @persister
+			described_class.add_state_builder! TestClasses::TestAppStateBuilder.new
 		end
 	
 		it "will load an app with the given name" do
@@ -46,6 +48,13 @@ describe Leonidas::PersistenceLayer::Persister do
 
 		it "will return nil if no app with the given name exists" do
 			subject.load("badname").should be_nil
+		end
+
+		it "will set the app current state to the active state" do 
+			conn = @app.create_connection!
+			conn.add_command! build_command(conn, conn.last_update+10)
+			subject.load("app 1")
+			@app.current_state.should eq({ value: 1 })
 		end
 	
 	end

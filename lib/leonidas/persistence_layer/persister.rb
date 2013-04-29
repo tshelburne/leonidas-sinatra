@@ -33,7 +33,10 @@ module Leonidas
 			
 			def self.load(app_name)
 				app = @@persister.load app_name unless @@persister.nil?
-				@@state_loader.load_state app unless app.nil?
+				unless app.nil?
+					@@state_loader.load_state app
+					app.process_commands!
+				end
 				app
 			end
 
