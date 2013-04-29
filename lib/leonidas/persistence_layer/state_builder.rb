@@ -7,8 +7,8 @@ module Leonidas
 				false
 			end
 
-			def build_state(app)
-				# build the current state
+			def build_stable_state(app)
+				# build the stable state
 			end
 
 		end

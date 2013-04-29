@@ -13,7 +13,7 @@ module Leonidas
 			end
 
 			def load_state(app)
-				@builders.each {|builder| return builder.build_state app if builder.handles? app}
+				@builders.each {|builder| return builder.build_stable_state app if builder.handles? app}
 			end
 
 		end

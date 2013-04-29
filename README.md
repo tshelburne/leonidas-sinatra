@@ -179,7 +179,7 @@ Create your application's state builder:
           app.is_a? PeasantSubjugationApp
         end
 
-        def build_state(app)
+        def build_stable_state(app)
           ... # return the peasants to the fields, so to speak
         end
 

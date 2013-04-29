@@ -47,7 +47,7 @@ module TestClasses
 			app.is_a? TestApp
 		end
 
-		def build_state(app)
+		def build_stable_state(app)
 			app.state = { value: 3 }
 		end
 
