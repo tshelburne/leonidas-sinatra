@@ -18,7 +18,7 @@ module Leonidas
 					@handlers.each do |command_handler|
 						if command_handler.handles? command
 							command_handler.run(command) 
-							command_handler.commit(command) if persist
+							command_handler.persist(command) if persist
 						end
 					end
 				end

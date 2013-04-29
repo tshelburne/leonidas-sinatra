@@ -15,7 +15,7 @@ module TestClasses
 			@app.current_state[:value] += command.data[:increment_by]
 		end
 
-		def commit(command)
+		def persist(command)
 			TestClasses::PersistentState.value += command.data[:increment_by]
 		end
 	end
@@ -35,7 +35,7 @@ module TestClasses
 			@app.current_state[:value] *= command.data[:multiply_by]
 		end
 
-		def commit(command)
+		def persist(command)
 			TestClasses::PersistentState.value *= command.data[:multiply_by]
 		end
 	end

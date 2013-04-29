@@ -11,7 +11,7 @@ module Leonidas
 				# perform the command
 			end
 
-			def commit(command)
+			def persist(command)
 				# perform the command
 			end
 
