@@ -2,11 +2,12 @@ module Leonidas
 	module Routes
 
 		class SyncApp < Sinatra::Base
+			include Leonidas::App::AppRepository
 
 			get '/:app_name' do
 		    content_type "application/json"
 
-		    app = Leonidas::App::AppRepository.find params[:app_name]
+		    app = app_repository.find params[:app_name]
 
 		    new_commands = params[:clients].reduce([ ]) {|commands, client| commands.concat app.connection(client[:id]).commands_since(client[:lastUpdate])}
 		    additional_clients = app.connections.select {|connection| connection.id != params[:clientId]}
@@ -25,7 +26,7 @@ module Leonidas
 			post '/:app_name' do
 		    content_type "application/json"
 
-		    app = Leonidas::App::AppRepository.find params[:app_name]
+		    app = app_repository.find params[:app_name]
 		    connection = app.connection params[:clientId]
 
 		    commands = params[:commands].map {|command| Leonidas::Commands::Command.new(command.name, command.data, command.timestamp, connection)}
