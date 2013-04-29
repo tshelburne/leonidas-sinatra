@@ -1,7 +1,12 @@
 describe Leonidas::Dsl::ConfigurationExpression do
 
-	before :each do
+	def set_default_persister
 		Leonidas::PersistenceLayer::Persister.class_variable_set(:@@persister, nil)
+		Leonidas::PersistenceLayer::Persister.class_variable_get(:@@state_loader).instance_variable_set(:@builders, [])
+	end
+
+	after :each do
+		set_default_persister
 	end
 
 	describe '#persister_class_is' do 

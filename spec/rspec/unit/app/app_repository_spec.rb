@@ -1,6 +1,6 @@
 describe Leonidas::App::Repository do
 
-	before :each do
+	after :each do
 		Leonidas::MemoryLayer::MemoryRegistry.clear_registry!
 	end
 

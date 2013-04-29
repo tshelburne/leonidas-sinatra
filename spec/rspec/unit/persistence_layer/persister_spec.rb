@@ -1,5 +1,10 @@
 describe Leonidas::PersistenceLayer::Persister do
 
+	def set_default_persister
+		Leonidas::PersistenceLayer::Persister.class_variable_set(:@@persister, nil)
+		Leonidas::PersistenceLayer::Persister.class_variable_get(:@@state_loader).instance_variable_set(:@builders, [])
+	end
+
 	subject do
 		described_class
 	end
@@ -7,6 +12,10 @@ describe Leonidas::PersistenceLayer::Persister do
 	before :each do
 		@app = TestClasses::TestApp.new
 		@persister = TestClasses::TestAppPersister.new([ @app ])
+	end
+
+	after :each do
+		set_default_persister
 	end
 
 	describe '::set_app_persister' do 
