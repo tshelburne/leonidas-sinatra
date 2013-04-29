@@ -12,6 +12,11 @@ module TestClasses
 			@processor = Leonidas::Commands::Processor.new([ IncrementHandler.new(self), MultiplyHandler.new(self) ])
 		end
 
+		def state=(val)
+			@locked_state = val.dup
+			@active_state = val.dup
+		end
+
 	end
 
 	class TestRepositoryContainer

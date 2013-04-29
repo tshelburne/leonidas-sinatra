@@ -44,11 +44,11 @@ module TestClasses
 		include Leonidas::PersistenceLayer::StateBuilder
 
 		def handles?(app)
-			
+			app.is_a? TestApp
 		end
 
 		def build_state(app)
-
+			app.state = { value: 3 }
 		end
 
 	end
