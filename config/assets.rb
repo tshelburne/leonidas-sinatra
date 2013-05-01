@@ -1,4 +1,4 @@
-assets_are_in File.expand_path("#{File.dirname(__FILE__)}/assets")
+assets_are_in "#{::Leonidas.root_path}/assets"
 
 asset 'leonidas.js' do |a|
 	a.scan 'scripts/coffee', 'scripts/js'

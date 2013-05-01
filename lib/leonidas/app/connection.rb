@@ -2,7 +2,7 @@ module Leonidas
 	module App
 
 		class Connection
-			include Leonidas::Commands::Aggregator
+			include ::Leonidas::Commands::Aggregator
 			
 			attr_reader :id, :active_commands
 			attr_accessor :last_update

@@ -12,7 +12,7 @@ module Leonidas
 			end
 
 			def create_connection!
-				connection = Leonidas::App::Connection.new
+				connection = ::Leonidas::App::Connection.new
 				@connections << connection
 				connection
 			end

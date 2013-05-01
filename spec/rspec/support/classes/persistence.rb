@@ -16,7 +16,7 @@ module TestClasses
 	end
 
 	class TestAppPersister
-		include Leonidas::PersistenceLayer::AppPersister
+		include ::Leonidas::PersistenceLayer::AppPersister
 
 		def initialize(apps=[])
 			@apps = apps
@@ -41,7 +41,7 @@ module TestClasses
 	end
 
 	class TestAppStateBuilder
-		include Leonidas::PersistenceLayer::StateBuilder
+		include ::Leonidas::PersistenceLayer::StateBuilder
 
 		def handles?(app)
 			app.is_a? TestClasses::TestApp

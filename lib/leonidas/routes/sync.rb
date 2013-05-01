@@ -2,7 +2,7 @@ module Leonidas
 	module Routes
 
 		class SyncApp < Sinatra::Base
-			include Leonidas::App::AppRepository
+			include ::Leonidas::App::AppRepository
 
 			get '/:app_name' do
 		    content_type "application/json"
@@ -29,7 +29,7 @@ module Leonidas
 		    app = app_repository.find params[:app_name]
 		    connection = app.connection params[:clientId]
 
-		    commands = params[:commands].map {|command| Leonidas::Commands::Command.new(command.name, command.data, command.timestamp, connection)}
+		    commands = params[:commands].map {|command| ::Leonidas::Commands::Command.new(command.name, command.data, command.timestamp, connection)}
 		    connection.add_commands! commands
 
 		    {

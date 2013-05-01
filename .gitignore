@@ -1,6 +1,6 @@
 .bundle
 .jhw-cache
-vendor
+vendor/**/*
 .DS_Store
 **/.DS_Store
 browser_testing

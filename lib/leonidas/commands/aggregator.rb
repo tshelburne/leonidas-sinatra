@@ -4,7 +4,7 @@ module Leonidas
 		module Aggregator
 
 			def add_command!(command)
-				raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? Leonidas::Commands::Command
+				raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command
 				@active_commands << command
 			end
 

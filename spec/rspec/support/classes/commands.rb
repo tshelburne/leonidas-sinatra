@@ -1,7 +1,7 @@
 module TestClasses
 
 	class IncrementHandler 
-		include Leonidas::Commands::Handler
+		include ::Leonidas::Commands::Handler
 
 		def initialize(app)
 			@app = app
@@ -21,7 +21,7 @@ module TestClasses
 	end
 
 	class MultiplyHandler 
-		include Leonidas::Commands::Handler
+		include ::Leonidas::Commands::Handler
 
 		def initialize(app)
 			@app = app
@@ -41,7 +41,7 @@ module TestClasses
 	end
 
 	class TestAggregator
-		include Leonidas::Commands::Aggregator
+		include ::Leonidas::Commands::Aggregator
 
 		def initialize
 				@active_commands = [ ]

@@ -6,8 +6,8 @@ module Leonidas
 			@@apps = { }
 
 			def self.register_app!(app)
-				raise TypeError, "Argument must include Leonidas::App::App" unless app.class < Leonidas::App::App
-				raise StandardError, "An app with the name '#{app.name}' is already registered" if Leonidas::MemoryLayer::MemoryRegistry.has_app? app.name
+				raise TypeError, "Argument must include Leonidas::App::App" unless app.class < ::Leonidas::App::App
+				raise StandardError, "An app with the name '#{app.name}' is already registered" if ::Leonidas::MemoryLayer::MemoryRegistry.has_app? app.name
 				@@apps[app.name] = app
 			end
 

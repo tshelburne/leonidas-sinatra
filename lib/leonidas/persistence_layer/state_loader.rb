@@ -8,7 +8,7 @@ module Leonidas
 			end
 
 			def add_builder!(builder)
-				raise TypeError, "Argument must include Leonidas::PersistenceLayer::StateBuilder" unless builder.class < Leonidas::PersistenceLayer::StateBuilder
+				raise TypeError, "Argument must include Leonidas::PersistenceLayer::StateBuilder" unless builder.class < ::Leonidas::PersistenceLayer::StateBuilder
 				@builders << builder
 			end
 

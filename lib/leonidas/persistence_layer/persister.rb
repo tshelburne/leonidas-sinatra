@@ -21,11 +21,11 @@ module Leonidas
 			@@persister = nil
 
 			def self.set_app_persister!(persister)
-				raise TypeError, "Argument must include Leonidas::PersistenceLayer::AppPersister" unless persister.class < Leonidas::PersistenceLayer::AppPersister
+				raise TypeError, "Argument must include Leonidas::PersistenceLayer::AppPersister" unless persister.class < ::Leonidas::PersistenceLayer::AppPersister
 				@@persister = persister
 			end
 
-			@@state_loader = Leonidas::PersistenceLayer::StateLoader.new
+			@@state_loader = ::Leonidas::PersistenceLayer::StateLoader.new
 
 			def self.add_state_builder!(builder)
 				@@state_loader.add_builder! builder	

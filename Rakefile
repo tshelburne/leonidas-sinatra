@@ -1,6 +1,20 @@
+$: << File.expand_path("#{File.dirname(__FILE__)}/lib")
+
+require 'leonidas'
+
 require 'rspec/core/rake_task'
 require 'jasmine-headless-webkit'
 require 'keystone'
+require 'echoe'
+
+Echoe.new("leonidas") do |p|
+  p.author = "Tim Shelburne"
+  p.email = "shelburt02@gmail.com"
+  p.url = "https://github.com/tshelburne/leonidas"
+
+  p.ignore_pattern = FileList[".gitignore"]
+  p.development_dependencies = [ "jasmine", "jasmine-headless-webkit" ]
+end
 
 desc "Default"
 task default: :'test:rspec'
