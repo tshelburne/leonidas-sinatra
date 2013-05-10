@@ -19,3 +19,8 @@ describe "Handler", ->
 
 		it "will always throw, because it should be overridden", ->
 			expect(-> handler.run buildCommand(new Date())).toThrow()
+
+	describe "#rollback", ->
+
+		it "will always throw, because it should be overridden", ->
+			expect(-> handler.rollback buildCommand(new Date())).toThrow()

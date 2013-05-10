@@ -4,6 +4,9 @@ class Handler
 		command.name is @name
 
 	run: (command)->
-		throw new Error "Every CommandHandler should override to process a command #run."
+		throw new Error "Every CommandHandler should override #run."
+
+	rollback: (command)->
+		throw new Error "Every CommandHandler should override #rollback."
 
 return Handler
