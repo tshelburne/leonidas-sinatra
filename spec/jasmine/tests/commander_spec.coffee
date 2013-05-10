@@ -13,7 +13,7 @@ describe "Commander", ->
 	beforeEach ->
 		client = buildClient()
 		organizer = new Organizer()
-		processor = new Processor([ new PopCharHandler(client.activeState) ])
+		processor = new Processor([ new MultiplyHandler(client.activeState) ])
 		stabilizer = new Stabilizer(client, organizer, processor)
 		synchronizer = new Synchronizer("http://mydomain.com/sync", client, organizer, stabilizer)
 		spyOn(synchronizer, "push")
@@ -23,7 +23,7 @@ describe "Commander", ->
 	describe "::create", ->
 
 		it "will create a Commander instance using the included classes", ->
-			commander = Commander.create(client, [ new PopCharHandler("tim") ], "http://mydomain.com/sync")
+			commander = Commander.create(client, [ new MultiplyHandler("tim") ], "http://mydomain.com/sync")
 			expect(commander.constructor).toEqual Commander
 
 	describe "#startSync", ->
@@ -71,9 +71,9 @@ describe "Commander", ->
 	describe "#issueCommand", ->
 
 		it "will generate an unsynchronized command", ->
-			commander.issueCommand "pop-char", {}
+			commander.issueCommand "multiply", { number: 3 }
 			expect(organizer.unsyncedCommands.length).toEqual 1
 
 		it "will run the command to update the local client state", ->
-			commander.issueCommand "pop-char", {}
-			expect(client.activeState.string).toEqual "tes"
+			commander.issueCommand "multiply", { number: 3 }
+			expect(client.activeState.integer).toEqual 3

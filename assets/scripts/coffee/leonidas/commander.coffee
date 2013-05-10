@@ -31,6 +31,6 @@ class Commander
 	issueCommand: (name, data)->
 		command = new Command(name, data, @client.id)
 		@organizer.addCommand command
-		@processor.processCommand command
+		@processor.runCommand command
 
 return Commander

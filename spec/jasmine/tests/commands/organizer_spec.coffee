@@ -5,10 +5,10 @@ describe "Organizer", ->
 	organizer = null
 
 	beforeEach ->
-		command1 = buildCommand(1)
-		command2 = buildCommand(2, "pop-char")
-		command3 = buildCommand(3, "pop-char")
-		command4 = buildCommand(4)
+		command1 = buildCommand(new Date(4, 1, 2013), { number: 1 })
+		command2 = buildCommand(new Date(4, 2, 2013), { number: 2 }, "multiply")
+		command3 = buildCommand(new Date(4, 3, 2013), { number: 3 }, "multiply")
+		command4 = buildCommand(new Date(4, 4, 2013), { number: 4 })
 		organizer = new Organizer()
 
 	describe "#addCommand", ->

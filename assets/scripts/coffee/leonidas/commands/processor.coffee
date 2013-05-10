@@ -2,12 +2,20 @@ class Processor
 	
 	constructor: (@handlers)->
 
-	processCommand: (command)->
+	runCommand: (command)->
 		for handler in @handlers
 			handler.run command if handler.handles command
 
-	processCommands: (commands)->
+	runCommands: (commands)->
 		for command in commands
-			@processCommand command
+			@runCommand command
+
+	rollbackCommand: (command)->
+		for handler in @handlers
+			handler.rollback command if handler.handles command
+
+	rollbackCommands: (commands)->
+		for command in commands
+			@rollbackCommand command
 
 return Processor

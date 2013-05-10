@@ -8,9 +8,9 @@ addMock "syncPullResponse",
 	message: 'commands retrieved'
 	data:
 		commands: [
-			{ name: 'pop-char',  data: { }, connection: "2345", timestamp: new Date(4, 2, 2013).getTime() },
-			{ name: 'increment', data: { }, connection: "3456", timestamp: new Date(4, 6, 2013).getTime() },
-			{ name: 'increment', data: { }, connection: "3456", timestamp: new Date(4, 8, 2013).getTime() }
+			{ name: 'multiply',  data: { number: 2 }, connection: "2345", timestamp: new Date(4, 2, 2013).getTime() },
+			{ name: 'increment', data: { number: 1 }, connection: "3456", timestamp: new Date(4, 6, 2013).getTime() },
+			{ name: 'increment', data: { number: 3 }, connection: "3456", timestamp: new Date(4, 8, 2013).getTime() }
 		]
 		currentClients: [
 			{ id: "2345", lastUpdate: new Date(4, 2, 2013).getTime() },

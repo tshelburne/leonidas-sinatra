@@ -5,9 +5,9 @@ class Stabilizer
 	stabilize: (stableTimestamp)->
 		stableCommands = (command for command in @organizer.activeCommands() when command.timestamp <= stableTimestamp)
 		@client.revertState()
-		@processor.processCommands(stableCommands)
+		@processor.runCommands(stableCommands)
 		@client.lockState()
 		@organizer.lockCommands(stableCommands)
-		@processor.processCommands(@organizer.activeCommands())
+		@processor.runCommands(@organizer.activeCommands())
 
 return Stabilizer

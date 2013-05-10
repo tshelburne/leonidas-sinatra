@@ -1,16 +1,20 @@
-globalize class IncrementHandler
+Handler = require 'leonidas/commands/handler'
+
+globalize class IncrementHandler extends Handler
 
 	constructor: (@state)->
+		@name = "increment"
 
-	handles: (command)-> command.name is "increment"
+	run: (command)-> @state.integer += command.data.number
 
-	run: (command)-> @state.integer++
+	rollback: (command)-> @state.integer -= command.data.number
 
 
-globalize class PopCharHandler
+globalize class MultiplyHandler extends Handler
 
 	constructor: (@state)->
+		@name = "multiply"
 
-	handles: (command)-> command.name is "pop-char"
+	run: (command)-> @state.integer *= command.data.number
 
-	run: (command)-> @state.string = @state.string.slice(0,-1)
+	rollback: (command)-> @state.integer /= command.data.number
