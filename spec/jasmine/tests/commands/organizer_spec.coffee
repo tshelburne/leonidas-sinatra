@@ -43,16 +43,16 @@ describe "Organizer", ->
 			organizer.markAsSynced [ command1, command2 ]
 			expect(organizer.unsyncedCommands).toEqual [ command3 ]
 
-	describe "#markAsInactive", ->
+	describe "#lockCommands", ->
 
-		it "will add the requested commands to the inactiveCommands list", ->
+		it "will add the requested commands to the lockedCommands list", ->
 			organizer.addCommands [ command1, command2, command3 ]
-			organizer.markAsInactive [ command1, command2 ]
-			expect(organizer.inactiveCommands).toEqual [ command1, command2 ]
+			organizer.lockCommands [ command1, command2 ]
+			expect(organizer.lockedCommands).toEqual [ command1, command2 ]
 
 		it "will remove requested commands from the syncedCommands list", ->
 			organizer.addCommands [ command1, command2, command3 ], false
-			organizer.markAsInactive [ command1, command2 ]
+			organizer.lockCommands [ command1, command2 ]
 			expect(organizer.syncedCommands).toEqual [ command3 ]
 
 	describe "#activeCommands", ->

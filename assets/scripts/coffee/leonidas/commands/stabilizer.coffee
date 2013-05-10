@@ -7,7 +7,7 @@ class Stabilizer
 		@client.revertState()
 		@processor.processCommands(stableCommands)
 		@client.lockState()
-		@organizer.markAsInactive(stableCommands)
+		@organizer.lockCommands(stableCommands)
 		@processor.processCommands(@organizer.activeCommands())
 
 return Stabilizer

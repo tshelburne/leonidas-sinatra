@@ -67,6 +67,6 @@ describe "Synchronizer", ->
 
 			it "will deactivate stable commands", ->
 				synchronizer.pull()
-				expect(organizer.inactiveCommands.length).toEqual 2
-				expect(organizer.inactiveCommands[0].toHash()).toEqual { name: 'increment',  data: { }, timestamp: 1 },
-				expect(organizer.inactiveCommands[1].toHash()).toEqual { name: 'pop-char', data: { }, timestamp: 2 },
+				expect(organizer.lockedCommands.length).toEqual 2
+				expect(organizer.lockedCommands[0].toHash()).toEqual { name: 'increment',  data: { }, timestamp: 1 },
+				expect(organizer.lockedCommands[1].toHash()).toEqual { name: 'pop-char', data: { }, timestamp: 2 },

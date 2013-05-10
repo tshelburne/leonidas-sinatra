@@ -3,7 +3,7 @@ class Organizer
 	constructor: ->
 		@unsyncedCommands = [ ]
 		@syncedCommands = [ ]
-		@inactiveCommands = [ ]
+		@lockedCommands = [ ]
 
 	addCommand: (command, unsynced=true)-> if unsynced then @unsyncedCommands.push command else @syncedCommands.push command
 		
@@ -13,8 +13,8 @@ class Organizer
 		@syncedCommands.push(command) for command in commands when command not in @syncedCommands
 		@unsyncedCommands = (command for command in @unsyncedCommands when command not in commands)
 
-	markAsInactive: (commands)-> 
-		@inactiveCommands.push(command) for command in commands
+	lockCommands: (commands)-> 
+		@lockedCommands.push(command) for command in commands
 		@syncedCommands = (command for command in @syncedCommands when command not in commands)
 
 	activeCommands: -> 
