@@ -125,8 +125,12 @@ Then, you can create an App:
         @persist_state = true # this means that commands with be persisted when they are run
         @locked_state = { peasants: [ ... ] } # this is the stable state of your application
         @active_state = { peasants: [ ... ] } # this is the active state (memory only, never persisted) of your application 
-        @connections = [ ] # an empty list of connections when an app is first built
-        @processor = Leonidas::Commands::Processor.new([ PeasantHitHandler.new(self) ]) # a processor initialized with the necessary command handlers
+      end
+
+      def handlers # this is provided for the processor to initialize itself upon invocation
+        [
+          PeasantHitHandler.new(self)
+        ]
       end
 
     end
