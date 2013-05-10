@@ -1,1 +1,1 @@
-require "lib/jquery"
+require "lib/reqwest"

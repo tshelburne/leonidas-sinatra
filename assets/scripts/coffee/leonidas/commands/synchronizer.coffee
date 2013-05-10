@@ -1,4 +1,4 @@
-require "lib/jquery"
+require 'lib/reqwest'
 
 Command = require "leonidas/commands/command"
 
@@ -9,9 +9,10 @@ class Synchronizer
 
 	push: =>
 		unsyncedCommands = (command for command in @organizer.unsyncedCommands)
-		$.ajax(
+		reqwest(
 			url: "#{@syncUrl}"
-			method: "POST"
+			type: "json"
+			method: "post"
 			data: 
 				clientId: @client.id
 				commands: (command.toHash() for command in unsyncedCommands)
@@ -21,9 +22,10 @@ class Synchronizer
 		)
 
 	pull: =>
-		$.ajax(
+		reqwest(
 			url: "#{@syncUrl}"
-			method: "GET"
+			type: "json"
+			method: "get"
 			data:
 				clientId: @client.id
 				clients: @externalClients
