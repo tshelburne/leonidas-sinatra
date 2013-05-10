@@ -4,7 +4,7 @@ describe "Client", ->
 	client = null
 
 	beforeEach ->
-		client = new Client("app 1", { test: "test" })
+		client = new Client("app-1", { test: "test" })
 		client.activeState = { test: "different" }
 
 	describe "#revertState", ->

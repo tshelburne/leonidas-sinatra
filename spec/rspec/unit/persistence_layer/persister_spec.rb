@@ -43,7 +43,7 @@ describe Leonidas::PersistenceLayer::Persister do
 		end
 	
 		it "will load an app with the given name" do
-			subject.load("app 1").should eq @app
+			subject.load("app-1").should eq @app
 		end
 
 		it "will return nil if no app with the given name exists" do
@@ -53,7 +53,7 @@ describe Leonidas::PersistenceLayer::Persister do
 		it "will set the app current state to the active state" do 
 			conn = @app.create_connection!
 			conn.add_command! build_command(conn, conn.last_update+10)
-			subject.load("app 1")
+			subject.load("app-1")
 			@app.current_state.should eq({ value: 1 })
 		end
 	
@@ -64,9 +64,9 @@ describe Leonidas::PersistenceLayer::Persister do
 		it "will persist the app" do
 			described_class.set_app_persister! @persister
 			@persister.clear_apps!
-			subject.load("app 1").should be_nil
+			subject.load("app-1").should be_nil
 			subject.persist @app
-			subject.load("app 1").should eq @app
+			subject.load("app-1").should eq @app
 		end
 	
 	end
@@ -76,7 +76,7 @@ describe Leonidas::PersistenceLayer::Persister do
 		it "will delete the app" do
 			described_class.set_app_persister! @persister
 			subject.delete @app
-			subject.load("app 1").should be_nil
+			subject.load("app-1").should be_nil
 		end
 	
 	end

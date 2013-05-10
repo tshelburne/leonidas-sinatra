@@ -12,7 +12,7 @@ describe Leonidas::App::App do
 	describe '#name' do 
 	
 		it "will return the name defined in the includer class" do
-			subject.name.should eq "app 1"
+			subject.name.should eq "app-1"
 		end
 	
 	end
