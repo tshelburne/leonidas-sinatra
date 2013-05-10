@@ -7,8 +7,6 @@ Synchronizer = require "leonidas/commands/synchronizer"
 class Commander
 
 	constructor: (@client, @organizer, @processor, @stabilizer, @synchronizer)->
-		@pushFrequency = 1000
-		@pullFrequency = 5000
 
 	@create: (client, handlers, syncUrl)->
 		organizer = new Organizer()
@@ -18,9 +16,9 @@ class Commander
 
 		new @(client, organizer, processor, stabilizer, synchronizer)
 
-	startSync: ->
-		@pushInterval = setInterval(@synchronizer.push, @pushFrequency)
-		@pullInterval = setInterval(@synchronizer.pull, @pullFrequency)
+	startSync: (pushFrequency=1000, pullFrequency=5000)->
+		@pushInterval = setInterval(@synchronizer.push, pushFrequency)
+		@pullInterval = setInterval(@synchronizer.pull, pullFrequency)
 
 	stopSync: ->
 		clearInterval @pushInterval
