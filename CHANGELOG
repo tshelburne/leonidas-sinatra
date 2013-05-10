@@ -1,1 +1,5 @@
+v0.0.3 removed jquery, replaced with reqwest for simple ajax
+
+v0.0.2 revised library to have unified terminology throughout
+
 v0.0.1 initial library

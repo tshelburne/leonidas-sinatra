@@ -8,13 +8,15 @@ Rakefile
 assets/scripts/coffee/leonidas/client.coffee
 assets/scripts/coffee/leonidas/commander.coffee
 assets/scripts/coffee/leonidas/commands/command.coffee
+assets/scripts/coffee/leonidas/commands/handler.coffee
 assets/scripts/coffee/leonidas/commands/organizer.coffee
 assets/scripts/coffee/leonidas/commands/processor.coffee
 assets/scripts/coffee/leonidas/commands/stabilizer.coffee
 assets/scripts/coffee/leonidas/commands/synchronizer.coffee
-assets/scripts/js/lib/jquery.js
+assets/scripts/js/lib/reqwest.js
 bin/leonidas.js
 config/assets.rb
+leonidas.gemspec
 lib/leonidas.rb
 lib/leonidas/app/app.rb
 lib/leonidas/app/connection.rb
@@ -40,6 +42,7 @@ spec/jasmine/support/requirements.coffee
 spec/jasmine/tests/client_spec.coffee
 spec/jasmine/tests/commander_spec.coffee
 spec/jasmine/tests/commands/command_spec.coffee
+spec/jasmine/tests/commands/handler_spec.coffee
 spec/jasmine/tests/commands/organizer_spec.coffee
 spec/jasmine/tests/commands/processor_spec.coffee
 spec/jasmine/tests/commands/stabilizer_spec.coffee
