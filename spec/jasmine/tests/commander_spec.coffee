@@ -18,7 +18,7 @@ describe "Commander", ->
 		synchronizer = new Synchronizer("http://mydomain.com/sync", client, organizer, stabilizer)
 		spyOn(synchronizer, "push")
 		spyOn(synchronizer, "pull")
-		commander = new Commander(organizer, processor, stabilizer, synchronizer)
+		commander = new Commander(client, organizer, processor, stabilizer, synchronizer)
 
 	describe "::default", ->
 

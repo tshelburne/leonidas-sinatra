@@ -30,7 +30,7 @@ class Synchronizer
 			error: => console.log "pull error"
 			success: (response)=>
 				@externalClients = response.data.currentClients
-				commands = (new Command(command.name, command.data, command.timestamp) for command in response.data.commands)
+				commands = (new Command(command.name, command.data, command.connection, new Date(command.timestamp)) for command in response.data.commands)
 				@organizer.addCommands commands, false
 				@stabilizer.stabilize response.data.stableTimestamp
 		)

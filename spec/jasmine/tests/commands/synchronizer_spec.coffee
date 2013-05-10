@@ -12,10 +12,10 @@ describe "Synchronizer", ->
 	beforeEach ->
 		client = buildClient()
 		organizer = new Organizer()
-		command1 = buildCommand(1)
-		command4 = buildCommand(4, "pop-char")
-		command5 = buildCommand(5, "pop-char")
-		command7 = buildCommand(7)
+		command1 = buildCommand(new Date(4, 1, 2013))
+		command4 = buildCommand(new Date(4, 4, 2013), "pop-char")
+		command5 = buildCommand(new Date(4, 5, 2013), "pop-char")
+		command7 = buildCommand(new Date(4, 7, 2013))
 		processor = new Processor([ new IncrementHandler(client.activeState), new PopCharHandler(client.activeState)])
 		stabilizer = new Stabilizer(client, organizer, processor)
 		synchronizer = new Synchronizer("http://mydomain.com/sync", client, organizer, stabilizer)
@@ -52,21 +52,21 @@ describe "Synchronizer", ->
 
 			it "will update the list of external clients and their latest timestamps", ->
 				synchronizer.pull()
-				expect(synchronizer.externalClients).toEqual [ { id: "2345", lastUpdate: 2 }, { id: "3456", lastUpdate: 8 } ]
+				expect(synchronizer.externalClients).toEqual [ { id: "2345", lastUpdate: new Date(4, 2, 2013).getTime() }, { id: "3456", lastUpdate: new Date(4, 8, 2013).getTime() } ]
 
 			it "will add the list of received commands as synced commands", ->
 				synchronizer.pull()
 				expect(organizer.syncedCommands.length).toEqual 3
-				expect(organizer.syncedCommands[0].toHash()).toEqual { name: 'pop-char',  data: { }, timestamp: 4 },
-				expect(organizer.syncedCommands[1].toHash()).toEqual { name: 'increment', data: { }, timestamp: 6 },
-				expect(organizer.syncedCommands[2].toHash()).toEqual { name: 'increment', data: { }, timestamp: 8 }
+				expect(organizer.syncedCommands[0].toHash()).toEqual { name: 'pop-char',  data: { }, clientId: "id", timestamp: new Date(4, 4, 2013).getTime() },
+				expect(organizer.syncedCommands[1].toHash()).toEqual { name: 'increment', data: { }, clientId: "3456",  timestamp: new Date(4, 6, 2013).getTime() },
+				expect(organizer.syncedCommands[2].toHash()).toEqual { name: 'increment', data: { }, clientId: "3456",  timestamp: new Date(4, 8, 2013).getTime() }
 
 			it "will lock to a new stable state", ->
 				synchronizer.pull()
 				expect(client.lockedState).toEqual { integer: 2, string: "tes" }
 
-			it "will deactivate stable commands", ->
+			it "will lock stable commands", ->
 				synchronizer.pull()
 				expect(organizer.lockedCommands.length).toEqual 2
-				expect(organizer.lockedCommands[0].toHash()).toEqual { name: 'increment',  data: { }, timestamp: 1 },
-				expect(organizer.lockedCommands[1].toHash()).toEqual { name: 'pop-char', data: { }, timestamp: 2 },
+				expect(organizer.lockedCommands[0].toHash()).toEqual { name: 'increment', data: { }, clientId: "id", timestamp: new Date(4, 1, 2013).getTime() },
+				expect(organizer.lockedCommands[1].toHash()).toEqual { name: 'pop-char',  data: { }, clientId: "2345",  timestamp: new Date(4, 2, 2013).getTime() },
