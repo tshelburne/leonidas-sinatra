@@ -20,10 +20,10 @@ describe "Commander", ->
 		spyOn(synchronizer, "pull")
 		commander = new Commander(client, organizer, processor, stabilizer, synchronizer)
 
-	describe "::default", ->
+	describe "::create", ->
 
-		it "will return a default commander using the built in classes", ->
-			commander = Commander.default(client, [ new PopCharHandler("tim") ], "http://mydomain.com/sync")
+		it "will create a Commander instance using the included classes", ->
+			commander = Commander.create(client, [ new PopCharHandler("tim") ], "http://mydomain.com/sync")
 			expect(commander.constructor).toEqual Commander
 
 	describe "#startSync", ->
