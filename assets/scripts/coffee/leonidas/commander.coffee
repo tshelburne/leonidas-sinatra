@@ -10,11 +10,11 @@ class Commander
 		@pushFrequency = 1000
 		@pullFrequency = 5000
 
-	@default: (commandSource, handlers, syncUrl)->
+	@default: (client, handlers, syncUrl)->
 		organizer = new Organizer()
 		processor = new Processor(handlers)
-		stabilizer = new Stabilizer(commandSource, organizer, processor)
-		synchronizer = new Synchronizer(syncUrl, commandSource, organizer, stabilizer)
+		stabilizer = new Stabilizer(client, organizer, processor)
+		synchronizer = new Synchronizer(syncUrl, client, organizer, stabilizer)
 
 		new @(organizer, processor, stabilizer, synchronizer)
 

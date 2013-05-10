@@ -66,11 +66,15 @@ First, create at least one handler for commands in your system (I'm going to use
         ... find peasant in @app.state by peasantId
         peasant.status = "humbled"
 
-Then, you can create a Commander (I would suggest using the default configuration, unless you need custom functionality in the nitty gritty):
+Then, create a client for your app (this represents a single command source, with it's own id and state):
 
-    var supremeRuler = Commander.default("app name", [ new PeasantHitHandler() ], "http://mydomain.com/my/sync/url")
+    var client = new Client("clientId", { peasants: [ ... ] })
 
-Now you can start and stop syncing and issue commands to your hearts content:
+Now you can create a Commander (I would suggest using the default configuration, unless you need custom functionality in the nitty gritty):
+
+    var supremeRuler = Commander.default(client, [ new PeasantHitHandler() ], "http://mydomain.com/my/sync/url")
+
+With the commander you can start and stop syncing and issue commands to your heart's content:
 
     supremeRuler.startSync() # not the funniest line... oh well
     supremeRuler.issueCommand("peasant-hit", { peasantId: 10 })
