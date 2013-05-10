@@ -10,7 +10,7 @@ Leonidas.rb is an integration built to support Leonidas commands on the server-s
 
 * Command - Any granular action taken within an application
 * Command Handler - An class representing an action taken on the application state in response to a command 
-# Stable Timestamp - The minimum timestamp of all client connections to the app 
+* Stable Timestamp - The minimum timestamp of all client connections to the app 
 * Locked Command - A command that happened before or at the stable timestamp
 * Active Command - A command that has happened since the stable timestamp of the application
 * Locked State - The state of an application when only locked commands have been run
@@ -58,24 +58,26 @@ And example config would resemble the following:
 
 First, create at least one handler for commands in your system (I'm going to use Coffeescript, because it's so nice):
 
-    class PeasantHitHandler
+    Handler = require "leonidas/commands/handler" # require is made available automatically by using this library
 
-      constructor: (@app)-> # this is temporary - I would much rather be passing in @peasants, but object duplication in Javascript is tricky
+    class PeasantHitHandler extends Handler # gives you automatic testing by command name
 
-      handles: (command)->
-        command.name == "peasant-hit"
+      constructor: (@client)-> # this is temporary - I would much rather be passing in @peasants
+        @name = "peasant-hit" # this will be tested against by #handles - for more customized conditions, override handles
 
       run: (command)->
         peasantId = command.data.peasantId
-        ... find peasant in @app.state by peasantId
+        ... find peasant in @client.state by peasantId
         peasant.status = "humbled"
 
 Then, create a client for your app (this represents a single command source, with it's own id and state):
 
+    Client = require "leonidas/client"
     var client = new Client("clientId", { peasants: [ ... ] })
 
 Now you can create a Commander (I would suggest using the default configuration, unless you need custom functionality in the nitty gritty):
 
+    Commander = require "leonidas/commander"
     var supremeRuler = Commander.default(client, [ new PeasantHitHandler() ], "http://mydomain.com/my/sync/url")
 
 With the commander you can start and stop syncing and issue commands to your heart's content:
