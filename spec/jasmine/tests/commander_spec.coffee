@@ -58,6 +58,16 @@ describe "Commander", ->
 			jasmine.Clock.tick(10000)
 			expect(synchronizer.pull).not.toHaveBeenCalled()
 
+	describe "#forceSync", ->
+
+		it "will immediately push any updates", ->
+			commander.forceSync()
+			expect(synchronizer.push).toHaveBeenCalled()
+
+		it "will immediately pull any updates", ->
+			commander.forceSync()
+			expect(synchronizer.pull).toHaveBeenCalled()
+
 	describe "#issueCommand", ->
 
 		it "will generate an unsynchronized command", ->

@@ -24,6 +24,10 @@ class Commander
 		clearInterval @pushInterval
 		clearInterval @pullInterval
 
+	forceSync: ->
+		@synchronizer.push()
+		@synchronizer.pull()
+
 	issueCommand: (name, data)->
 		command = new Command(name, data, @client.id)
 		@organizer.addCommand command
