@@ -54,17 +54,22 @@ And example config would resemble the following:
 
 First, create at least one handler for commands in your system (I'm going to use Coffeescript, because it's so nice):
 
-    Handler = require "leonidas/commands/handler" # require is made available automatically by using this library
+    Handler = require "leonidas/commands/handler" # require() is provided by this library
 
     class PeasantHitHandler extends Handler # gives you automatic testing by command name
 
-      constructor: (@client)-> # this is temporary - I would much rather be passing in @peasants
+      constructor: (@state)-> # this is temporary - I would much rather be passing in @peasants
         @name = "peasant-hit" # this will be tested against by #handles - for more customized conditions, override handles
 
       run: (command)->
-        peasantId = command.data.peasantId
-        ... find peasant in @client.state by peasantId
+        peasantName = command.data.peasantName
+        ... find peasant in @state by peasantName
         peasant.status = "humbled"
+
+      rollback: (command)->
+        peasantName = command.data.peasantName
+        ... find peasant in @state by peasantName
+        peasant.status = "blissful"
 
 Then, create a client for your app (this represents a single command source, with it's own id and state):
 
@@ -74,12 +79,12 @@ Then, create a client for your app (this represents a single command source, wit
 Now you can create a Commander (I would suggest using the default configuration, unless you need custom functionality in the nitty gritty):
 
     Commander = require "leonidas/commander"
-    var supremeRuler = Commander.default(client, [ new PeasantHitHandler() ], "http://mydomain.com/my/sync/url")
+    var supremeRuler = Commander.default(client, [ new PeasantHitHandler(client.state) ], "http://mydomain.com/my/sync/url")
 
 With the commander you can start and stop syncing and issue commands to your heart's content:
 
     supremeRuler.startSync() # not the funniest line... oh well
-    supremeRuler.issueCommand("peasant-hit", { peasantId: 10 })
+    supremeRuler.issueCommand("peasant-hit", { peasantName: "Semmi" })
 
 This will automatically be handled and synced with your server, most importantly so that you will know if any ruthless rulers from other clients have been hitting your peasants.
 

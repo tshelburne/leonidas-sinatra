@@ -4,13 +4,13 @@ Command = require "leonidas/commands/command"
 
 class Synchronizer
 
-	constructor: (@syncUrl, @client, @organizer, @stabilizer)->
-		@stableTimestamp = 0
+	constructor: (@syncUrl, @client, @organizer, @processor)->
+		@stableTimestamp = new Date 0
 		@externalClients = [ ]
-		@syncedTimestamp = 0
+		@syncedTimestamp = new Date 0
 
 	push: =>
-		unsyncedCommands = (command for command in @organizer.commandsAfter(@syncedTimestamp))
+		unsyncedCommands = (command for command in @organizer.local.commandsAfter(@syncedTimestamp))
 		reqwest(
 			url: "#{@syncUrl}"
 			type: "json"
@@ -34,11 +34,12 @@ class Synchronizer
 				clients: @externalClients
 			error: => console.log "pull error"
 			success: (response)=>
+				newCommands = (new Command(command.name, command.data, command.connection, new Date(command.timestamp)) for command in response.data.commands)
+				@processor.rollbackCommands @organizer.commandsAfter(@stableTimestamp).reverse()
+				@organizer.external.addCommands newCommands
+				@processor.runCommands @organizer.commandsAfter(@stableTimestamp)
 				@externalClients = response.data.currentClients
 				@stableTimestamp = response.data.stableTimestamp
-				commands = (new Command(command.name, command.data, command.connection, new Date(command.timestamp)) for command in response.data.commands)
-				@organizer.addCommands commands, false
-				@stabilizer.stabilize @stableTimestamp
 		)
 
 return Synchronizer

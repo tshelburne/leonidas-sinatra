@@ -1,6 +1,5 @@
 Organizer = require "leonidas/commands/organizer"
 Processor = require "leonidas/commands/processor"
-Stabilizer = require "leonidas/commands/stabilizer"
 Synchronizer = require "leonidas/commands/synchronizer"
 Commander = require 'leonidas/commander'
 
@@ -13,17 +12,16 @@ describe "Commander", ->
 	beforeEach ->
 		client = buildClient()
 		organizer = new Organizer()
-		processor = new Processor([ new MultiplyHandler(client.activeState) ])
-		stabilizer = new Stabilizer(client, organizer, processor)
-		synchronizer = new Synchronizer("http://mydomain.com/sync", client, organizer, stabilizer)
+		processor = new Processor([ new MultiplyHandler(client.state) ])
+		synchronizer = new Synchronizer("http://mydomain.com/sync", client, organizer, processor)
 		spyOn(synchronizer, "push")
 		spyOn(synchronizer, "pull")
-		commander = new Commander(client, organizer, processor, stabilizer, synchronizer)
+		commander = new Commander(client, organizer, processor, synchronizer)
 
 	describe "::create", ->
 
 		it "will create a Commander instance using the included classes", ->
-			commander = Commander.create(client, [ new MultiplyHandler("tim") ], "http://mydomain.com/sync")
+			commander = Commander.create(client, [ new MultiplyHandler({ integer: 1 }) ], "http://mydomain.com/sync")
 			expect(commander.constructor).toEqual Commander
 
 	describe "#startSync", ->
@@ -70,10 +68,10 @@ describe "Commander", ->
 
 	describe "#issueCommand", ->
 
-		it "will generate an unsynchronized command", ->
+		it "will generate a local command", ->
 			commander.issueCommand "multiply", { number: 3 }
-			expect(organizer.unsyncedCommands.length).toEqual 1
+			expect(organizer.local.commands.length).toEqual 1
 
 		it "will run the command to update the local client state", ->
 			commander.issueCommand "multiply", { number: 3 }
-			expect(client.activeState.integer).toEqual 3
+			expect(client.state.integer).toEqual 3
