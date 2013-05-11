@@ -7,9 +7,10 @@ class Synchronizer
 	constructor: (@syncUrl, @client, @organizer, @stabilizer)->
 		@stableTimestamp = 0
 		@externalClients = [ ]
+		@syncedTimestamp = 0
 
 	push: =>
-		unsyncedCommands = (command for command in @organizer.unsyncedCommands)
+		unsyncedCommands = (command for command in @organizer.commandsAfter(@syncedTimestamp))
 		reqwest(
 			url: "#{@syncUrl}"
 			type: "json"
@@ -20,7 +21,7 @@ class Synchronizer
 				commands: (command.toHash() for command in unsyncedCommands)
 			error: => console.log "push error"
 			success: (response)=>
-				@organizer.markAsSynced unsyncedCommands
+				@syncedTimestamp = unsyncedCommands[unsyncedCommands.length-1].timestamp
 		)
 
 	pull: =>

@@ -10,18 +10,14 @@ Leonidas.rb is an integration built to support Leonidas commands on the server-s
 
 * Command - Any granular action taken within an application
 * Command Handler - An class representing an action taken on the application state in response to a command 
-* Stable Timestamp - The minimum timestamp of all client connections to the app 
-* Locked Command - A command that happened before or at the stable timestamp
-* Active Command - A command that has happened since the stable timestamp of the application
-* Locked State - The state of an application when only locked commands have been run
-* Active State - The state of an application when all available commands have been run
+* Stable Timestamp - The minimum timestamp of all client connections to the app
 
 ### Javascript
 
 * Client - A wrapper around the client-side application state, representing a single client connection to the server
 * Commander - The command abstraction, used to start and stop syncing, and issue commands
-* Synced Command - A command that has been synced to the server
-* Unsynced Command - A command that has not been synced to the server, and consequently only exists on this client
+* Local Command - A command that originated on this client
+* External Command - A command that came from the server
 
 ### Ruby
 

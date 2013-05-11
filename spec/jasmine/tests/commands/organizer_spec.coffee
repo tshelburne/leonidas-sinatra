@@ -13,58 +13,93 @@ describe "Organizer", ->
 
 	describe "#addCommand", ->
 
-		it "will add unsynced commands", ->
-			organizer.addCommand command1
-			expect(organizer.unsyncedCommands).toEqual [ command1 ]
+		describe "when adding a local command", ->
 
-		it "will add synced commands", ->
+			it "will add the command to the list of local commands", ->
+				organizer.addCommand command1
+				expect(organizer.localCommands).toEqual [ command1 ]
+
+			it "will set the command id to the current length of the local command list", ->
+				organizer.addCommand command1
+				expect(command1.id).toEqual 0
+
+		it "will add external commands", ->
 			organizer.addCommand command1, false
-			expect(organizer.syncedCommands).toEqual [ command1 ]
+			expect(organizer.externalCommands).toEqual [ command1 ]
 
 	describe "#addCommands", ->
 
-		it "will add multiple unsynced commands", ->
-			organizer.addCommands [ command1, command2 ]
-			expect(organizer.unsyncedCommands).toEqual [ command1, command2 ]
+		describe "when adding local commands", ->
 
-		it "will add multiple synced commands", ->
+			it "will add multiple local commands", ->
+				organizer.addCommands [ command1, command2 ]
+				expect(organizer.localCommands).toEqual [ command1, command2 ]
+
+			it "will set each command id to the increasing length of the local command list", ->
+				organizer.addCommands [ command1, command2 ]
+				expect(command1.id).toEqual 0
+				expect(command2.id).toEqual 1
+
+		it "will add multiple external commands", ->
 			organizer.addCommands [ command1, command2 ], false
-			expect(organizer.syncedCommands).toEqual [ command1, command2 ]
+			expect(organizer.externalCommands).toEqual [ command1, command2 ]
 
-	describe "#markAsSynced", ->
+	describe "#commandsUntil", ->
 
-		it "will add the requested commands to the syncedCommands list", ->
-			organizer.addCommands [ command1, command2, command3 ]
-			organizer.markAsSynced [ command1, command2 ]
-			expect(organizer.syncedCommands).toEqual [ command1, command2 ]
-
-		it "will remove the requested commands from the unsyncedCommands list", ->
-			organizer.addCommands [ command1, command2, command3 ]
-			organizer.markAsSynced [ command1, command2 ]
-			expect(organizer.unsyncedCommands).toEqual [ command3 ]
-
-	describe "#lockCommands", ->
-
-		it "will add the requested commands to the lockedCommands list", ->
-			organizer.addCommands [ command1, command2, command3 ]
-			organizer.lockCommands [ command1, command2 ]
-			expect(organizer.lockedCommands).toEqual [ command1, command2 ]
-
-		it "will remove requested commands from the syncedCommands list", ->
-			organizer.addCommands [ command1, command2, command3 ], false
-			organizer.lockCommands [ command1, command2 ]
-			expect(organizer.syncedCommands).toEqual [ command3 ]
-
-	describe "#activeCommands", ->
-
-		it "will return a concatenated list of synced and unsynced commands", ->
+		beforeEach ->
 			organizer.addCommands [ command2, command4 ]
 			organizer.addCommands [ command1, command3 ], false
-			expect(organizer.activeCommands().length).toEqual 4
-			expect(command in organizer.activeCommands()).toBeTruthy() for command in organizer.unsyncedCommands
-			expect(command in organizer.activeCommands()).toBeTruthy() for command in organizer.syncedCommands
+
+		it "will return a list of the commands before the given timestamp", ->
+			expect(organizer.commandsUntil new Date(4, 3, 2013), false).toContain command for command in [ command1, command2 ]
+
+		it "will include any commands that happened at exactly the given timestamp", ->
+			expect(organizer.commandsUntil new Date(4, 3, 2013), false).toContain command3
+
+		it "will not return any commands after the given timestamp", ->
+			expect(organizer.commandsUntil new Date(4, 3, 2013), false).not.toContain command4
+
+		it "will return a sorted list", ->
+			expect(organizer.commandsUntil new Date(4, 3, 2013), false).toEqual [ command1, command2, command3 ]
+
+		describe "when only local commands are requested", ->
+
+			it "will not return any external commands", ->
+				expect(organizer.commandsUntil new Date(4, 3, 2013)).not.toContain command for command in [ command1, command3 ]
+
+	describe "#commandsAfter", ->
+
+		beforeEach ->
+			organizer.addCommands [ command2, command4 ]
+			organizer.addCommands [ command1, command3 ], false
+
+		it "will return a list of the commands after the given timestamp", ->
+			expect(organizer.commandsAfter new Date(4, 2, 2013), false).toContain command for command in [ command3, command4 ]
+
+		it "will exclude any commands that happened at exactly the given timestamp", ->
+			expect(organizer.commandsAfter new Date(4, 2, 2013), false).not.toContain command2
+
+		it "will not return any commands after the given timestamp", ->
+			expect(organizer.commandsAfter new Date(4, 2, 2013), false).not.toContain command1
+
+		it "will return a sorted list", ->
+			expect(organizer.commandsAfter new Date(4, 2, 2013), false).toEqual [ command3, command4 ]
+
+		describe "when only local commands are requested", ->
+
+			it "will not return any external commands", ->
+				expect(organizer.commandsUntil new Date(4, 2, 2013)).not.toContain command for command in [ command1, command3 ]
+
+	describe "#allCommands", ->
+
+		beforeEach ->
+			organizer.addCommands [ command2, command4 ]
+			organizer.addCommands [ command1, command3 ], false
+
+		it "will return a concatenated list of external and local commands", ->
+			expect(organizer.allCommands().length).toEqual 4
+			expect(command in organizer.allCommands()).toBeTruthy() for command in organizer.localCommands
+			expect(command in organizer.allCommands()).toBeTruthy() for command in organizer.externalCommands
 
 		it "will sort the list of commands by timestamp", ->
-			organizer.addCommands [ command2, command4 ]
-			organizer.addCommands [ command1, command3 ], false
-			expect(organizer.activeCommands()).toEqual [ command1, command2, command3, command4 ]
+			expect(organizer.allCommands()).toEqual [ command1, command2, command3, command4 ]

@@ -1,24 +1,32 @@
 class Organizer
 
 	constructor: ->
-		@unsyncedCommands = [ ]
-		@syncedCommands = [ ]
-		@lockedCommands = [ ]
+		@localCommands = [ ]
+		@externalCommands = [ ]
 
-	addCommand: (command, unsynced=true)-> if unsynced then @unsyncedCommands.push command else @syncedCommands.push command
+	addCommand: (command, local=true)->
+		if local 
+			command.id = @localCommands.length
+			@localCommands.push command
+		else 
+			@externalCommands.push command
 		
-	addCommands: (commands, unsynced=true)-> @addCommand(command, unsynced) for command in commands
+	addCommands: (commands, local=true)-> @addCommand(command, local) for command in commands
 
-	markAsSynced: (commands)->
-		@syncedCommands.push(command) for command in commands when command not in @syncedCommands
-		@unsyncedCommands = (command for command in @unsyncedCommands when command not in commands)
+	commandsUntil: (timestamp, local=true)-> 
+		commands = if local then sortCommands(@localCommands) else @allCommands()
+		(command for command in commands when command.timestamp <= timestamp)
 
-	lockCommands: (commands)-> 
-		@lockedCommands.push(command) for command in commands
-		@syncedCommands = (command for command in @syncedCommands when command not in commands)
+	commandsAfter: (timestamp, local=true)-> 
+		commands = if local then sortCommands(@localCommands) else @allCommands()
+		(command for command in commands when command.timestamp > timestamp)
 
-	activeCommands: -> 
-		activeCommands = @unsyncedCommands.concat @syncedCommands
-		activeCommands.sort (a,b)-> if a.timestamp > b.timestamp then 1 else -1
+	allCommands: -> sortCommands(@localCommands.concat @externalCommands)
+
+	# private
+
+	sortCommands = (commands)-> commands.sort (a,b)-> if a.timestamp > b.timestamp then 1 else -1
 
 return Organizer
+
+
