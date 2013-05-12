@@ -1,18 +1,22 @@
 module Leonidas
 	module Commands
 
-		module Handler
+		class Handler
 
 			def handles?(command)
-				false
+				command.name == @name
 			end
 
 			def run(command)
-				# perform the command
+				raise NoMethodError, 'Class must implement a #run method'
 			end
 
 			def persist(command)
-				# perform the command
+				raise NoMethodError, 'Class must implement a #persist method'
+			end
+
+			def rollback(command)
+				raise NoMethodError, 'Class must implement a #rollback method'
 			end
 
 		end

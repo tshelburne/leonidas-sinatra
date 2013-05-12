@@ -3,19 +3,16 @@ module Leonidas
 
 		class Command
 			
-			attr_reader :name, :data, :timestamp, :connection
+			attr_reader :name, :data, :timestamp
 
-			def initialize(name, data, timestamp, connection)
+			def initialize(name, data, timestamp)
 				@name = name
 				@data = data
 				@timestamp = timestamp
-
-				raise TypeError, "Argument must be a Leonidas::App::Connection" unless connection.is_a? ::Leonidas::App::Connection
-				@connection = connection
 			end
 
 			def to_hash
-				{ name: @name, data: @data, timestamp: @timestamp, connection: @connection.id }
+				{ name: @name, data: @data, timestamp: @timestamp.to_i }
 			end
 
 		end

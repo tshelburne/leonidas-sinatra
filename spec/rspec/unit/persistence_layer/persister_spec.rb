@@ -52,7 +52,7 @@ describe Leonidas::PersistenceLayer::Persister do
 
 		it "will set the app current state to the active state" do 
 			conn = @app.create_connection!
-			conn.add_command! build_command(conn, conn.last_update+10)
+			conn.add_command! build_command(conn.last_update+10)
 			subject.load("app-1")
 			@app.current_state.should eq({ value: 1 })
 		end

@@ -9,11 +9,12 @@ module Leonidas
 			def initialize
 				@id = SecureRandom.uuid
 				@commands = [ ]
+				@time_created = Time.now
 			end
 
 			def last_update
 				latest_command = @commands.max_by {|command| command.timestamp} 
-				latest_command.nil? ? Time.at(0) : latest_command.timestamp
+				latest_command.nil? ? @time_created : latest_command.timestamp
 			end
 
 		end

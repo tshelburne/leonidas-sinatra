@@ -8,9 +8,9 @@ describe Leonidas::Commands::Processor do
 
 	before :each do
 		TestClasses::PersistentState.reset
-		@command1 = build_command(build_connection, 1)
-		@command2 = build_command(build_connection, 2, "multiply", { multiply_by: 3 })
-		@command3 = build_command(build_connection, 3, "increment", { increment_by: 4 })
+		@command1 = build_command(Time.at(1))
+		@command2 = build_command(Time.at(2), "multiply", { number: 3 })
+		@command3 = build_command(Time.at(3), "increment", { number: 4 })
 	end
 
 	describe '#process' do 
