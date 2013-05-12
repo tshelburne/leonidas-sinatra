@@ -13,33 +13,33 @@ describe "Organizer", ->
 		organizer.local.addCommands [ command2, command4 ]
 		organizer.external.addCommands [ command1, command3 ]
 
-	describe "#commandsUntil", ->
+	describe "#commandsThrough", ->
 
 		it "will return a list of the commands before the given timestamp", ->
-			expect(organizer.commandsUntil new Date(2013, 4, 3)).toContain command for command in [ command1, command2 ]
+			expect(organizer.commandsThrough new Date(2013, 4, 3)).toContain command for command in [ command1, command2 ]
 
 		it "will include any commands that happened at exactly the given timestamp", ->
-			expect(organizer.commandsUntil new Date(2013, 4, 3)).toContain command3
+			expect(organizer.commandsThrough new Date(2013, 4, 3)).toContain command3
 
 		it "will not return any commands after the given timestamp", ->
-			expect(organizer.commandsUntil new Date(2013, 4, 3)).not.toContain command4
+			expect(organizer.commandsThrough new Date(2013, 4, 3)).not.toContain command4
 
 		it "will return a sorted list", ->
-			expect(organizer.commandsUntil new Date(2013, 4, 3)).toEqual [ command1, command2, command3 ]
+			expect(organizer.commandsThrough new Date(2013, 4, 3)).toEqual [ command1, command2, command3 ]
 
-	describe "#commandsAfter", ->
+	describe "#commandsSince", ->
 
 		it "will return a list of the commands after the given timestamp", ->
-			expect(organizer.commandsAfter new Date(2013, 4, 2)).toContain command for command in [ command3, command4 ]
+			expect(organizer.commandsSince new Date(2013, 4, 2)).toContain command for command in [ command3, command4 ]
 
 		it "will exclude any commands that happened at exactly the given timestamp", ->
-			expect(organizer.commandsAfter new Date(2013, 4, 2)).not.toContain command2
+			expect(organizer.commandsSince new Date(2013, 4, 2)).not.toContain command2
 
 		it "will not return any commands after the given timestamp", ->
-			expect(organizer.commandsAfter new Date(2013, 4, 2)).not.toContain command1
+			expect(organizer.commandsSince new Date(2013, 4, 2)).not.toContain command1
 
 		it "will return a sorted list", ->
-			expect(organizer.commandsAfter new Date(2013, 4, 2)).toEqual [ command3, command4 ]
+			expect(organizer.commandsSince new Date(2013, 4, 2)).toEqual [ command3, command4 ]
 
 	describe "#allCommands", ->
 

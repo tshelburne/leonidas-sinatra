@@ -10,7 +10,7 @@ class Synchronizer
 		@syncedTimestamp = new Date 0
 
 	push: =>
-		unsyncedCommands = (command for command in @organizer.local.commandsAfter(@syncedTimestamp))
+		unsyncedCommands = (command for command in @organizer.local.commandsSince(@syncedTimestamp))
 		reqwest(
 			url: "#{@syncUrl}"
 			type: "json"
@@ -35,9 +35,9 @@ class Synchronizer
 			error: => console.log "pull error"
 			success: (response)=>
 				newCommands = (new Command(command.name, command.data, command.connection, new Date(command.timestamp)) for command in response.data.commands)
-				@processor.rollbackCommands @organizer.commandsAfter(@stableTimestamp).reverse()
+				@processor.rollbackCommands @organizer.commandsSince(@stableTimestamp).reverse()
 				@organizer.external.addCommands newCommands
-				@processor.runCommands @organizer.commandsAfter(@stableTimestamp)
+				@processor.runCommands @organizer.commandsSince(@stableTimestamp)
 				@externalClients = response.data.currentClients
 				@stableTimestamp = response.data.stableTimestamp
 		)

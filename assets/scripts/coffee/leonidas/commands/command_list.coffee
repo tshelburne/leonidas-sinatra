@@ -9,9 +9,9 @@ class CommandList
 		
 	addCommands: (commands)-> @addCommand(command) for command in commands
 
-	commandsUntil: (timestamp)-> (command for command in @commands when command.timestamp <= timestamp)
+	commandsThrough: (timestamp)-> (command for command in @commands when command.timestamp <= timestamp)
 
-	commandsAfter: (timestamp)-> (command for command in @commands when command.timestamp > timestamp)
+	commandsSince: (timestamp)-> (command for command in @commands when command.timestamp > timestamp)
 
 	# private
 
