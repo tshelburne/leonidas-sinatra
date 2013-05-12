@@ -1,42 +1,42 @@
 module TestClasses
 
-	class IncrementHandler 
-		include ::Leonidas::Commands::Handler
+	class IncrementHandler < ::Leonidas::Commands::Handler
 
 		def initialize(app)
 			@app = app
-		end
-
-		def handles?(command)
-			command.name == "increment"
+			@name = "increment"
 		end
 
 		def run(command)
-			@app.current_state[:value] += command.data[:increment_by]
+			@app.current_state[:value] += command.data[:number]
 		end
 
 		def persist(command)
-			TestClasses::PersistentState.value += command.data[:increment_by]
+			TestClasses::PersistentState.value += command.data[:number]
+		end
+
+		def rollback(command)
+			@app.current_state[:value] -= command.data[:number]
 		end
 	end
 
-	class MultiplyHandler 
-		include ::Leonidas::Commands::Handler
+	class MultiplyHandler < ::Leonidas::Commands::Handler
 
 		def initialize(app)
 			@app = app
-		end
-
-		def handles?(command)
-			command.name == "multiply"
+			@name = "multiply"
 		end
 
 		def run(command)
-			@app.current_state[:value] *= command.data[:multiply_by]
+			@app.current_state[:value] *= command.data[:number]
 		end
 
 		def persist(command)
-			TestClasses::PersistentState.value *= command.data[:multiply_by]
+			TestClasses::PersistentState.value *= command.data[:number]
+		end
+
+		def rollback(command)
+			@app.current_state[:value] /= command.data[:number]
 		end
 	end
 
@@ -44,8 +44,7 @@ module TestClasses
 		include ::Leonidas::Commands::Aggregator
 
 		def initialize
-				@active_commands = [ ]
-				@inactive_commands = [ ]
+				@commands = [ ]
 			end
 	end
 

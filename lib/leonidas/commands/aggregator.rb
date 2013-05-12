@@ -5,7 +5,7 @@ module Leonidas
 
 			def add_command!(command)
 				raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command
-				@active_commands << command
+				@commands << command
 			end
 
 			def add_commands!(commands)
@@ -13,16 +13,11 @@ module Leonidas
 			end
 
 			def commands_through(timestamp)
-				@active_commands.select {|command| command.timestamp <= timestamp}
+				@commands.select {|command| command.timestamp <= timestamp}
 			end
 
 			def commands_since(timestamp)
-				@active_commands.select {|command| command.timestamp > timestamp}
-			end
-
-			def deactivate_commands!(commands)
-				commands.each {|command| @inactive_commands << command if @active_commands.include? command}
-				@active_commands.select! {|command| not commands.include? command}
+				@commands.select {|command| command.timestamp > timestamp}
 			end
 
 		end
