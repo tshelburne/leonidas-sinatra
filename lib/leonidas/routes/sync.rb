@@ -8,16 +8,20 @@ module Leonidas
 		    content_type "application/json"
 
 		    app = app_repository.find params[:app_name]
+		    current_client = app.connection(params[:clientId])
 
-		    new_commands = params[:clients].reduce([ ]) {|commands, client| commands.concat app.connection(client[:id]).commands_since(client[:lastUpdate])}
-		    additional_clients = app.connections.select {|connection| connection.id != params[:clientId]}
+		    all_other_clients = app.connections.select {|connection| connection != current_client}
+		    new_commands = all_other_clients.reduce([]) do |commands, client|
+		    	last_update = params[:clients][:"#{client.id}"]
+		    	commands << last_update.nil? ? client.commands : client.commands_since(last_update)
+		    end
 
 				{
 					success: true,
 					message: 'commands retrieved',
 					data: {
 						commands: new_commands.map {|command| command.to_hash},
-						currentClients: additional_clients.map {|connection| { id: connection.id, lastUpdate: connection.last_update }},
+						currentClients: all_other_clients.reduce({}) {|current_clients, connection| current_clients[connection.id] = connection.last_update },
 						stableTimestamp: app.stable_timestamp
 					}
 				}.to_json
