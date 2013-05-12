@@ -7,22 +7,23 @@ class Synchronizer
 	constructor: (@syncUrl, @client, @organizer, @processor)->
 		@stableTimestamp = new Date 0
 		@externalClients = [ ]
-		@syncedTimestamp = new Date 0
 
 	push: =>
-		unsyncedCommands = (command for command in @organizer.local.commandsSince(@syncedTimestamp))
-		reqwest(
-			url: "#{@syncUrl}"
-			type: "json"
-			method: "post"
-			data: 
-				clientId: @client.id
-				clients: @externalClients
-				commands: (command.toHash() for command in unsyncedCommands)
-			error: => console.log "push error"
-			success: (response)=>
-				@syncedTimestamp = unsyncedCommands[unsyncedCommands.length-1].timestamp
-		)
+		unsyncedCommands = (command for command in @organizer.local.commandsSince(@client.lastUpdate))
+		unless unsyncedCommands.length is 0
+			reqwest(
+				url: "#{@syncUrl}"
+				type: "json"
+				method: "post"
+				data: 
+					appName: @client.appName
+					clientId: @client.id
+					clients: @externalClients
+					commands: (command.toHash() for command in unsyncedCommands)
+				error: => console.log "push error"
+				success: (response)=>
+					@client.lastUpdate = unsyncedCommands[unsyncedCommands.length-1].timestamp
+			)
 
 	pull: =>
 		reqwest(
@@ -30,6 +31,7 @@ class Synchronizer
 			type: "json"
 			method: "get"
 			data:
+				appName: @client.appName
 				clientId: @client.id
 				clients: @externalClients
 			error: => console.log "pull error"

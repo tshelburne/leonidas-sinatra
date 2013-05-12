@@ -22,16 +22,20 @@ describe "Synchronizer", ->
 	describe "#push", ->
 
 		beforeEach ->
-			organizer.local.addCommands [ command1, command4 ]
+			spyOn(window, "reqwest").andCallFake( (params)-> params.success(mocks.syncPushResponse))
+
+		it "will not run if there are no commands to sync", ->
+			synchronizer.push()
+			expect(window.reqwest).not.toHaveBeenCalled()
 
 		describe "when successful", ->
 
 			beforeEach ->
-				spyOn(window, "reqwest").andCallFake( (params)-> params.success(mocks.syncPushResponse))
+				organizer.local.addCommands [ command1, command4 ]
 
-			it "will set the syncedTimestamp to the timestamp of the latest command passed down", ->
+			it "will set the client's lastUpdate to the timestamp of the latest command passed down", ->
 				synchronizer.push()
-				expect(synchronizer.syncedTimestamp).toEqual command4.timestamp
+				expect(client.lastUpdate).toEqual command4.timestamp
 
 	describe "#pull", ->
 
