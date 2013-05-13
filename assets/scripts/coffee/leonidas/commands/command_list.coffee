@@ -4,8 +4,7 @@ class CommandList
 		@commands = [ ]
 
 	addCommand: (command)-> 
-		if command.id is null
-			command.id = generateUniqueId(@commands)
+		command.id = generateUniqueId(@commands) unless command.id?
 		@commands.push command
 		
 	addCommands: (commands)-> @addCommand(command) for command in commands

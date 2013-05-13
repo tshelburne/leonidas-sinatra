@@ -17,7 +17,7 @@ class Organizer
 		allCommands
 
 	commandsFor: (clientId, timestamp=null)->
-		timestamp = new Date(0) if timestamp is null
+		timestamp = new Date(0) unless timestamp?
 		(command for command in @commandsSince(timestamp) when command.clientId is clientId)
 
 return Organizer
