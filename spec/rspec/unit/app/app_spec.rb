@@ -25,55 +25,55 @@ describe Leonidas::App::App do
 	
 	end
 	
-	describe '#create_connection!' do
+	describe '#create_client!' do
 		
-		it "will return a connection id" do 
-			id = subject.create_connection!
-			subject.send(:connection, id).should_not be_nil
+		it "will return a client id" do 
+			id = subject.create_client!
+			subject.send(:client, id).should_not be_nil
 		end
 
-		it "will add the new connection the the app's list of connections" do 
-			id = subject.create_connection!
-			subject.send(:has_connection?, id).should be_true
-		end
-
-	end
-
-	describe '#close_connection!' do
-
-		it "will remove the connection" do 
-			id = subject.create_connection!
-			subject.close_connection! id
-			subject.send(:has_connection?, id).should be_false
+		it "will add the new client the the app's list of clients" do 
+			id = subject.create_client!
+			subject.send(:has_client?, id).should be_true
 		end
 
 	end
 
-	describe '#connection_list' do 
+	describe '#close_client!' do
+
+		it "will remove the client" do 
+			id = subject.create_client!
+			subject.close_client! id
+			subject.send(:has_client?, id).should be_false
+		end
+
+	end
+
+	describe '#client_list' do 
 	
-		it "will create a list of hashes of connections" do
-			id1 = subject.create_connection!
+		it "will create a list of hashes of clients" do
+			id1 = subject.create_client!
 			subject.add_commands! id1, [ build_command(Time.at(5)) ]
-			id2 = subject.create_connection!
+			id2 = subject.create_client!
 			subject.add_commands! id2, [ build_command(Time.at(10)) ]
 
-			subject.connection_list.should eq [ { id: id1, lastUpdate: Time.at(5).to_i }, { id: id2, lastUpdate: Time.at(10).to_i } ]
+			subject.client_list.should eq [ { id: id1, lastUpdate: Time.at(5).to_i }, { id: id2, lastUpdate: Time.at(10).to_i } ]
 		end
 	
 	end
 
 	describe '#stable_timestamp' do 
 		
-		it "will default to a 0 timestamp if there are no connections" do 
+		it "will default to a 0 timestamp if there are no clients" do 
 			subject.stable_timestamp.should eq Time.at(0)
 		end
 
-		it "will return the current minimum timestamp between all connections" do
-			id1 = subject.create_connection!
+		it "will return the current minimum timestamp between all clients" do
+			id1 = subject.create_client!
 			subject.add_commands! id1, [ build_command(Time.at(5)) ]
-			id2 = subject.create_connection!
+			id2 = subject.create_client!
 			subject.add_commands! id2, [ build_command(Time.at(10)) ]
-			id3 = subject.create_connection!
+			id3 = subject.create_client!
 			subject.add_commands! id3, [ build_command(Time.at(15)) ]
 
 			subject.stable_timestamp.should eq Time.at(5)
@@ -90,8 +90,8 @@ describe Leonidas::App::App do
 	describe '#add_commands!' do 
 
 		before :each do
-			@id1 = subject.create_connection!
-			@id2 = subject.create_connection!
+			@id1 = subject.create_client!
+			@id2 = subject.create_client!
 			@command1 = build_command Time.now
 			@command2 = build_command Time.now, "multiply", { number: 3 }
 			@command3 = build_command Time.now
@@ -101,11 +101,11 @@ describe Leonidas::App::App do
 			expect { subject.add_commands!(@id1, [ { command: "sort of?" } ]) }.to raise_error(TypeError, "Argument must be a Leonidas::Commands::Command")
 		end
 
-		it "will reject a connection id that doesn't exist in the application" do 
-			expect { subject.add_commands!("bad-id", [ @command1 ]) }.to raise_error(TypeError, "Argument must be a valid connection id")
+		it "will reject a client id that doesn't exist in the application" do 
+			expect { subject.add_commands!("bad-id", [ @command1 ]) }.to raise_error(TypeError, "Argument must be a valid client id")
 		end
 
-		it "will add the commands to the given connection" do
+		it "will add the commands to the given client" do
 			subject.add_commands! @id1, [ @command1, @command3 ]
 			subject.commands_from(@id1).should eq [ @command1, @command3 ]
 		end
@@ -132,14 +132,14 @@ describe Leonidas::App::App do
 	describe '#commands_from' do 
 
 		before :each do
-			@id = subject.create_connection!
+			@id = subject.create_client!
 			@command1 = build_command Time.at(10)
 			@command2 = build_command Time.at(15), "multiply", { number: 3 }
 			@command3 = build_command Time.at(20)
 			subject.add_commands! @id, [ @command1, @command2, @command3 ]
 		end
 	
-		it "will return all commands from the requested connection when no timestamp is given" do
+		it "will return all commands from the requested client when no timestamp is given" do
 			subject.commands_from(@id).should eq [ @command1, @command2, @command3 ]
 		end
 
@@ -152,11 +152,11 @@ describe Leonidas::App::App do
 	describe '#process_commands!' do 
 
 		before :each do
-			id1 = subject.create_connection!
-			id2 = subject.create_connection!
+			id1 = subject.create_client!
+			id2 = subject.create_client!
 			@command3 = build_command(Time.at(10))
-			subject.send(:connection, id1).add_commands! [ build_command(Time.at(0)), @command3 ]
-			subject.send(:connection, id2).add_command! build_command(Time.at(0))
+			subject.send(:client, id1).add_commands! [ build_command(Time.at(0)), @command3 ]
+			subject.send(:client, id2).add_command! build_command(Time.at(0))
 		end
 
 		it "will set the current state to the state when all active commands have been run" do

@@ -15,7 +15,7 @@ module Leonidas
 			before { content_type "application/json" }
 
 			get '/' do
-				all_external_clients = app.connection_list.select {|client| client[:id] != params[:clientId]}
+				all_external_clients = app.client_list.select {|client| client[:id] != params[:clientId]}
 				new_commands = all_external_clients.reduce([ ]) do |commands, client|
 					client_record = get_client_record client[:id] 
 					commands << client_record.nil? ? app.commands_from(client[:id]) : app.commands_from(client[:id], client_record[:lastUpdate])

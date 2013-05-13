@@ -12,8 +12,8 @@ describe Leonidas::PersistenceLayer::Persister do
 
 	before :each do
 		@app = TestClasses::TestApp.new
-		id1 = @app.create_connection!
-		id2 = @app.create_connection!
+		id1 = @app.create_client!
+		id2 = @app.create_client!
 		@app.add_commands! id1, [ build_command(Time.now) ]
 		@persister = TestClasses::TestAppPersister.new([ @app ])
 	end

@@ -1,7 +1,7 @@
 module Leonidas
 	module App
 
-		class Connection
+		class Client
 			include ::Leonidas::Commands::Aggregator
 			
 			attr_reader :id, :commands

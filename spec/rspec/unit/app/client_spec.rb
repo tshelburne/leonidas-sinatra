@@ -1,9 +1,9 @@
-describe ::Leonidas::App::Connection do
+describe ::Leonidas::App::Client do
 	include TestObjects
 
 	describe '#last_update' do 
 
-		it "will return a timestamp from when the connection was created if no commands exist on the connection" do
+		it "will return a timestamp from when the client was created if no commands exist on the client" do
 			subject.last_update.should eq subject.instance_variable_get(:@time_created)
 		end
 
@@ -18,7 +18,7 @@ describe ::Leonidas::App::Connection do
 
 	describe '#to_hash' do 
 	
-		it "will return a hash of the connection" do
+		it "will return a hash of the client" do
 			subject.to_hash.should eq({ id: subject.id, lastUpdate: subject.last_update.to_i })
 		end
 	

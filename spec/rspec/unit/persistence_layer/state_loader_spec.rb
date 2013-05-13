@@ -21,7 +21,7 @@ describe Leonidas::PersistenceLayer::StateLoader do
 		it "will load the state for a given app" do
 			subject.add_builder! TestClasses::TestAppStateBuilder.new
 			state = subject.load_state TestClasses::TestApp.new
-			state.should eq({ value: 0 })
+			state[:value].should eq 0
 		end
 	
 	end

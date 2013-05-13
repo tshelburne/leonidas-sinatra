@@ -11,35 +11,35 @@ module Leonidas
 				@state
 			end
 
-			def create_connection!
-				connection = ::Leonidas::App::Connection.new
-				connections << connection
-				connection.id
+			def create_client!
+				client = ::Leonidas::App::Client.new
+				clients << client
+				client.id
 			end
 
-			def close_connection!(id)
-				connections.delete connection(id) if has_connection? id
+			def close_client!(id)
+				clients.delete client(id) if has_client? id
 			end
 
-			def connection_list
-				connections.map {|connection| connection.to_hash}
+			def client_list
+				clients.map {|client| client.to_hash}
 			end
 
 			def stable_timestamp
-				earliest_connection = connections.min_by {|connection| connection.last_update }
-				earliest_connection.nil? ? Time.at(0) : earliest_connection.last_update
+				earliest_client = clients.min_by {|client| client.last_update }
+				earliest_client.nil? ? Time.at(0) : earliest_client.last_update
 			end
 
-			def add_commands!(connection_id, commands)
+			def add_commands!(client_id, commands)
 				commands.each {|command| raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command}
-				raise TypeError, "Argument must be a valid connection id" unless has_connection? connection_id
+				raise TypeError, "Argument must be a valid client id" unless has_client? client_id
 
-				connection(connection_id).add_commands! commands
+				client(client_id).add_commands! commands
 				process_commands!
 			end
 
-			def commands_from(connection_id, timestamp=nil)
-				connection(connection_id).commands_since(timestamp || Time.at(0))
+			def commands_from(client_id, timestamp=nil)
+				client(client_id).commands_since(timestamp || Time.at(0))
 			end
 
 			def process_commands!
@@ -55,16 +55,16 @@ module Leonidas
 
 			private 
 
-			def connections
-				@connections ||= [ ]
+			def clients
+				@clients ||= [ ]
 			end
 
-			def connection(id)
-				connections.select {|connection| connection.id == id}.first
+			def client(id)
+				clients.select {|client| client.id == id}.first
 			end
 
-			def has_connection?(id)
-				not connection(id).nil?
+			def has_client?(id)
+				not client(id).nil?
 			end
 
 			def processor
@@ -72,11 +72,11 @@ module Leonidas
 			end
 
 			def active_commands
-				connections.reduce([ ]) {|commands, connection| commands.concat connection.commands_since(stable_timestamp)}
+				clients.reduce([ ]) {|commands, client| commands.concat client.commands_since(stable_timestamp)}
 			end
 
 			def stable_commands
-				connections.reduce([ ]) {|commands, connection| commands.concat connection.commands_through(stable_timestamp)}
+				clients.reduce([ ]) {|commands, client| commands.concat client.commands_through(stable_timestamp)}
 			end
 
 			def persistent_state?
