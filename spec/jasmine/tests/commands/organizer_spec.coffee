@@ -5,9 +5,9 @@ describe "Organizer", ->
 	organizer = null
 
 	beforeEach ->
-		command1 = buildCommand(new Date(2013, 4, 1), { number: 1 })
+		command1 = buildCommand(new Date(2013, 4, 1), { number: 1 }, "increment", "client-2")
 		command2 = buildCommand(new Date(2013, 4, 2), { number: 2 }, "multiply")
-		command3 = buildCommand(new Date(2013, 4, 3), { number: 3 }, "multiply")
+		command3 = buildCommand(new Date(2013, 4, 3), { number: 3 }, "multiply", "client-3")
 		command4 = buildCommand(new Date(2013, 4, 4), { number: 4 })
 		organizer = new Organizer()
 		organizer.local.addCommands [ command2, command4 ]
@@ -41,3 +41,13 @@ describe "Organizer", ->
 			expect(organizer.allCommands().length).toEqual 4
 			expect(organizer.allCommands()).toContain command for command in organizer.local.commands
 			expect(organizer.allCommands()).toContain command for command in organizer.external.commands
+
+	describe "#commandsFor", ->
+
+		it "will return a list of all commands for the requested client when no timestamp is passed", ->
+			expect(organizer.commandsFor("client-1")).toContain command for command in [ command2, command4 ]
+			expect(organizer.commandsFor("client-2")).toEqual [ command1 ]
+			expect(organizer.commandsFor("client-3")).toEqual [ command3 ]
+
+		it "will return a list of all commands since the passed timestamp for the requested client", ->
+			expect(organizer.commandsFor("client-1", new Date(2013, 4, 3))).toEqual [ command4 ]
