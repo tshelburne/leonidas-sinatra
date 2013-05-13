@@ -12,6 +12,9 @@ describe Leonidas::PersistenceLayer::Persister do
 
 	before :each do
 		@app = TestClasses::TestApp.new
+		id1 = @app.create_connection!
+		id2 = @app.create_connection!
+		@app.add_commands! id1, [ build_command(Time.now) ]
 		@persister = TestClasses::TestAppPersister.new([ @app ])
 	end
 
@@ -51,10 +54,7 @@ describe Leonidas::PersistenceLayer::Persister do
 		end
 
 		it "will set the app current state to the active state" do 
-			conn = @app.create_connection!
-			conn.add_command! build_command(conn.last_update+10)
-			subject.load("app-1")
-			@app.current_state.should eq({ value: 1 })
+			subject.load("app-1").current_state[:value].should eq 1
 		end
 	
 	end

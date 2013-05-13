@@ -17,6 +17,10 @@ module Leonidas
 				latest_command.nil? ? @time_created : latest_command.timestamp
 			end
 
+			def to_hash
+				{ id: @id, lastUpdate: last_update.to_i }
+			end
+
 		end
 		
 	end

@@ -6,8 +6,7 @@ module TestClasses
 		def initialize(name="app-1")
 			@name = name
 			@persist_state = false
-			@locked_state = { value: 0 }
-			@active_state = { value: 1 }
+			@state = { value: 0 }
 		end
 
 		def handlers
@@ -18,8 +17,7 @@ module TestClasses
 		end
 
 		def state=(val)
-			@locked_state = val.dup
-			@active_state = val.dup
+			@state = val.dup
 		end
 
 	end

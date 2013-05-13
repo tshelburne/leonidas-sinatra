@@ -19,7 +19,8 @@ module TestClasses
 		include ::Leonidas::PersistenceLayer::AppPersister
 
 		def initialize(apps=[])
-			@apps = apps
+			@apps = [ ]
+			apps.each {|app| persist(app)}
 		end
 
 		def clear_apps!
@@ -31,6 +32,8 @@ module TestClasses
 		end
 
 		def persist(app)
+			app.instance_variable_set(:@cached_active_commands, nil)
+			app.instance_variable_set(:@cached_stable_commands, nil)
 			@apps << app
 		end
 

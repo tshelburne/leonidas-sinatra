@@ -16,4 +16,12 @@ describe ::Leonidas::App::Connection do
 
 	end
 
+	describe '#to_hash' do 
+	
+		it "will return a hash of the connection" do
+			subject.to_hash.should eq({ id: subject.id, lastUpdate: subject.last_update.to_i })
+		end
+	
+	end
+
 end

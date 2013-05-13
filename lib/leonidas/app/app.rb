@@ -8,17 +8,55 @@ module Leonidas
 			end
 
 			def current_state
-				@active_state
+				@state
 			end
 
 			def create_connection!
 				connection = ::Leonidas::App::Connection.new
 				connections << connection
-				connection
+				connection.id
 			end
 
 			def close_connection!(id)
 				connections.delete connection(id) if has_connection? id
+			end
+
+			def connection_list
+				connections.map {|connection| connection.to_hash}
+			end
+
+			def stable_timestamp
+				earliest_connection = connections.min_by {|connection| connection.last_update }
+				earliest_connection.nil? ? Time.at(0) : earliest_connection.last_update
+			end
+
+			def add_commands!(connection_id, commands)
+				commands.each {|command| raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command}
+				raise TypeError, "Argument must be a valid connection id" unless has_connection? connection_id
+
+				connection(connection_id).add_commands! commands
+				process_commands!
+			end
+
+			def commands_from(connection_id, timestamp=nil)
+				connection(connection_id).commands_since(timestamp || Time.at(0))
+			end
+
+			def process_commands!
+				new_stable_commands = @cached_stable_commands.nil? ? stable_commands : stable_commands.select {|command| not @cached_stable_commands.include? command} 
+
+				processor.rollback @cached_active_commands unless @cached_active_commands.nil?
+				processor.run new_stable_commands, persistent_state?
+				processor.run active_commands
+
+				@cached_active_commands = active_commands
+				@cached_stable_commands = stable_commands
+			end
+
+			private 
+
+			def connections
+				@connections ||= [ ]
 			end
 
 			def connection(id)
@@ -29,49 +67,16 @@ module Leonidas
 				not connection(id).nil?
 			end
 
-			def connections
-				@connections ||= [ ]
-			end
-
-			def stable_timestamp
-				return 0 if connections.empty?
-				now = Time.now.to_i
-				connections.reduce(now) {|min, connection| connection.last_update < min ? connection.last_update : min }
-			end
-
-			def stabilize!
-				revert_state!
-				processor.process stable_commands, persistent_state?
-				lock_state!
-				connections.each {|connection| connection.deactivate_commands!(stable_commands)}
-			end
-
-			def process_commands!
-				stabilize!
-				processor.process active_commands
-			end
-
-			def active_commands
-				connections.reduce([ ]) {|commands, connection| commands.concat connection.active_commands}
-			end
-
-
-			private 
-
 			def processor
 				@processor ||= ::Leonidas::Commands::Processor.new(handlers)
 			end
 
-			def stable_commands 
+			def active_commands
+				connections.reduce([ ]) {|commands, connection| commands.concat connection.commands_since(stable_timestamp)}
+			end
+
+			def stable_commands
 				connections.reduce([ ]) {|commands, connection| commands.concat connection.commands_through(stable_timestamp)}
-			end
-
-			def revert_state!
-				@active_state = @locked_state.dup
-			end
-
-			def lock_state!
-				@locked_state = @active_state.dup
 			end
 
 			def persistent_state?

@@ -1,8 +1,16 @@
 # Leonidas
 
-leonidas.js handles generalized web application concurrency through basic command operations. It handles synchronizing application state by sending serialized lists of local commands and retrieving commands processed on external commands to and from a server with AJAX. 
+leonidas.js handles generalized web application multi-client concurrency through basic command operations. 
 
-Leonidas.rb is an integration built to support Leonidas commands on the server-side, in both memory and persistent states. There are also two default Sinatra endpoints provided at Leonidas::Routes::SyncApp for an immediate integration with leonidas.js.
+Leonidas.rb is an integration built to support Leonidas commands on the server-side. There are also two default Sinatra endpoints provided at Leonidas::Routes::SyncApp for an immediate integration with leonidas.js.
+
+## Key Features
+
+* AJAX synchronization
+* Long-running app support in memory on the server side
+* Persistence layer wrappers to support resuming an application that has been closed in memory
+* Default behavior to losslessly resume application following browser failure or crash (unimplemented)
+* Default behavior to losslessly resume application following server failure or crash (unimplemented)
 
 ## Terminology
 
@@ -11,6 +19,7 @@ Leonidas.rb is an integration built to support Leonidas commands on the server-s
 * Command - Any granular action taken within an application
 * Command Handler - An class representing an action taken on the application state in response to a command 
 * Stable Timestamp - The minimum timestamp of all client connections to the app
+* Stable Command - A command that was generated at or before the stable timestamp
 
 ### Javascript
 
@@ -94,25 +103,27 @@ As always, the server side is a bit more complicated.
 
 First, you should create at least one command handler. Note that the handler will have the logic necessary to persist your changes - the mechanism for running commands is agnostic, so all persistence options are supported:
     
-    class PeasantHitHandler
-      include Leonidas::Commands::Handler # this just ensures that all necessary functions are available
+    class PeasantHitHandler < ::Leonidas::Commands::Handler
 
       def initialize(app) # similar problem - have to make sure object references work properly
         @app = app
-      end
-
-      def handles?(command)
-        command.name == "peasant-hit"
+        @name = "peasant-hit"
       end
 
       def run(command)
-        peasant_id = command.data.peasantId # probably camel-cased - it came from js, after all
-        ... # find peasant in @app.current_state.peasants by peasant_id
+        peasant_name = command.data[:peasantName] # probably camel-cased - it came from js, after all
+        ... # find peasant in @app.current_state.peasants by peasant_name
         peasant.status = :humbled
       end
 
       def persist(command)
         ... # persistence logic - up to you, homie
+      end
+
+      def rollback(command)
+        peasant_name = command.data[:peasantName]
+        ... # find peasant in @app.current_state.peasants by peasant_name
+        peasant.status = :blissful
       end
     end
 
@@ -124,8 +135,7 @@ Then, you can create an App:
       def initialize
         @name = "Kingdom-Zamunda" # this name must be unique amongst all your apps
         @persist_state = true # this means that commands with be persisted when they are run
-        @locked_state = { peasants: [ ... ] } # this is the stable state of your application
-        @active_state = { peasants: [ ... ] } # this is the active state (memory only, never persisted) of your application 
+        @state = { peasants: [ ... ] } # this is what handlers will be affecting
       end
 
       def handlers # this is provided for the processor to initialize itself upon invocation
