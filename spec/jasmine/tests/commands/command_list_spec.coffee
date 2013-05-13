@@ -17,20 +17,11 @@ describe "CommandList", ->
 			commandList.addCommand command1
 			expect(commandList.commands).toEqual [ command1 ]
 
-		it "will sort the list of commands", ->
-			commandList.addCommand command2
-			commandList.addCommand command1
-			expect(commandList.commands).toEqual [ command1, command2 ]
-
 	describe "#addCommands", ->
 
 		it "will add multiple local commands", ->
 			commandList.addCommands [ command1, command2 ]
-			expect(commandList.commands).toEqual [ command1, command2 ]
-
-		it "will sort the list of commands", ->
-			commandList.addCommands [ command2, command4, command3, command1 ]
-			expect(commandList.commands).toEqual [ command1, command2, command3, command4 ]
+			expect(commandList.commands).toContain command for command in [ command1, command2 ]
 
 	describe "#commandsThrough", ->
 
@@ -46,9 +37,6 @@ describe "CommandList", ->
 		it "will not return any commands after the given timestamp", ->
 			expect(commandList.commandsThrough new Date(2013, 4, 3)).not.toContain command4
 
-		it "will return a sorted list", ->
-			expect(commandList.commandsThrough new Date(2013, 4, 3)).toEqual [ command1, command2, command3 ]
-
 	describe "#commandsSince", ->
 
 		beforeEach ->
@@ -62,6 +50,3 @@ describe "CommandList", ->
 
 		it "will not return any commands after the given timestamp", ->
 			expect(commandList.commandsSince new Date(2013, 4, 2)).not.toContain command1
-
-		it "will return a sorted list", ->
-			expect(commandList.commandsSince new Date(2013, 4, 2)).toEqual [ command3, command4 ]

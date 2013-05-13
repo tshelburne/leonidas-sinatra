@@ -22,7 +22,8 @@ class Synchronizer
 					commands: (command.toHash() for command in unsyncedCommands)
 				error: => console.log "push error"
 				success: (response)=>
-					@client.lastUpdate = unsyncedCommands[unsyncedCommands.length-1].timestamp
+					seconds = Math.max.apply @, (command.timestamp for command in unsyncedCommands)
+					@client.lastUpdate = new Date seconds
 			)
 
 	pull: =>
@@ -37,7 +38,7 @@ class Synchronizer
 			error: => console.log "pull error"
 			success: (response)=>
 				newCommands = (new Command(command.name, command.data, command.connection, new Date(command.timestamp)) for command in response.data.commands)
-				@processor.rollbackCommands @organizer.commandsSince(@stableTimestamp).reverse()
+				@processor.rollbackCommands @organizer.commandsSince(@stableTimestamp)
 				@organizer.external.addCommands newCommands
 				@processor.runCommands @organizer.commandsSince(@stableTimestamp)
 				@externalClients = response.data.currentClients
