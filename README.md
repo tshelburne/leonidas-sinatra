@@ -148,6 +148,8 @@ Then, you can create an App:
 
 This is enough to have a functioning Leonidas app - of course, it's likely you will need customization to handle the semantic details of your state.
 
+#### In memory
+
 Now you want to run your app and rule your kingdom (from an endpoint in Sinatra):
 
     include Leonidas::App::AppRepository # I recommend using the mixin, it makes the function available
@@ -161,15 +163,27 @@ Now you want to run your app and rule your kingdom (from an endpoint in Sinatra)
 Eventually you need to load your app:
     
     ...
-    get "/i-want-to-rule-zamunda-too" do
+    get "/look-how-pretty-zamunda-is" do
       app = app_repository.find "Kingdom-Zamunda"
       ...
       haml :see_your_kingdom
     end
 
+This is enough to display the state of your app, but we don't have any clients that can issue commands to actually manipulate the app.
+
+    ...
+    get "/i-want-to-rule-zamunda-too" do
+      app = app_repository.find "Kingdom-Zamunda"
+      @client_id = app.create_client! # pass this client id to your front end to allow leonidas.js to auto-sync with it
+      ...
+      haml :rule_your_kingdom
+    end
+
 Great! We now have an app running in memory, updating state, and if you did well, communicating to the client(s) at regular intervals.
 
-But what if you (a) need to restart the machine and lose all of your state from memory, or (b) want to revive an old closed application? This is where a persistent application comes into play. A persistent application means simply that you have stored your application details, active connections, and commands in some sort of database. In order to reopen an application that has been closed, or restore an application to memory from disk, we need to be able to load the app from the database via a generalized solution. 
+#### Persistence 
+
+But what if you want to revive an old closed application? This is where a persistent application comes into play. A persistent application means simply that you have stored your application details, active connections, and commands in some sort of database. In order to reopen an application that has been closed, or restore an application to memory from disk, we need to be able to load the app from the database via a generalized solution. 
 
 Enter the persister:
 
