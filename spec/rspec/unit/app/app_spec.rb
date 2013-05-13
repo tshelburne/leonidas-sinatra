@@ -93,8 +93,8 @@ describe Leonidas::App::App do
 			@id1 = subject.create_client!
 			@id2 = subject.create_client!
 			@command1 = build_command Time.now
-			@command2 = build_command Time.now, "multiply", { number: 3 }
-			@command3 = build_command Time.now
+			@command2 = build_command @command1.timestamp + 1, "multiply", { number: 3 }
+			@command3 = build_command @command1.timestamp + 2
 		end
 
 		it "will reject any commands that aren't of type Leonidas::Commands::Command" do

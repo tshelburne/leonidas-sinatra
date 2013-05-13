@@ -16,6 +16,14 @@ describe Leonidas::Commands::Aggregator do
 			subject.add_command! command
 			subject.commands_since(Time.at(0)).should eq [ command ]
 		end
+
+		it "will not add a command if a command with an identical id already exists" do
+			command1 = build_command(Time.at(1))
+			command2 = build_command(Time.at(1))
+			subject.add_command! command1
+			subject.add_command! command2
+			subject.commands_since(Time.at(0)).should eq [ command1 ]
+		end
 	
 	end
 
