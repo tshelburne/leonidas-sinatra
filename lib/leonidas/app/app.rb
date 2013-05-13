@@ -53,7 +53,24 @@ module Leonidas
 				@cached_stable_commands = stable_commands
 			end
 
-			private 
+			def require_reconciliation!
+				@reconciled = false
+			end
+
+			def check_in!(client_id, other_clients)
+				@checked_in_clients ||= [ ]
+				unless reconciled?
+					@checked_in_clients << recreate_client!(client_id)
+					other_clients.each {|client_hash| recreate_client! client_hash[:id]}
+				end
+				check_reconciliation!
+			end
+
+			def reconciled?
+				@reconciled.nil? ? true : @reconciled
+			end
+
+			private
 
 			def clients
 				@clients ||= [ ]
@@ -81,6 +98,19 @@ module Leonidas
 
 			def persistent_state?
 				@persist_state || false
+			end
+
+			def recreate_client!(id)
+				return client(id) if has_client? id
+
+				client = ::Leonidas::App::Client.new(id)
+				clients << client
+				client
+			end
+
+			def check_reconciliation!
+				@reconciled = true
+				clients.each {|client| @reconciled = false unless @checked_in_clients.include? client}
 			end
 
 		end

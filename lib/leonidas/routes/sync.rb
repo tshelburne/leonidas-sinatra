@@ -4,21 +4,22 @@ module Leonidas
 		class SyncApp < Sinatra::Base
 			include ::Leonidas::App::AppRepository
 
-			def app
+			def map_command_hashes(command_hashes)
+				command_hashes.map {|command_hash| ::Leonidas::Commands::Command.new(command_hash[:id], command_hash[:name], command_hash[:data], Time.at(command_hash[:timestamp]))}
+			end
+
+			before do
+				content_type "application/json"
+				
 				@app ||= app_repository.find params[:appName]
+        halt({ success: false, message: 'reconcile required', data: {} }.to_json) unless @app.reconciled?
 			end
-
-			def get_client_record(client_id)
-				params[:clients].select {|client| client[:id] == client_id}.first
-			end
-
-			before { content_type "application/json" }
 
 			get '/' do
-				all_external_clients = app.client_list.select {|client| client[:id] != params[:clientId]}
+				all_external_clients = @app.client_list.select {|client| client[:id] != params[:clientId]}
 				new_commands = all_external_clients.reduce([ ]) do |commands, client|
-					client_record = get_client_record client[:id] 
-					commands << client_record.nil? ? app.commands_from(client[:id]) : app.commands_from(client[:id], client_record[:lastUpdate])
+					client_hash = params[:clients].select {|client_hash| client_hash[:id] == client[:id]}.first
+					commands << client_hash.nil? ? @app.commands_from(client[:id]) : @app.commands_from(client[:id], client_hash[:lastUpdate])
 				end
 
 				{
@@ -27,14 +28,14 @@ module Leonidas
 					data: {
 						commands: new_commands.map {|command| command.to_hash},
 						currentClients: all_external_clients,
-						stableTimestamp: app.stable_timestamp
+						stableTimestamp: @app.stable_timestamp
 					}
 				}.to_json
 			end
 
 			post '/' do
-				commands = params[:commands].map {|command| ::Leonidas::Commands::Command.new(command.id, command.name, command.data, Time.at(command.timestamp.to_i))}
-				app.add_commands! params[:clientId], commands
+				commands = map_command_hashes params[:commands]
+				@app.add_commands! params[:clientId], commands
 
 				{
 					success: true,
@@ -44,7 +45,20 @@ module Leonidas
 			end 
 
 			post '/reconcile' do
-				
+				@app.check_in! params[:clientId], params[:currentClients]
+
+				params[:commandList].each do |client_id, command_hashes|
+					commands = map_command_hashes command_hashes
+					@app.add_commands! client_id, commands
+				end
+
+
+
+				{ 
+					success: true,
+					message: 'app partially reconciled',
+					data: { }
+				}
 			end
 
 		end
