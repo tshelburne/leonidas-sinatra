@@ -37,12 +37,33 @@ class Synchronizer
 				clients: @externalClients
 			error: => console.log "pull error"
 			success: (response)=>
-				newCommands = (new Command(command.name, command.data, command.connection, new Date(command.timestamp)) for command in response.data.commands)
+				newCommands = (new Command(command.name, command.data, command.connection, new Date(command.timestamp), command.id) for command in response.data.commands)
 				@processor.rollbackCommands @organizer.commandsSince(@stableTimestamp)
 				@organizer.external.addCommands newCommands
 				@processor.runCommands @organizer.commandsSince(@stableTimestamp)
 				@externalClients = response.data.currentClients
 				@stableTimestamp = response.data.stableTimestamp
+		)
+
+	reconcile: =>
+		commandList = { }
+		commandList[@client.id] = (command.toHash() for command in @organizer.local.commands)
+		for externalClient in externalClients
+			commands = @organizer.commandsFor(externalClient.id) 
+			commandList["#{externalClient.id}"] = (command.toHash() for command in commands)
+
+		reqwest(
+			url: "#{syncUrl}/reconcile"
+			type: "json"
+			method: "post"
+			data:
+				appName: @client.appName
+				clientId: @client.id
+				commandList: commandList
+				stableTimestamp: @stableTimestamp
+			error: => console.log "reconcile error"
+			success: (response)=>
+				clearInterval @reconcileInterval
 		)
 
 return Synchronizer

@@ -59,10 +59,18 @@ describe "Synchronizer", ->
 			it "will add the list of received commands to external commands", ->
 				synchronizer.pull()
 				expect(organizer.external.commands.length).toEqual 3
-				expect(organizer.external.commands[0].toHash()).toEqual { name: 'multiply',  data: { number: 2 }, clientId: "2345", timestamp: new Date(2013, 4, 2).getTime() }
-				expect(organizer.external.commands[1].toHash()).toEqual { name: 'increment', data: { number: 1 }, clientId: "3456", timestamp: new Date(2013, 4, 6).getTime() }
-				expect(organizer.external.commands[2].toHash()).toEqual { name: 'increment', data: { number: 3 }, clientId: "3456", timestamp: new Date(2013, 4, 8).getTime() }
+				expect(organizer.external.commands[0].toHash()).toEqual { id: 'command2', name: 'multiply',  data: { number: 2 }, clientId: "2345", timestamp: new Date(2013, 4, 2).getTime() }
+				expect(organizer.external.commands[1].toHash()).toEqual { id: 'command6', name: 'increment', data: { number: 1 }, clientId: "3456", timestamp: new Date(2013, 4, 6).getTime() }
+				expect(organizer.external.commands[2].toHash()).toEqual { id: 'command8', name: 'increment', data: { number: 3 }, clientId: "3456", timestamp: new Date(2013, 4, 8).getTime() }
 
 			it "will update to the most current state", ->
 				synchronizer.pull()
 				expect(client.state.integer).toEqual 32
+
+	describe "#reconcile", ->
+
+		beforeEach ->
+			spyOn(window, "reqwest").andCallFake( (params)-> params.success(mocks.syncReconcileResponse))
+
+		it "fails", ->
+			expect(false).toBeTruthy()

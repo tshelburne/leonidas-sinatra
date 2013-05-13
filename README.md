@@ -10,7 +10,7 @@ Leonidas.rb is an integration built to support Leonidas commands on the server-s
 * Long-running app support in memory on the server side
 * Persistence layer wrappers to support resuming an application that has been closed in memory
 * Default behavior to losslessly resume application following browser failure or crash (unimplemented)
-* Default behavior to losslessly resume application following server failure or crash (unimplemented)
+* Default behavior to losslessly resume application following server failure or crash (in development)
 
 ## Terminology
 
