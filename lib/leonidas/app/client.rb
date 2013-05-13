@@ -6,8 +6,8 @@ module Leonidas
 			
 			attr_reader :id, :commands
 
-			def initialize
-				@id = SecureRandom.uuid
+			def initialize(id=nil)
+				@id = id || SecureRandom.uuid
 				@commands = [ ]
 				@time_created = Time.now
 			end

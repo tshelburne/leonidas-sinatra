@@ -1,6 +1,20 @@
 describe ::Leonidas::App::Client do
 	include TestObjects
 
+	describe '#initialize' do
+		
+		it "will set a default id if no id is passed in" do
+			client = ::Leonidas::App::Client.new
+			client.id.should_not be_nil
+		end
+
+		it "will set the id of the client if it is passed in" do
+			client = ::Leonidas::App::Client.new("test-id")
+			client.id.should eq "test-id"
+		end
+
+	end
+
 	describe '#last_update' do 
 
 		it "will return a timestamp from when the client was created if no commands exist on the client" do
