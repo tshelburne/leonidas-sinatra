@@ -11,7 +11,7 @@ module Leonidas
 				end
 			end
 			
-			def process(commands, persist=false)
+			def run(commands, persist=false)
 				commands.sort! {|command1, command2| command1.timestamp <=> command2.timestamp}
 				commands.each do |command|
 					raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command
