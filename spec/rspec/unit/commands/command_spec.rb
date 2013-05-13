@@ -1,13 +1,13 @@
 describe Leonidas::Commands::Command do
 	
 	subject do
-		described_class.new("test", { test: "testdata" }, Time.at(0))
+		described_class.new("id", "test", { test: "testdata" }, Time.at(0))
 	end
 
 	describe '#to_hash' do 
 
 		it "will return the command as a hash" do
-			subject.to_hash.should eq({ name: "test", data: { test: "testdata" }, timestamp: Time.at(0).to_i })
+			subject.to_hash.should eq({ id: "id", name: "test", data: { test: "testdata" }, timestamp: Time.at(0).to_i })
 		end
 
 	end

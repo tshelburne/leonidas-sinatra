@@ -33,7 +33,7 @@ module Leonidas
 			end
 
 			post '/' do
-				commands = params[:commands].map {|command| ::Leonidas::Commands::Command.new(command.name, command.data, Time.at(command.timestamp.to_i))}
+				commands = params[:commands].map {|command| ::Leonidas::Commands::Command.new(command.id, command.name, command.data, Time.at(command.timestamp.to_i))}
 				app.add_commands! params[:clientId], commands
 
 				{
