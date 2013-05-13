@@ -1,3 +1,5 @@
+v0.0.4 revised both frontend and backend code to use command rollbacks rather the state locking
+
 v0.0.3 removed jquery, replaced with reqwest for simple ajax
 
 v0.0.2 revised library to have unified terminology throughout
