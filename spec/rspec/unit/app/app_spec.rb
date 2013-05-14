@@ -17,6 +17,23 @@ describe Leonidas::App::App do
 	
 	end
 
+	describe '#name=' do
+		
+		it "will reset the name of the app" do
+			subject.name = "app-2"
+			subject.name.should eq "app-2"
+		end
+
+	end
+
+	describe '#app_type' do
+		
+		it "will return a string representing the class name" do
+			subject.app_type.should eq "TestClasses::TestApp"
+		end
+
+	end
+
 	describe '#current_state' do 
 		
 		it "will return the current state of the application" do

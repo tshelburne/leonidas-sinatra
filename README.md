@@ -127,13 +127,13 @@ First, you should create at least one command handler. Note that the handler wil
       end
     end
 
-Then, you can create an App:
+Then, you can create an App (note that #initialize must be able to take no arguments in order for your app to work with reconciliation in the event of server failure):
 
     class PeasantSubjugationApp
       include Leonidas::App::App # this is the neat part that gives you a Leonidas App
 
-      def initialize
-        @name = "Kingdom-Zamunda" # this name must be unique amongst all your apps
+      def initialize(name="Kingdom-Zamunda")
+        @name = "#{name}-#{SecureRandom.uuid}" # this name must be unique amongst all instances of apps
         @persist_state = true # this means that commands with be persisted when they are run
         @state = { peasants: [ ... ] } # this is what handlers will be affecting
       end

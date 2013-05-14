@@ -29,28 +29,44 @@ describe Leonidas::App::Repository do
 
 		it "will return the app if the app is being watched" do 
 			subject.watch @app
-			subject.find("app-1").should eq @app
+			subject.find("app-1", 'TestClasses::TestApp').should eq @app
 		end
 
 		context "when the app is not being watched" do
 
-			it "will return nil if the app is not persisted" do
-				subject.find("app-1").should be_nil
-			end
-			
-			it "will load the app from disk" do 
-				subject.save @app
-				subject.find("app-1").should eq @app
+			it "will build the app and set it into reconcile mode" do
+				app = subject.find("app-1", 'TestClasses::TestApp')
+				app.should be_a TestClasses::TestApp
+				app.should_not be_reconciled
+				app.name.should eq @app.name
 			end
 
-			it "will begin watching the app when it was persisted" do
-				subject.save @app
-				subject.find("app-1")
-				memory_layer.should have_app "app-1"
+			it "will begin watching the newly created app" do
+				app = subject.find("app-1", 'TestClasses::TestApp')
+				memory_layer.should have_app 'app-1'
 			end
 
 		end
 
+	end
+
+	describe '#load' do
+		
+		it "will return nil if the app is not persisted" do
+			subject.load("app-1").should be_nil
+		end
+		
+		it "will load the app from disk" do 
+			subject.save @app
+			subject.load("app-1").should eq @app
+		end
+
+		it "will begin watching the loaded app" do
+			subject.save @app
+			subject.load("app-1")
+			memory_layer.should have_app "app-1"
+		end
+	
 	end
 
 	describe '#watch' do 

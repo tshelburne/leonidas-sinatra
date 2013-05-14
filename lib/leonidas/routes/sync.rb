@@ -11,7 +11,7 @@ module Leonidas
 			before do
 				content_type "application/json"
 				
-				@app ||= app_repository.find params[:appName]
+				@app ||= app_repository.find params[:appName], params[:appType]
         halt({ success: false, message: 'reconcile required', data: {} }.to_json) unless @app.reconciled?
 			end
 
@@ -51,8 +51,6 @@ module Leonidas
 					commands = map_command_hashes command_hashes
 					@app.add_commands! client_id, commands
 				end
-
-
 
 				{ 
 					success: true,

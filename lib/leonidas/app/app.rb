@@ -3,8 +3,10 @@ module Leonidas
 
 		module App
 
-			def name
-				@name
+			attr_accessor :name
+
+			def app_type
+				self.class.to_s
 			end
 
 			def current_state
@@ -66,9 +68,14 @@ module Leonidas
 				check_reconciliation!
 			end
 
+			def has_checked_in?(client)
+				@checked_in_clients.include? client
+			end
+
 			def reconciled?
 				@reconciled.nil? ? true : @reconciled
 			end
+
 
 			private
 
@@ -110,7 +117,8 @@ module Leonidas
 
 			def check_reconciliation!
 				@reconciled = true
-				clients.each {|client| @reconciled = false unless @checked_in_clients.include? client}
+				clients.each {|client| @reconciled = false unless has_checked_in? client}
+				@checked_in_clients = [ ] if reconciled?
 			end
 
 		end

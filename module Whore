@@ -1,0 +1,100 @@
+345.to_s(13)
+345.to_s(12)
+345.to_s(11)
+x= 22
+x.to_s(2)
+16 & f
+16 & 0xf
+3 & 2
+3 & 1
+4 & 2
+5 & 1
+5 & 2
+5 & 4
+class Rel
+include Tim
+Rel < Tim
+r = Rel.new
+r < Tim
+CONSTANT = 5
+Tim.CONSTANT
+tim.CONSTANT
+tim.methods
+Tim::CONSTANT
+tim.dup
+1 & 3
+2 & 3
+3 & 3
+4 & 3
+CONST = 2
+tim = Tim.new
+tim::CONST
+tim.class::CONST
+not "tim".is_a? String and not "jarrod".is_a? String
+not "tim".is_a? String and not 5.is_a? String
+not 2.is_a? String and not 5.is_a? String
+[ 3, 2, 4, 1, 5]
+ary = _
+ary.sort! {|one, two| one <=> two}.first
+Time.now
+Time.now.to_s
+Time.now.usec
+Tim.now.utc
+Time.now.utc
+Time.now.sec
+Time.now.to_i
+@@tim = "what up"
+def self.say_it
+return @@tim
+Tim.say_it
+require "lib/leonidas/symbols"
+require_relative "lib/leonidas/symbols"
+pwd
+require "/Users/tshelburne/Sites/musicone/leonidas/lib/leonidas/symbols"
+help
+show post
+puts post
+info post
+var instance post
+var instance :post
+show args
+help display
+help info
+info locals
+set autoeval
+info variables
+post
+post.comments
+set autolist
+Leonidas.keystone_compiler
+module Cronus
+puts 'putting out'
+module Whore
+puts "always"
+module Maiden
+def self.put_out
+puts "never"
+Maiden.put_out
+Whore.put_out
+module Tim
+@@is_programmer = false
+module Jarrod
+@@is_programmer = true
+Tim.class_variable_get(:@@is_programmer)
+[1,2,3].remove 3
+[1,2,3].delete 3
+tim = _
+tim = [1,2,3]
+tim.delete 3
+tim
+tim.delete 4
+'Tim'.new
+'Tim'.methods
+methods
+class
+module People
+class Tim
+end
+tim = People::Tim.new
+tim.class
+exit
