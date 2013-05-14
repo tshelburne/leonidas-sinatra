@@ -29,10 +29,14 @@ describe Leonidas::App::Repository do
 
 		it "will return the app if the app is being watched" do 
 			subject.watch @app
-			subject.find("app-1", 'TestClasses::TestApp').should eq @app
+			subject.find("app-1").should eq @app
 		end
 
 		context "when the app is not being watched" do
+
+			it "will return nil if no app type is passed in" do
+				subject.find("app-1").should be_nil
+			end
 
 			it "will build the app and set it into reconcile mode" do
 				app = subject.find("app-1", 'TestClasses::TestApp')

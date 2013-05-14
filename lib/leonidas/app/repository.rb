@@ -8,9 +8,9 @@ module Leonidas
 		
 		class Repository
 
-			def find(app_name, app_type)
+			def find(app_name, app_type=nil)
 				app = ::Leonidas::MemoryLayer::MemoryRegistry.retrieve_app app_name
-				if app.nil?
+				if app.nil? and not app_type.nil?
 					app_class = app_type.to_s.split('::').inject(Object) {|o,c| o.const_get c}
 					app = app_class.new
 					app.name = app_name

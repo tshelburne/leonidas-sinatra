@@ -160,11 +160,11 @@ Now you want to run your app and rule your kingdom (from an endpoint in Sinatra)
       ...
     end
 
-Eventually you need to load your app:
+Eventually you need to find your app in memory:
     
     ...
     get "/look-how-pretty-zamunda-is" do
-      app = app_repository.find "Kingdom-Zamunda"
+      app = app_repository.find "Kingdom-Zamunda-[somenumbers]"
       ...
       haml :see_your_kingdom
     end
@@ -173,7 +173,7 @@ This is enough to display the state of your app, but we don't have any clients t
 
     ...
     get "/i-want-to-rule-zamunda-too" do
-      app = app_repository.find "Kingdom-Zamunda"
+      app = app_repository.find "Kingdom-Zamunda-[somenumbers]"
       @client_id = app.create_client! # pass this client id to your front end to allow leonidas.js to auto-sync with it
       ...
       haml :rule_your_kingdom
@@ -226,13 +226,23 @@ Create your application's state builder:
 
     end
 
-Lastly, if you want to use the Sinatra endpoints provided by Leonidas for automatically syncing between your clients and server, the Rack app is available:
+Now when you need to load an app that has been archived:
+    
+    ...
+    get '/i-was-overthrown-but-now-i-am-back-to-rule-again' do
+      app = app_repository.load "Kingdom-Zamunda-[somenumbers]"
+      @client_id = app.create_client!
+      ...
+      haml :rule_your_kingdom
+    end
+
+Lastly, if you want to use the Sinatra endpoints provided by Leonidas for automatically syncing between your clients and server, the Rack app is available. This will handle all command syncing, plus the automatic reconciliation should your server go down or need to be restarted while an app is live:
 
     map "/path/you/like" do
       run Leonidas::Routes::SyncApp
     end
 
-This will mean the frontend syncUrl you pass in Commander.default would look something like "http://yourdomain.com/path/you/like/[your-app-name]"
+This will mean the frontend syncUrl you pass in Commander.default would look something like "http://yourdomain.com/path/you/like"
 
 Voilá, your app should be good to go.
 
