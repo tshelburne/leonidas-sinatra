@@ -53,17 +53,20 @@ module Leonidas
 
 				@cached_active_commands = active_commands
 				@cached_stable_commands = stable_commands
+
+				puts @cached_stable_commands.map {|command| command.id}.inspect
+				puts @cached_active_commands.map {|command| command.id}.inspect
 			end
 
 			def require_reconciliation!
 				@reconciled = false
 			end
 
-			def check_in!(client_id, other_clients)
+			def check_in!(client_id, other_client_ids)
 				@checked_in_clients ||= [ ]
 				unless reconciled?
 					@checked_in_clients << recreate_client!(client_id)
-					other_clients.each {|client_hash| recreate_client! client_hash[:id]}
+					other_client_ids.each {|id| recreate_client! id}
 				end
 				check_reconciliation!
 			end

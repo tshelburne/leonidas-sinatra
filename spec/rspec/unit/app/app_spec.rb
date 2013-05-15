@@ -224,9 +224,9 @@ describe Leonidas::App::App do
 		it "will mark the app as reconciled when the client checking in is the last one not yet checked in" do
 			id1 = ::Leonidas::App::Client.new.id
 			id2 = ::Leonidas::App::Client.new.id
-			subject.check_in! id1, [ { id: id2 } ]
+			subject.check_in! id1, [ id2 ]
 			subject.should_not be_reconciled
-			subject.check_in! id2, [ { id: id1 } ]
+			subject.check_in! id2, [ id1 ]
 			subject.should be_reconciled
 		end
 
