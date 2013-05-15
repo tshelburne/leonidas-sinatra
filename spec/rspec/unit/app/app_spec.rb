@@ -70,11 +70,13 @@ describe Leonidas::App::App do
 	
 		it "will create a list of hashes of clients" do
 			id1 = subject.create_client!
-			subject.add_commands! id1, [ build_command(Time.at(5)) ]
+			subject.add_commands! id1, [ build_command(Time.at(5), id1) ]
 			id2 = subject.create_client!
-			subject.add_commands! id2, [ build_command(Time.at(10)) ]
+			subject.add_commands! id2, [ build_command(Time.at(10), id2) ]
+			id3 = subject.create_client!
+			subject.add_commands! id3, [ build_command(Time.at(15), id3) ]
 
-			subject.client_list.should eq [ { id: id1, lastUpdate: Time.at(5).to_i }, { id: id2, lastUpdate: Time.at(10).to_i } ]
+			subject.client_list.should eq [ { id: id1, lastUpdate: 5 }, { id: id2, lastUpdate: 10 }, { id: id3, lastUpdate: 15 } ]
 		end
 	
 	end

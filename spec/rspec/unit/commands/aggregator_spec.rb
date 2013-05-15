@@ -36,6 +36,18 @@ describe Leonidas::Commands::Aggregator do
 			subject.commands_since(Time.at(0)).should eq [ command1, command2 ]
 		end
 
+		it "will not add any command which already has it's id represented in the list" do
+			command1 = build_command(Time.at(1))
+			command2 = build_command(Time.at(2))
+			command3 = build_command(Time.at(3))
+			command4 = build_command(Time.at(3))
+			command5 = build_command(Time.at(4))
+			command6 = build_command(Time.at(1))
+			subject.add_commands! [ command1, command2, command3 ]
+			subject.add_commands! [ command4, command5, command6 ]
+			subject.commands_since(Time.at(0)).should eq [ command1, command2, command3, command5 ]
+		end
+
 	end
 
 	describe '#commands_through' do 
