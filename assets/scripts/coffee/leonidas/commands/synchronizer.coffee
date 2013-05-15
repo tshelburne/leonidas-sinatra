@@ -72,6 +72,7 @@ class Synchronizer
 			error: => console.log "reconcile error"
 			success: (response)=>
 				if response.success
+					@externalClients = response.data.currentClients
 					clearInterval @reconcileTimeout
 					@reconcileTimeout = null
 				else

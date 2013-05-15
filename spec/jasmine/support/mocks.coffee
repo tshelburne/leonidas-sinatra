@@ -7,6 +7,7 @@ addMock "syncPushResponse",
 			{ id: "3456", lastUpdate: new Date(2013, 4, 9).getTime() }
 		]
 
+
 addMock "syncPullResponse",
 	success: true
 	message: 'commands retrieved'
@@ -22,12 +23,18 @@ addMock "syncPullResponse",
 		]
 		stableTimestamp: new Date(2013, 4, 2).getTime()
 
+
 addMock "reconcileRequiredResponse",
 	success: false
 	message: 'reconcile required'
 	data: { }
 
+
 addMock "syncReconcileResponse",
 	success: true
 	message: "app partially reconciled"
-	data: {}
+	data: 
+		currentClients: [
+			{ id: "2345", lastUpdate: new Date(2013, 4, 4).getTime() },
+			{ id: "3456", lastUpdate: new Date(2013, 4, 10).getTime() }
+		]
