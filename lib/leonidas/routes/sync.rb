@@ -8,6 +8,10 @@ module Leonidas
 				command_hashes.map {|command_hash| ::Leonidas::Commands::Command.new(command_hash[:id], command_hash[:name], command_hash[:data], command_hash[:client_id], Time.at(command_hash[:timestamp]))}
 			end
 
+			def all_external_clients
+				@all_external_clients = @app.client_list.select {|client| client[:id] != params[:clientId]}
+			end
+
 			before do
 				content_type "application/json"
 				
@@ -18,10 +22,10 @@ module Leonidas
 			get '/' do
         halt({ success: false, message: 'reconcile required', data: {} }.to_json) unless @app.reconciled?
 
-				all_external_clients = @app.client_list.select {|client| client[:id] != params[:clientId]}
 				new_commands = all_external_clients.reduce([ ]) do |commands, client|
 					client_hash = params[:clients].select {|client_hash| client_hash[:id] == client[:id]}.first
-					commands << client_hash.nil? ? @app.commands_from(client[:id]) : @app.commands_from(client[:id], Time.at(client_hash[:lastUpdate].to_i))
+					min_timestamp = client_hash.nil? ? nil : Time.at(client_hash[:lastUpdate].to_i)
+					commands.concat @app.commands_from(client[:id], min_timestamp)
 				end
 
 				{
@@ -44,12 +48,14 @@ module Leonidas
 				{
 					success: true,
 					message: 'commands received',
-					data: { }
+					data: { 
+						currentClients: all_external_clients
+					}
 				}.to_json
 			end 
 
 			post '/reconcile' do
-				@app.check_in! params[:clientId], params[:currentClients]
+				@app.check_in! params[:clientId], params[:currentClients].map {|client_hash| client_hash[:id]}
 
 				params[:commandList].each do |client_id, command_hashes|
 					commands = map_command_hashes command_hashes
@@ -59,7 +65,9 @@ module Leonidas
 				{ 
 					success: true,
 					message: 'app partially reconciled',
-					data: { }
+					data: { 
+						currentClients: all_external_clients
+					}
 				}.to_json
 			end
 

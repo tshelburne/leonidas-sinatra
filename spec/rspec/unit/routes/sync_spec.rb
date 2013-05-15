@@ -46,7 +46,7 @@ describe Leonidas::Routes::SyncApp do
 		}
 	end
 
-	def reconcile_request
+	def client1_reconcile_request
 		# this is the environment when get /, push / fails, and then post /reconcile
 		{
 			appName: "app-1",
@@ -108,9 +108,8 @@ describe Leonidas::Routes::SyncApp do
 			it "will return a list of new commands from all external clients" do
 				get "/", pull_request
 				response_body["data"]["commands"].should eq [ 
-					{ "id" => "36", "name" => "multiply",  "data" => { "number" => 2 }, "clientId" => @id3, "timestamp" => Time.new(2013, 4, 6).to_i },
-					{ "id" => "37", "name" => "multiply",  "data" => { "number" => 3 }, "clientId" => @id3, "timestamp" => Time.new(2013, 4, 7).to_i },
-					{ "id" => "28", "name" => "increment", "data" => { "number" => 3 }, "clientId" => @id2, "timestamp" => Time.new(2013, 4, 8).to_i } 
+					{ "id" => "28", "name" => "increment", "data" => { "number" => 3 }, "clientId" => @id2, "timestamp" => Time.new(2013, 4, 8).to_i },
+					{ "id" => "37", "name" => "multiply",  "data" => { "number" => 3 }, "clientId" => @id3, "timestamp" => Time.new(2013, 4, 7).to_i }
 				]
 			end
 
@@ -148,7 +147,8 @@ describe Leonidas::Routes::SyncApp do
 		context "when successful" do
 
 			it "will run the list of commands" do
-				
+				post "/", push_request
+				@app.current_state[:value].should eq 5
 			end
 			
 		end
@@ -168,6 +168,10 @@ describe Leonidas::Routes::SyncApp do
 		end
 
 		context "when successful" do
+
+			it "will run all the new commands passed in" do
+				
+			end
 
 			it "will return a success message" do
 				
