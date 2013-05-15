@@ -110,7 +110,7 @@ describe Leonidas::App::App do
 			@id1 = subject.create_client!
 			@id2 = subject.create_client!
 			@command1 = build_command Time.now
-			@command2 = build_command @command1.timestamp + 1, "multiply", { number: 3 }
+			@command2 = build_command @command1.timestamp + 1, "clientid", "multiply", { number: 3 }
 			@command3 = build_command @command1.timestamp + 2
 		end
 
@@ -151,7 +151,7 @@ describe Leonidas::App::App do
 		before :each do
 			@id = subject.create_client!
 			@command1 = build_command Time.at(10)
-			@command2 = build_command Time.at(15), "multiply", { number: 3 }
+			@command2 = build_command Time.at(15), "clientid", "multiply", { number: 3 }
 			@command3 = build_command Time.at(20)
 			subject.add_commands! @id, [ @command1, @command2, @command3 ]
 		end

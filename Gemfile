@@ -1,6 +1,7 @@
 source :rubygems
 
 gem 'rack'
+gem 'rack-test'
 gem 'echoe'
 gem 'sinatra'
 

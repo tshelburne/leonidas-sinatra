@@ -65,6 +65,7 @@ class Synchronizer
 			data:
 				appName: @client.appName
 				clientId: @client.id
+				clients: @externalClients
 				commandList: commandList
 				stableTimestamp: @stableTimestamp
 			error: => console.log "reconcile error"

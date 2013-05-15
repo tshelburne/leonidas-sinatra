@@ -9,8 +9,8 @@ describe Leonidas::Commands::Processor do
 	before :each do
 		TestClasses::PersistentState.reset
 		@command1 = build_command(Time.at(1))
-		@command2 = build_command(Time.at(2), "multiply", { number: 3 })
-		@command3 = build_command(Time.at(3), "increment", { number: 4 })
+		@command2 = build_command(Time.at(2), "clientid", "multiply", { number: 3 })
+		@command3 = build_command(Time.at(3), "clientid", "increment", { number: 4 })
 	end
 
 	describe '#run' do 

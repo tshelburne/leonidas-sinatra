@@ -3,17 +3,18 @@ module Leonidas
 
 		class Command
 			
-			attr_reader :id, :name, :data, :timestamp
+			attr_reader :id, :name, :data, :client_id, :timestamp
 
-			def initialize(id, name, data, timestamp)
+			def initialize(id, name, data, client_id, timestamp)
 				@id = id
 				@name = name
 				@data = data
+				@client_id = client_id
 				@timestamp = timestamp
 			end
 
 			def to_hash
-				{ id: @id, name: @name, data: @data, timestamp: @timestamp.to_i }
+				{ id: @id, name: @name, data: @data, clientId: @client_id, timestamp: @timestamp.to_i }
 			end
 
 		end
