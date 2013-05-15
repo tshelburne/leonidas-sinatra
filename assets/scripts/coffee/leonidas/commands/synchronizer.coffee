@@ -25,6 +25,7 @@ class Synchronizer
 					if response.success
 						seconds = Math.max.apply @, (command.timestamp for command in unsyncedCommands)
 						@client.lastUpdate = new Date seconds
+						@externalClients = response.data.currentClients
 					else
 						@reconcileTimeout = setTimeout(@reconcile, 1000) if response.message is "reconcile required" and not @reconcileTimeout?
 			)

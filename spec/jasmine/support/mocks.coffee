@@ -1,7 +1,11 @@
 addMock "syncPushResponse",
 	success: true
 	message: 'commands received'
-	data: { }
+	data: 
+		currentClients: [
+			{ id: "2345", lastUpdate: new Date(2013, 4, 3).getTime() },
+			{ id: "3456", lastUpdate: new Date(2013, 4, 9).getTime() }
+		]
 
 addMock "syncPullResponse",
 	success: true

@@ -36,6 +36,10 @@ describe "Synchronizer", ->
 				synchronizer.push()
 				expect(client.lastUpdate).toEqual command4.timestamp
 
+			it "will update the list of external clients and their latest timestamps", ->
+				synchronizer.push()
+				expect(synchronizer.externalClients).toEqual [ { id: "2345", lastUpdate: new Date(2013, 4, 3).getTime() }, { id: "3456", lastUpdate: new Date(2013, 4, 9).getTime() } ]
+
 		describe "when unsuccessful", ->
 
 			beforeEach ->
