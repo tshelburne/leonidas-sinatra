@@ -118,7 +118,7 @@ module Leonidas
 			def check_reconciliation!
 				@reconciled = true
 				clients.each {|client| @reconciled = false unless has_checked_in? client}
-				@checked_in_clients = [ ] if reconciled?
+				@checked_in_clients = nil if reconciled?
 			end
 
 		end

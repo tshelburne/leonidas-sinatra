@@ -48,9 +48,7 @@ module Leonidas
 				{
 					success: true,
 					message: 'commands received',
-					data: { 
-						currentClients: all_external_clients
-					}
+					data: { }
 				}.to_json
 			end 
 
@@ -64,10 +62,8 @@ module Leonidas
 
 				{ 
 					success: true,
-					message: 'app partially reconciled',
-					data: { 
-						currentClients: all_external_clients
-					}
+					message: @app.reconciled? ? 'app fully reconciled' : 'app partially reconciled',
+					data: { }
 				}.to_json
 			end
 
