@@ -55,8 +55,8 @@ module Leonidas
 			end 
 
 			post '/reconcile' do
-				@app.check_in! params[:clientId], params[:currentClients].map {|client_hash| client_hash[:id]}
-
+				@app.check_in! params[:clientId], params[:clients].map {|client_hash| client_hash[:id]}
+				
 				params[:commandList].each do |client_id, command_hashes|
 					commands = map_command_hashes command_hashes
 					@app.add_commands! client_id, commands

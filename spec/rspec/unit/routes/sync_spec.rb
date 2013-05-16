@@ -55,16 +55,22 @@ describe Leonidas::Routes::SyncApp do
 				{ id: @id2, lastUpdate: @command8.timestamp.to_i.to_s }, 
 				{ id: @id3, lastUpdate: @command7.timestamp.to_i.to_s } 
 			],
-			commandList: [
-				{ id: "11", name: "increment", data: { number: "1" }, clientId: @id1, timestamp: @command1.timestamp.to_i.to_s },
-				{ id: "22", name: "increment", data: { number: "2" }, clientId: @id2, timestamp: @command2.timestamp.to_i.to_s },
-				{ id: "33", name: "increment", data: { number: "2" }, clientId: @id3, timestamp: @command3.timestamp.to_i.to_s },
-				{ id: "14", name: "multiply",  data: { number: "3" }, clientId: @id1, timestamp: @command4.timestamp.to_i.to_s },
-				{ id: "15", name: "increment", data: { number: "1" }, clientId: @id1, timestamp: @command5.timestamp.to_i.to_s },
-				{ id: "36", name: "multiply",  data: { number: "2" }, clientId: @id3, timestamp: @command6.timestamp.to_i.to_s },
-				{ id: "37", name: "multiply",  data: { number: "3" }, clientId: @id3, timestamp: @command7.timestamp.to_i.to_s },
-				{ id: "28", name: "increment", data: { number: "3" }, clientId: @id2, timestamp: @command8.timestamp.to_i.to_s }
-			],
+			commandList: {
+				"#{@id1}" => [
+					{ id: "11", name: "increment", data: { number: "1" }, clientId: @id1, timestamp: @command1.timestamp.to_i.to_s },
+					{ id: "14", name: "multiply",  data: { number: "3" }, clientId: @id1, timestamp: @command4.timestamp.to_i.to_s },
+					{ id: "15", name: "increment", data: { number: "1" }, clientId: @id1, timestamp: @command5.timestamp.to_i.to_s }
+				],
+				"#{@id2}" => [
+					{ id: "22", name: "increment", data: { number: "2" }, clientId: @id2, timestamp: @command2.timestamp.to_i.to_s },
+					{ id: "28", name: "increment", data: { number: "3" }, clientId: @id2, timestamp: @command8.timestamp.to_i.to_s }
+				],
+				"#{@id3}" => [
+					{ id: "33", name: "increment", data: { number: "2" }, clientId: @id3, timestamp: @command3.timestamp.to_i.to_s },
+					{ id: "36", name: "multiply",  data: { number: "2" }, clientId: @id3, timestamp: @command6.timestamp.to_i.to_s },
+					{ id: "37", name: "multiply",  data: { number: "3" }, clientId: @id3, timestamp: @command7.timestamp.to_i.to_s }
+				]
+			},
 			stableTimestamp: @command4.timestamp.to_i.to_s
 		}
 	end
@@ -175,18 +181,21 @@ describe Leonidas::Routes::SyncApp do
 		end
 
 		it "will not return a reconcile required response when the app isn't fully reconciled" do
-			post "/reconcile", { appName: 'bad-name', appType: 'TestClasses::TestApp' }
-			# response_body["message"].should_not eq "reconcile required"
+			post "/reconcile", client1_reconcile_request
+			response_body["message"].should_not eq "reconcile required"
 		end
 
 		context "when successful" do
 
 			it "will run all the new commands passed in" do
-				
+				post "/reconcile", client1_reconcile_request
+				@app.current_state[:value].should eq 99
 			end
 
 			it "will return a success message" do
-				
+				post "/reconcile", client1_reconcile_request
+				response_body["success"].should be_true
+				response_body["message"].should eq "app partially reconciled"
 			end
 			
 		end
