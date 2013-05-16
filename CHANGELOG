@@ -1,3 +1,5 @@
+v0.0.5 step one into have client-as-authority reconciliation following server crash or restart
+
 v0.0.4 revised both frontend and backend code to use command rollbacks rather the state locking
 
 v0.0.3 removed jquery, replaced with reqwest for simple ajax

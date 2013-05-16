@@ -65,3 +65,4 @@ spec/rspec/unit/leonidas_spec.rb
 spec/rspec/unit/memory_layer/memory_registry_spec.rb
 spec/rspec/unit/persistence_layer/persister_spec.rb
 spec/rspec/unit/persistence_layer/state_loader_spec.rb
+spec/rspec/unit/routes/sync_spec.rb
