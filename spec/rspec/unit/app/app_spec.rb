@@ -165,6 +165,10 @@ describe Leonidas::App::App do
 		it "will return only those commands that occurred since the given timestamp" do 
 			subject.commands_from(@id, Time.at(12)).should eq [ @command2, @command3 ]
 		end
+
+		it "will not return commands that happened at exactly the requested timestamp" do
+			subject.commands_from(@id, Time.at(15)).should_not include @command2
+		end
 	
 	end
 

@@ -116,8 +116,8 @@ describe Leonidas::Routes::SyncApp do
 			it "will return a list of new commands from all external clients" do
 				get "/", pull_request
 				response_body["data"]["commands"].should eq [ 
-					{ "id" => "28", "name" => "increment", "data" => { "number" => 3 }, "clientId" => @id2, "timestamp" => @command8.timestamp.to_i },
-					{ "id" => "37", "name" => "multiply",  "data" => { "number" => 3 }, "clientId" => @id3, "timestamp" => @command7.timestamp.to_i }
+					{ "id" => "28", "name" => "increment", "data" => { "number" => "3" }, "clientId" => @id2, "timestamp" => @command8.timestamp.to_i },
+					{ "id" => "37", "name" => "multiply",  "data" => { "number" => "3" }, "clientId" => @id3, "timestamp" => @command7.timestamp.to_i }
 				]
 			end
 
