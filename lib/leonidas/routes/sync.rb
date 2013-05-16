@@ -12,6 +12,10 @@ module Leonidas
 				@all_external_clients = @app.client_list.select {|client| client[:id] != params[:clientId]}
 			end
 
+			def check_if_reconciled
+				halt({ success: false, message: 'reconcile required', data: {} }.to_json) unless @app.reconciled? or @app.has_checked_in? params[:clientId]
+			end
+
 			before do
 				content_type "application/json"
 				
@@ -20,7 +24,7 @@ module Leonidas
 			end
 
 			get '/' do
-        halt({ success: false, message: 'reconcile required', data: {} }.to_json) unless @app.reconciled?
+        check_if_reconciled
 
 				new_commands = all_external_clients.reduce([ ]) do |commands, client|
 					client_hash = params[:clients].select {|client_hash| client_hash[:id] == client[:id]}.first
@@ -40,7 +44,7 @@ module Leonidas
 			end
 
 			post '/' do
-        halt({ success: false, message: 'reconcile required', data: {} }.to_json) unless @app.reconciled?
+        check_if_reconciled
         
 				commands = map_command_hashes params[:commands]
 				@app.add_commands! params[:clientId], commands

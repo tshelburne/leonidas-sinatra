@@ -56,11 +56,11 @@ module Leonidas
 			end
 
 			def require_reconciliation!
+				@checked_in_clients = [ ]
 				@reconciled = false
 			end
 
 			def check_in!(client_id, other_client_ids)
-				@checked_in_clients ||= [ ]
 				unless reconciled?
 					@checked_in_clients << recreate_client!(client_id)
 					other_client_ids.each {|id| recreate_client! id}
@@ -68,8 +68,8 @@ module Leonidas
 				check_reconciliation!
 			end
 
-			def has_checked_in?(client)
-				@checked_in_clients.include? client
+			def has_checked_in?(client_id)
+				@checked_in_clients.include? client(client_id)
 			end
 
 			def reconciled?
@@ -117,8 +117,7 @@ module Leonidas
 
 			def check_reconciliation!
 				@reconciled = true
-				clients.each {|client| @reconciled = false unless has_checked_in? client}
-				@checked_in_clients = nil if reconciled?
+				clients.each {|client| @reconciled = false unless has_checked_in? client.id}
 			end
 
 		end

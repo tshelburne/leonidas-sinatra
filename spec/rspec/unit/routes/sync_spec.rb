@@ -191,11 +191,22 @@ describe Leonidas::Routes::SyncApp do
 			response_code.should eq 404
 		end
 
-		it "will return a reconcile required response when the app isn't fully reconciled" do
-			get "/", { appName: 'bad-name', appType: 'TestClasses::TestApp' }
-			response_body["success"].should be_false
-			response_body["message"].should eq "reconcile required"
-			response_body["data"].should eq({ })
+		context "when the app isn't fully reconciled" do
+
+			it "will return a reconcile required response" do
+				get "/", { appName: 'bad-name', appType: 'TestClasses::TestApp' }
+				response_body["success"].should be_false
+				response_body["message"].should eq "reconcile required"
+				response_body["data"].should eq({ })
+			end
+
+			it "will not return the reconcile required response if the client has already checked in" do
+				@app.require_reconciliation!
+				post "/reconcile", client1_reconcile_request
+				get "/", pull_request
+				response_body["message"].should_not eq "reconcile required"
+			end
+
 		end
 
 		context "when successful" do
@@ -242,11 +253,22 @@ describe Leonidas::Routes::SyncApp do
 			response_code.should eq 404
 		end
 
-		it "will return a reconcile required response when the app isn't fully reconciled" do
-			get "/", { appName: 'bad-name', appType: 'TestClasses::TestApp' }
-			response_body["success"].should be_false
-			response_body["message"].should eq "reconcile required"
-			response_body["data"].should eq({ })
+		context "when the app isn't fully reconciled" do
+
+			it "will return a reconcile required response" do
+				post "/", { appName: 'bad-name', appType: 'TestClasses::TestApp' }
+				response_body["success"].should be_false
+				response_body["message"].should eq "reconcile required"
+				response_body["data"].should eq({ })
+			end
+
+			it "will not return the reconcile required response if the client has already checked in" do
+				@app.require_reconciliation!
+				post "/reconcile", client1_reconcile_request
+				post "/", push_request
+				response_body["message"].should_not eq "reconcile required"
+			end
+
 		end
 
 		context "when successful" do
@@ -274,6 +296,11 @@ describe Leonidas::Routes::SyncApp do
 		it "will not return a reconcile required response when the app isn't fully reconciled" do
 			post "/reconcile", client1_reconcile_request
 			response_body["message"].should_not eq "reconcile required"
+		end
+
+		it "will mark the client as checked in" do
+			post "/reconcile", client1_reconcile_request
+			@app.has_checked_in?(@id1).should be_true
 		end
 
 		context "when a single client has a list of all commands" do
