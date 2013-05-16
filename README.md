@@ -110,7 +110,8 @@ First, you should create at least one command handler. Note that the handler wil
         @name = "peasant-hit"
       end
 
-      def run(command)
+      # note that if you need a property from data to be anything other than a string, you will likely have to type-cast it before using it
+      def run(command) 
         peasant_name = command.data[:peasantName] # probably camel-cased - it came from js, after all
         ... # find peasant in @app.current_state.peasants by peasant_name
         peasant.status = :humbled

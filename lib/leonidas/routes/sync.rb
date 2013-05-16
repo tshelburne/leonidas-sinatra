@@ -5,7 +5,7 @@ module Leonidas
 			include ::Leonidas::App::AppRepository
 
 			def map_command_hashes(command_hashes)
-				command_hashes.map {|command_hash| ::Leonidas::Commands::Command.new(command_hash[:id], command_hash[:name], command_hash[:data], command_hash[:client_id], Time.at(command_hash[:timestamp]))}
+				command_hashes.map {|command_hash| ::Leonidas::Commands::Command.new(command_hash[:id], command_hash[:name], command_hash[:data], command_hash[:clientId], Time.at(command_hash[:timestamp]))}
 			end
 
 			def all_external_clients
@@ -43,6 +43,7 @@ module Leonidas
         halt({ success: false, message: 'reconcile required', data: {} }.to_json) unless @app.reconciled?
         
 				commands = map_command_hashes params[:commands]
+				puts commands.inspect
 				@app.add_commands! params[:clientId], commands
 
 				{

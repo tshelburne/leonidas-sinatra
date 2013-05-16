@@ -8,15 +8,15 @@ module TestClasses
 		end
 
 		def run(command)
-			@app.current_state[:value] += command.data[:number]
+			@app.current_state[:value] += command.data[:number].to_i
 		end
 
 		def persist(command)
-			TestClasses::PersistentState.value += command.data[:number]
+			TestClasses::PersistentState.value += command.data[:number].to_i
 		end
 
 		def rollback(command)
-			@app.current_state[:value] -= command.data[:number]
+			@app.current_state[:value] -= command.data[:number].to_i
 		end
 	end
 
@@ -28,15 +28,15 @@ module TestClasses
 		end
 
 		def run(command)
-			@app.current_state[:value] *= command.data[:number]
+			@app.current_state[:value] *= command.data[:number].to_i
 		end
 
 		def persist(command)
-			TestClasses::PersistentState.value *= command.data[:number]
+			TestClasses::PersistentState.value *= command.data[:number].to_i
 		end
 
 		def rollback(command)
-			@app.current_state[:value] /= command.data[:number]
+			@app.current_state[:value] /= command.data[:number].to_i
 		end
 	end
 

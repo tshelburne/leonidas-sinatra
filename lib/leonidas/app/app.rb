@@ -53,9 +53,6 @@ module Leonidas
 
 				@cached_active_commands = active_commands
 				@cached_stable_commands = stable_commands
-
-				puts @cached_stable_commands.map {|command| command.id}.inspect
-				puts @cached_active_commands.map {|command| command.id}.inspect
 			end
 
 			def require_reconciliation!
