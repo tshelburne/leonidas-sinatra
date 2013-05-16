@@ -18,6 +18,10 @@ module TestClasses
 		def rollback(command)
 			@app.current_state[:value] -= command.data[:number].to_i
 		end
+
+		def rollback_persist(command)
+			TestClasses::PersistentState.value -= command.data[:number].to_i
+		end
 	end
 
 	class MultiplyHandler < ::Leonidas::Commands::Handler
@@ -37,6 +41,10 @@ module TestClasses
 
 		def rollback(command)
 			@app.current_state[:value] /= command.data[:number].to_i
+		end
+
+		def rollback_persist(command)
+			TestClasses::PersistentState.value /= command.data[:number].to_i
 		end
 	end
 

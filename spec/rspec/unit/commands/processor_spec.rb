@@ -32,7 +32,13 @@ describe Leonidas::Commands::Processor do
 		it "will rollback the list of commands in reverse order by timestamp" do
 			subject.run([ @command3, @command1, @command2 ])
 			subject.rollback([ @command3, @command2 ])
-			expect @app.current_state[:value].should eq 1
+			@app.current_state[:value].should eq 1
+		end
+
+		it "will rollback the persistence of commands if persisted is true" do
+			subject.run([ @command3, @command1, @command2 ], true)
+			subject.rollback([ @command3, @command2 ], true)
+			TestClasses::PersistentState.value.should eq 1
 		end
 
 	end

@@ -19,6 +19,10 @@ module Leonidas
 				raise NoMethodError, 'Class must implement a #rollback method'
 			end
 
+			def rollback_persist(command)
+				raise NoMethodError, 'Class must implement a #rollback_persist method'
+			end
+
 		end
 		
 	end

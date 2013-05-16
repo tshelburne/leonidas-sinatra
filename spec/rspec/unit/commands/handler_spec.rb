@@ -43,4 +43,12 @@ describe Leonidas::Commands::Handler do
 
 	end
 
+	describe '#rollback_persist' do 
+	
+		it "will throw an exception if not overridden" do
+			expect { subject.rollback_persist(@command) }.to raise_error(NoMethodError, "Class must implement a #rollback_persist method")
+		end
+
+	end
+
 end

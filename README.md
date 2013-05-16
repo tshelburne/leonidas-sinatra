@@ -126,6 +126,11 @@ First, you should create at least one command handler. Note that the handler wil
         ... # find peasant in @app.current_state.peasants by peasant_name
         peasant.status = :blissful
       end
+
+      def rollback_persist(command)
+        ... # more persistence logic
+      end
+
     end
 
 Then, you can create an App (note that #initialize must be able to take no arguments in order for your app to work with reconciliation in the event of server failure):
