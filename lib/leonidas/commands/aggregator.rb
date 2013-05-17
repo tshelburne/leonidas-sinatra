@@ -12,14 +12,6 @@ module Leonidas
 				commands.each {|command| add_command!(command)}
 			end
 
-			def commands_through(timestamp)
-				@commands.select {|command| command.timestamp.to_i <= timestamp.to_i}
-			end
-
-			def commands_since(timestamp)
-				@commands.select {|command| command.timestamp.to_i > timestamp.to_i}
-			end
-
 			private
 
 			def has_command?(test_command)

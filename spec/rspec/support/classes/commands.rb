@@ -48,12 +48,17 @@ module TestClasses
 		end
 	end
 
-	class TestAggregator
+	class TestCommandContainer
 		include ::Leonidas::Commands::Aggregator
+		include ::Leonidas::Commands::Filterer
 
 		def initialize
-				@commands = [ ]
-			end
+			@commands = [ ]
+		end
+
+		def all_commands
+			@commands
+		end
 	end
 
 end

@@ -3,6 +3,7 @@ module Leonidas
 
 		class Client
 			include ::Leonidas::Commands::Aggregator
+			include ::Leonidas::Commands::Filterer
 			
 			attr_reader :id, :commands
 
@@ -19,6 +20,10 @@ module Leonidas
 
 			def to_hash
 				{ id: @id, lastUpdate: last_update.to_i }
+			end
+			
+			def all_commands
+				@commands
 			end
 
 		end

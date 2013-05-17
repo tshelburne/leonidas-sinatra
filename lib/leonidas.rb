@@ -1,5 +1,5 @@
 require 'leonidas/symbols'
-%w(aggregator command handler processor).each {|file| require "leonidas/commands/#{file}"}
+%w(aggregator command filterer handler processor).each {|file| require "leonidas/commands/#{file}"}
 %w(app client repository).each {|file| require "leonidas/app/#{file}"}
 %w(configuration_expression).each {|file| require "leonidas/dsl/#{file}"}
 %w(memory_registry).each {|file| require "leonidas/memory_layer/#{file}"}
