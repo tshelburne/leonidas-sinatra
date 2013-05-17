@@ -43,7 +43,7 @@ module Leonidas
 
 			def commands_from_client(client_id, timestamp=nil)
 				client = client(client_id)
-				client.nil? ? nil : client.commands_since(timestamp || Time.at(0))
+				client.nil? ? nil : client.commands_since(timestamp || 0)
 			end
 
 			def process_commands!
@@ -61,11 +61,11 @@ module Leonidas
 					oldest_new_stable_command = new_stable_commands.min_by {|command| command.timestamp}
 
 					# rollback to the oldest of the new stable commands
-					cached_stable_commands_since_oldest  = commands_from(oldest_new_stable_command.timestamp, @cached_stable_commands)
+					cached_stable_commands_since_oldest  = commands_from(oldest_new_stable_command, @cached_stable_commands)
 					processor.rollback cached_stable_commands_since_oldest, persistent_state?
 					
 					# run all stable commands since the oldest new stable command to the new stable state
-					current_stable_commands_since_oldest = commands_from(oldest_new_stable_command.timestamp, current_stable_commands)
+					current_stable_commands_since_oldest = commands_from(oldest_new_stable_command, current_stable_commands)
 					processor.run current_stable_commands_since_oldest, persistent_state?
 				end
 
