@@ -32,6 +32,14 @@ describe Leonidas::Commands::Filterer do
 		it "will reject any non-Fixnum or non-Time arguments" do
 			expect { subject.commands_through("three") }.to raise_error(TypeError, "Argument must be more 'timestampy'")
 		end
+
+		context "when a list of commands is passed in as the second argument" do
+			
+			it "will run the function against the specified commands" do
+				subject.commands_through(3, [ @command2, @command3, @command4 ]).should eq [ @command2, @command3 ]
+			end
+
+		end
 	
 	end
 
@@ -63,6 +71,14 @@ describe Leonidas::Commands::Filterer do
 			expect { subject.commands_to("three") }.to raise_error(TypeError, "Argument must be more 'timestampy'")
 		end
 
+		context "when a list of commands is passed in as the second argument" do
+			
+			it "will run the function against the specified commands" do
+				subject.commands_to(3, [ @command2, @command3, @command4 ]).should eq [ @command2 ]
+			end
+
+		end
+
 	end
 
 	describe '#commands_from' do 
@@ -91,6 +107,14 @@ describe Leonidas::Commands::Filterer do
 
 		it "will reject any non-Fixnum or non-Time arguments" do
 			expect { subject.commands_from("three") }.to raise_error(TypeError, "Argument must be more 'timestampy'")
+		end
+
+		context "when a list of commands is passed in as the second argument" do
+			
+			it "will run the function against the specified commands" do
+				subject.commands_from(2, [ @command1, @command2, @command3 ]).should eq [ @command2, @command3 ]
+			end
+
 		end
 	
 	end
@@ -121,6 +145,14 @@ describe Leonidas::Commands::Filterer do
 
 		it "will reject any non-Fixnum or non-Time arguments" do
 			expect { subject.commands_since("three") }.to raise_error(TypeError, "Argument must be more 'timestampy'")
+		end
+
+		context "when a list of commands is passed in as the second argument" do
+			
+			it "will run the function against the specified commands" do
+				subject.commands_since(2, [ @command1, @command2, @command3 ]).should eq [ @command3 ]
+			end
+
 		end
 	
 	end

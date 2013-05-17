@@ -5,27 +5,27 @@ module Leonidas
 		module Filterer
 			
 			# inclusive of timestamp
-			def commands_from(timestamp)
-				filter_commands(from: timestamp)
+			def commands_from(timestamp, commands=nil)
+				filter_commands({ from: timestamp }, commands)
 			end
 
-			def commands_through(timestamp)
-				filter_commands(through: timestamp)
+			def commands_through(timestamp, commands=nil)
+				filter_commands({ through: timestamp }, commands)
 			end
 
 			# exclusive of timestamp
-			def commands_since(timestamp)
-				filter_commands(since: timestamp)
+			def commands_since(timestamp, commands=nil)
+				filter_commands({ since: timestamp }, commands)
 			end
 
-			def commands_to(timestamp)
-				filter_commands(to: timestamp)
+			def commands_to(timestamp, commands=nil)
+				filter_commands({ to: timestamp }, commands)
 			end
 
 			private
 
-			def filter_commands(options={})
-				filtered_commands = all_commands
+			def filter_commands(options={}, commands=nil)
+				filtered_commands = commands.nil? ? all_commands : commands
 
 				filtered_commands.select! {|command| command.timestamp >= get_timestamp(options[:from])} unless options[:from].nil?
 				filtered_commands.select! {|command| command.timestamp >  get_timestamp(options[:since])} unless options[:since].nil?
