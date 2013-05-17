@@ -28,7 +28,7 @@ module Leonidas
 
 				new_commands = all_external_clients.reduce([ ]) do |commands, client|
 					client_hash = params[:clients].select {|client_hash| client_hash[:id] == client[:id]}.first
-					min_timestamp = client_hash.nil? ? nil : Time.at(client_hash[:lastUpdate].to_i)
+					min_timestamp = client_hash.nil? ? nil : client_hash[:lastUpdate].to_i
 					commands.concat @app.commands_from_client(client[:id], min_timestamp)
 				end
 
