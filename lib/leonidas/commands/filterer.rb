@@ -27,12 +27,18 @@ module Leonidas
 			def filter_commands(options={})
 				filtered_commands = all_commands
 
-				filtered_commands.select! {|command| command.timestamp >= options[:from]} unless options[:from].nil?
-				filtered_commands.select! {|command| command.timestamp > options[:since]} unless options[:since].nil?
-				filtered_commands.select! {|command| command.timestamp <= options[:through]} unless options[:through].nil?
-				filtered_commands.select! {|command| command.timestamp < options[:to]} unless options[:to].nil?
+				filtered_commands.select! {|command| command.timestamp >= get_timestamp(options[:from])} unless options[:from].nil?
+				filtered_commands.select! {|command| command.timestamp >  get_timestamp(options[:since])} unless options[:since].nil?
+				filtered_commands.select! {|command| command.timestamp <= get_timestamp(options[:through])} unless options[:through].nil?
+				filtered_commands.select! {|command| command.timestamp <  get_timestamp(options[:to])} unless options[:to].nil?
 				
 				filtered_commands
+			end
+
+			def get_timestamp(timestampy_thing)
+				return timestampy_thing if timestampy_thing.is_a? Time
+				return Time.at(timestampy_thing) if timestampy_thing.is_a? Fixnum
+				raise TypeError, "Argument must be more 'timestampy'"
 			end
 
 		end

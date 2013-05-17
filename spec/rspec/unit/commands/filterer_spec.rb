@@ -24,6 +24,14 @@ describe Leonidas::Commands::Filterer do
 		it "will include commands at the given timestamp" do 
 			subject.commands_through(Time.at(3)).should include @command3
 		end
+
+		it "will handle a Fixnum representing the timestamp" do
+			subject.commands_through(3).should eq [ @command1, @command2, @command3 ]
+		end
+
+		it "will reject any non-Fixnum or non-Time arguments" do
+			expect { subject.commands_through("three") }.to raise_error(TypeError, "Argument must be more 'timestampy'")
+		end
 	
 	end
 
@@ -47,6 +55,14 @@ describe Leonidas::Commands::Filterer do
 			subject.commands_to(Time.at(3)).should_not include @command3
 		end
 
+		it "will handle a Fixnum representing the timestamp" do
+			subject.commands_to(3).should eq [ @command1, @command2 ]
+		end
+
+		it "will reject any non-Fixnum or non-Time arguments" do
+			expect { subject.commands_to("three") }.to raise_error(TypeError, "Argument must be more 'timestampy'")
+		end
+
 	end
 
 	describe '#commands_from' do 
@@ -67,6 +83,14 @@ describe Leonidas::Commands::Filterer do
 
 		it "will include commands at the given timestamp" do
 			subject.commands_from(Time.at(2)).should include @command2
+		end
+
+		it "will handle a Fixnum representing the timestamp" do
+			subject.commands_from(2).should eq [ @command2, @command3, @command4 ]
+		end
+
+		it "will reject any non-Fixnum or non-Time arguments" do
+			expect { subject.commands_from("three") }.to raise_error(TypeError, "Argument must be more 'timestampy'")
 		end
 	
 	end
@@ -89,6 +113,14 @@ describe Leonidas::Commands::Filterer do
 
 		it "will exclude commands at the given timestamp" do
 			subject.commands_since(Time.at(2)).should_not include @command2
+		end
+
+		it "will handle a Fixnum representing the timestamp" do
+			subject.commands_since(2).should eq [ @command3, @command4 ]
+		end
+
+		it "will reject any non-Fixnum or non-Time arguments" do
+			expect { subject.commands_since("three") }.to raise_error(TypeError, "Argument must be more 'timestampy'")
 		end
 	
 	end
