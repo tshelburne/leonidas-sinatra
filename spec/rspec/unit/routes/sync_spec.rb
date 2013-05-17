@@ -305,7 +305,7 @@ describe Leonidas::Routes::SyncApp do
 
 		context "when a single client has a list of all commands" do
 			
-			context "when stable commands are being persisted" do
+			context "and stable commands are being persisted" do
 				
 				before :each do
 					add_stable_commands
@@ -324,7 +324,7 @@ describe Leonidas::Routes::SyncApp do
 				
 			end
 
-			context "when stable commands aren't being persisted" do
+			context "and stable commands aren't being persisted" do
 				
 				it "will run all commands passed in" do
 					post "/reconcile", all_knowing_client_reconcile_request
@@ -343,7 +343,7 @@ describe Leonidas::Routes::SyncApp do
 		
 		context "when multiple clients are required to get all commands" do
 			
-			context "when stable commands are being persisted" do
+			context "and stable commands are being persisted" do
 				
 				before :each do
 					add_stable_commands
@@ -370,16 +370,20 @@ describe Leonidas::Routes::SyncApp do
 					response_body["message"].should eq "app fully reconciled"
 				end
 
-				it "will be fully reconciled when the last client checks in" do
-					post "/reconcile", client1_reconcile_request
-					post "/reconcile", client2_reconcile_request
-					post "/reconcile", client3_reconcile_request
-					@app.should be_reconciled
+				context "and the last client checks in" do
+
+					it "will be fully reconciled" do
+						post "/reconcile", client1_reconcile_request
+						post "/reconcile", client2_reconcile_request
+						post "/reconcile", client3_reconcile_request
+						@app.should be_reconciled
+					end
+
 				end
 
 			end
 
-			context "when stable commands aren't being persisted" do
+			context "and stable commands aren't being persisted" do
 
 				it "will run all the new commands passed in" do
 					post "/reconcile", client2_reconcile_request
@@ -402,11 +406,15 @@ describe Leonidas::Routes::SyncApp do
 					response_body["message"].should eq "app fully reconciled"
 				end
 
-				it "will be fully reconciled when the last client checks in" do
-					post "/reconcile", client2_reconcile_request
-					post "/reconcile", client1_reconcile_request
-					post "/reconcile", client3_reconcile_request
-					@app.should be_reconciled
+				context "and the last client checks in" do
+
+					it "will be fully reconciled" do
+						post "/reconcile", client2_reconcile_request
+						post "/reconcile", client1_reconcile_request
+						post "/reconcile", client3_reconcile_request
+						@app.should be_reconciled
+					end
+
 				end
 
 			end

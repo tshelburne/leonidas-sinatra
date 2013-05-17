@@ -37,6 +37,7 @@ module Leonidas
 
 			def get_timestamp(timestampy_thing)
 				return timestampy_thing if timestampy_thing.is_a? Time
+				return timestampy_thing.timestamp if timestampy_thing.is_a? ::Leonidas::Commands::Command
 				return Time.at(timestampy_thing) if timestampy_thing.is_a? Fixnum
 				raise TypeError, "Argument must be more 'timestampy'"
 			end

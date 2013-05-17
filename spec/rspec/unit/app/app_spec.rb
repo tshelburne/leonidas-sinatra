@@ -126,7 +126,7 @@ describe Leonidas::App::App do
 
 		it "will add the commands to the given client" do
 			subject.add_commands! @id1, [ @command1, @command3 ]
-			subject.commands_from(@id1).should eq [ @command1, @command3 ]
+			subject.commands_from_client(@id1).should eq [ @command1, @command3 ]
 		end
 
 		it "will update the current state to have run all active commands" do 
@@ -148,7 +148,7 @@ describe Leonidas::App::App do
 
 	end
 
-	describe '#commands_from' do 
+	describe '#commands_from_client' do 
 
 		before :each do
 			@id = subject.create_client!
@@ -159,15 +159,19 @@ describe Leonidas::App::App do
 		end
 	
 		it "will return all commands from the requested client when no timestamp is given" do
-			subject.commands_from(@id).should eq [ @command1, @command2, @command3 ]
+			subject.commands_from_client(@id).should eq [ @command1, @command2, @command3 ]
 		end
 
 		it "will return only those commands that occurred since the given timestamp" do 
-			subject.commands_from(@id, Time.at(12)).should eq [ @command2, @command3 ]
+			subject.commands_from_client(@id, Time.at(12)).should eq [ @command2, @command3 ]
 		end
 
 		it "will not return commands that happened at exactly the requested timestamp" do
-			subject.commands_from(@id, Time.at(15)).should_not include @command2
+			subject.commands_from_client(@id, Time.at(15)).should_not include @command2
+		end
+
+		it "will return nil if the client doesn't exist in the app" do
+			subject.commands_from_client("bad-id").should be_nil
 		end
 	
 	end
@@ -179,7 +183,7 @@ describe Leonidas::App::App do
 			id2 = subject.create_client!
 			@command3 = build_command(Time.at(10))
 			subject.send(:client, id1).add_commands! [ build_command(Time.at(0)), @command3 ]
-			subject.send(:client, id2).add_command! build_command(Time.at(0))
+			subject.send(:client, id2).add_command! build_command(Time.at(1))
 		end
 
 		it "will set the current state to the state when all active commands have been run" do

@@ -2,6 +2,7 @@ module Leonidas
 	module App
 
 		module App
+			include ::Leonidas::Commands::Filterer
 
 			attr_accessor :name
 
@@ -40,19 +41,39 @@ module Leonidas
 				process_commands!
 			end
 
-			def commands_from(client_id, timestamp=nil)
-				client(client_id).commands_since(timestamp || Time.at(0))
+			def commands_from_client(client_id, timestamp=nil)
+				client = client(client_id)
+				client.nil? ? nil : client.commands_since(timestamp || Time.at(0))
 			end
 
 			def process_commands!
-				new_stable_commands = @cached_stable_commands.nil? ? stable_commands : stable_commands.select {|command| not @cached_stable_commands.include? command} 
+				@cached_active_commands ||= [ ]
+				@cached_stable_commands ||= [ ]
 
-				processor.rollback @cached_active_commands unless @cached_active_commands.nil?
-				processor.run new_stable_commands, persistent_state?
-				processor.run active_commands
+				current_active_commands = active_commands
+				current_stable_commands = stable_commands
 
-				@cached_active_commands = active_commands
-				@cached_stable_commands = stable_commands
+				# rollback to previous stable state
+				processor.rollback @cached_active_commands
+
+				new_stable_commands = current_stable_commands.select {|command| not @cached_stable_commands.include? command}
+				unless new_stable_commands.empty?
+					oldest_new_stable_command = new_stable_commands.min_by {|command| command.timestamp}
+
+					# rollback to the oldest of the new stable commands
+					cached_stable_commands_since_oldest  = commands_from(oldest_new_stable_command.timestamp, @cached_stable_commands)
+					processor.rollback cached_stable_commands_since_oldest, persistent_state?
+					
+					# run all stable commands since the oldest new stable command to the new stable state
+					current_stable_commands_since_oldest = commands_from(oldest_new_stable_command.timestamp, current_stable_commands)
+					processor.run current_stable_commands_since_oldest, persistent_state?
+				end
+
+				# run all active commands to new active state
+				processor.run current_active_commands
+
+				@cached_active_commands = current_active_commands
+				@cached_stable_commands = current_stable_commands
 			end
 
 			def require_reconciliation!
@@ -95,12 +116,16 @@ module Leonidas
 				@processor ||= ::Leonidas::Commands::Processor.new(handlers)
 			end
 
+			def all_commands
+				clients.reduce([ ]) {|commands, client| commands + client.all_commands}
+			end
+
 			def active_commands
-				clients.reduce([ ]) {|commands, client| commands.concat client.commands_since(stable_timestamp)}
+				commands_since(stable_timestamp)
 			end
 
 			def stable_commands
-				clients.reduce([ ]) {|commands, client| commands.concat client.commands_through(stable_timestamp)}
+				commands_through(stable_timestamp)
 			end
 
 			def persistent_state?
