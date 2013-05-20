@@ -1,4 +1,5 @@
 require 'leonidas/symbols'
+%w(time).each {|file| require "leonidas/patches/#{file}"}
 %w(aggregator command filterer handler processor).each {|file| require "leonidas/commands/#{file}"}
 %w(app client repository).each {|file| require "leonidas/app/#{file}"}
 %w(configuration_expression).each {|file| require "leonidas/dsl/#{file}"}
