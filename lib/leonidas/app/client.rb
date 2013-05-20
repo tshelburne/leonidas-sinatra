@@ -19,7 +19,7 @@ module Leonidas
 			end
 
 			def to_hash
-				{ id: @id, lastUpdate: last_update.to_i }
+				{ id: @id, lastUpdate: last_update.as_milliseconds }
 			end
 			
 			def all_commands

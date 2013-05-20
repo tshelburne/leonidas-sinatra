@@ -16,6 +16,10 @@ module Leonidas
 				@all_external_clients = @app.client_list.select {|client| client[:id] != params[:clientId]}
 			end
 
+			def milliseconds_from_timestamp(timestamp_hash)
+				Time.at(timestamp_hash.to_i/1000)
+			end
+
 			before do
 				content_type "application/json"
 				
@@ -28,7 +32,7 @@ module Leonidas
 
 				new_commands = all_external_clients.reduce([ ]) do |commands, client|
 					client_hash = params[:clients].select {|client_hash| client_hash[:id] == client[:id]}.first
-					min_timestamp = client_hash.nil? ? nil : client_hash[:lastUpdate].to_i
+					min_timestamp = client_hash.nil? ? nil : milliseconds_from_timestamp(client_hash[:lastUpdate])
 					commands.concat @app.commands_from_client(client[:id], min_timestamp)
 				end
 
@@ -38,7 +42,7 @@ module Leonidas
 					data: {
 						commands: new_commands.map {|command| command.to_hash},
 						currentClients: all_external_clients,
-						stableTimestamp: @app.stable_timestamp.to_i
+						stableTimestamp: @app.stable_timestamp.as_milliseconds
 					}
 				}.to_json
 			end
