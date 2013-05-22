@@ -126,7 +126,7 @@ describe Leonidas::App::App do
 		end
 
 		it "will reject a client id that doesn't exist in the application" do 
-			expect { subject.add_commands!("bad-id", [ @command1 ]) }.to raise_error(TypeError, "Argument must be a valid client id")
+			expect { subject.add_commands!("bad-id", [ @command1 ]) }.to raise_error(TypeError, "Argument 'bad-id' is not a valid client id")
 		end
 
 		it "will add the commands to the given client" do
@@ -141,14 +141,43 @@ describe Leonidas::App::App do
 			subject.current_state[:value].should eq 5
 		end
 
+		context "when an autocache timestamp is passed in" do
+				
+			it "will affect the current state as if the active commands had already been run" do
+				subject.add_commands! @id1, [ @command1, @command4 ], autocache_as_stable_at: @command3.timestamp
+				subject.current_state[:value].should eq 0
+				subject.add_commands! @id2, [ @command2 ], autocache_as_stable_at: @command3.timestamp
+				subject.current_state[:value].should eq 0
+				subject.add_commands! @id3, [ @command3 ], autocache_as_stable_at: @command3.timestamp
+				subject.current_state[:value].should eq 0
+			end
+
+		end
+
 		context "when the app is set to be persistent" do
 
-			it "will persist all commands which occured at or before the stable timestamp" do
+			before :each do
 				subject.instance_variable_set :@persist_state, true
+			end
+
+			it "will persist all commands which occured at or before the stable timestamp" do
 				subject.add_commands! @id1, [ @command1, @command4 ]
 				subject.add_commands! @id2, [ @command2 ]
 				subject.add_commands! @id3, [ @command3 ]
 				TestClasses::PersistentState.value.should eq 3
+			end
+
+			context "and an autocache timestamp is passed in" do
+				
+				it "will affect the persisted state as if the stable commands had already been run" do
+					subject.add_commands! @id1, [ @command1, @command4 ], autocache_as_stable_at: @command3.timestamp
+					TestClasses::PersistentState.value.should eq 0
+					subject.add_commands! @id2, [ @command2 ], autocache_as_stable_at: @command3.timestamp
+					TestClasses::PersistentState.value.should eq 0
+					subject.add_commands! @id3, [ @command3 ], autocache_as_stable_at: @command3.timestamp
+					TestClasses::PersistentState.value.should eq 0
+				end
+
 			end
 
 		end

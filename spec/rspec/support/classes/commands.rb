@@ -61,4 +61,10 @@ module TestClasses
 		end
 	end
 
+	class InvalidTestCommandContainer
+		include ::Leonidas::Commands::Aggregator
+		include ::Leonidas::Commands::Filterer
+
+	end
+
 end

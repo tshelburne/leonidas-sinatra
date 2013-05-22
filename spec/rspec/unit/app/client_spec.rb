@@ -22,8 +22,8 @@ describe ::Leonidas::App::Client do
 		end
 
 		it "will return the maximum timestamp available from all commands" do 
-			command1 = build_command Time.at(20)
-			command2 = build_command Time.at(25)
+			command1 = build_command Time.now + 20
+			command2 = build_command Time.now + 25
 			subject.add_commands! [ command1, command2 ]
 			subject.last_update.should eq command2.timestamp
 		end
@@ -33,7 +33,7 @@ describe ::Leonidas::App::Client do
 	describe '#to_hash' do 
 	
 		it "will return a hash of the client" do
-			subject.to_hash.should eq({ id: subject.id, lastUpdate: subject.last_update.to_i })
+			subject.to_hash.should eq({ id: subject.id, lastUpdate: subject.last_update.as_milliseconds })
 		end
 	
 	end

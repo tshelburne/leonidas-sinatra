@@ -33,11 +33,16 @@ module Leonidas
 				earliest_client.nil? ? Time.at(0) : earliest_client.last_update
 			end
 
-			def add_commands!(client_id, commands)
+			def add_commands!(client_id, commands, options={})
 				commands.each {|command| raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command}
-				raise TypeError, "Argument must be a valid client id" unless has_client? client_id
+				raise TypeError, "Argument '#{client_id}' is not a valid client id" unless has_client? client_id
 
 				client(client_id).add_commands! commands
+
+				# auto-caching enables us to add commands which have been run already, but are not currently in the client's command list
+				# this SHOULD only ever matter in instances of reconciliation when rebuilding stable commands (see SyncApp and tests)
+				cache_commands! commands, options[:autocache_as_stable_at] unless options[:autocache_as_stable_at].nil?
+				
 				process_commands!
 			end
 
@@ -47,16 +52,19 @@ module Leonidas
 			end
 
 			def process_commands!
-				@cached_active_commands ||= [ ]
-				@cached_stable_commands ||= [ ]
-
 				current_active_commands = active_commands
 				current_stable_commands = stable_commands
 
-				# rollback to previous stable state
-				processor.rollback @cached_active_commands
+				puts "all active    - #{current_active_commands.map {|command| command.id}.inspect}"
+				puts "cached active - #{cached_active_commands.map {|command| command.id}.inspect}"
+				puts "all stable    - #{current_stable_commands.map {|command| command.id}.inspect}"
+				puts "cached stable - #{cached_stable_commands.map {|command| command.id}.inspect}"
+				puts "-----------------------------------------"
 
-				new_stable_commands = current_stable_commands.select {|command| not @cached_stable_commands.include? command}
+				# rollback to previous stable state
+				processor.rollback cached_active_commands
+
+				new_stable_commands = current_stable_commands.select {|command| not cached_stable_commands.include? command}
 				unless new_stable_commands.empty?
 					oldest_new_stable_command = new_stable_commands.min_by {|command| command.timestamp}
 
@@ -72,8 +80,7 @@ module Leonidas
 				# run all active commands to new active state
 				processor.run current_active_commands
 
-				@cached_active_commands = current_active_commands
-				@cached_stable_commands = current_stable_commands
+				cache_commands!
 			end
 
 			def require_reconciliation!
@@ -126,6 +133,25 @@ module Leonidas
 
 			def stable_commands
 				commands_through(stable_timestamp)
+			end
+
+			def cached_active_commands
+				@cached_active_commands ||= [ ]
+			end
+
+			def cached_stable_commands
+				@cached_stable_commands ||= [ ]
+			end
+
+			def cache_commands!(commands=nil, autocache_stable_timestamp=nil)
+				if commands.nil?
+					@cached_active_commands = active_commands
+					@cached_stable_commands = stable_commands
+				else
+					# debugger
+					cached_active_commands.concat commands_since(autocache_stable_timestamp, commands)
+					cached_stable_commands.concat commands_through(autocache_stable_timestamp, commands)
+				end
 			end
 
 			def persistent_state?
