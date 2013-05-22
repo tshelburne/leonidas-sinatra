@@ -421,6 +421,10 @@ describe Leonidas::Routes::SyncApp do
 					@app.current_state[:value].should eq 99
 				end
 
+				it "will handle new stable commands being added which occured prior to the stable timestamp" do
+					
+				end
+
 				it "will return a success message" do
 					post "/reconcile", client1_reconcile_request
 					response_body["success"].should be_true

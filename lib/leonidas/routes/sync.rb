@@ -24,6 +24,7 @@ module Leonidas
 				Time.at(timestamp.to_f/1000)
 			end
 
+
 			before do
 				content_type "application/json"
 				

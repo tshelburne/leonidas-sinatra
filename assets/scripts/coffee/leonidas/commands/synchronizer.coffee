@@ -64,6 +64,7 @@ class Synchronizer
 			method: "post"
 			data:
 				appName: @client.appName
+				appType: @client.appType
 				clientId: @client.id
 				clients: @externalClients
 				commandList: commandList
