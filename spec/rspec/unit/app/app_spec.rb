@@ -141,14 +141,20 @@ describe Leonidas::App::App do
 			subject.current_state[:value].should eq 5
 		end
 
-		context "when an autocache timestamp is passed in" do
+		context "when the app is unreconciled" do
+
+			before :each do
+				subject.instance_variable_set(:@clients, [ ])
+				subject.require_reconciliation!
+			end
 				
 			it "will affect the current state as if the active commands had already been run" do
-				subject.add_commands! @id1, [ @command1, @command4 ], autocache_as_stable_at: @command3.timestamp
+				subject.check_in! @id1, [ @id2, @id3 ], @command3.timestamp
+				subject.add_commands! @id1, [ @command1, @command4 ]
 				subject.current_state[:value].should eq 0
-				subject.add_commands! @id2, [ @command2 ], autocache_as_stable_at: @command3.timestamp
+				subject.add_commands! @id2, [ @command2 ]
 				subject.current_state[:value].should eq 0
-				subject.add_commands! @id3, [ @command3 ], autocache_as_stable_at: @command3.timestamp
+				subject.add_commands! @id3, [ @command3 ]
 				subject.current_state[:value].should eq 0
 			end
 
@@ -167,14 +173,20 @@ describe Leonidas::App::App do
 				TestClasses::PersistentState.value.should eq 3
 			end
 
-			context "and an autocache timestamp is passed in" do
+			context "and the app is unreconciled" do
 				
+				before :each do
+					subject.instance_variable_set(:@clients, [ ])
+					subject.require_reconciliation!
+				end
+
 				it "will affect the persisted state as if the stable commands had already been run" do
-					subject.add_commands! @id1, [ @command1, @command4 ], autocache_as_stable_at: @command3.timestamp
+				subject.check_in! @id1, [ @id2, @id3 ], @command3.timestamp
+					subject.add_commands! @id1, [ @command1, @command4 ]
 					TestClasses::PersistentState.value.should eq 0
-					subject.add_commands! @id2, [ @command2 ], autocache_as_stable_at: @command3.timestamp
+					subject.add_commands! @id2, [ @command2 ]
 					TestClasses::PersistentState.value.should eq 0
-					subject.add_commands! @id3, [ @command3 ], autocache_as_stable_at: @command3.timestamp
+					subject.add_commands! @id3, [ @command3 ]
 					TestClasses::PersistentState.value.should eq 0
 				end
 
@@ -257,16 +269,28 @@ describe Leonidas::App::App do
 
 		it "will mark the app as reconciled when no other clients are passed in" do
 			id = ::Leonidas::App::Client.new.id
-			subject.check_in! id, []
+			subject.check_in! id, [], Time.at(1)
 			subject.should be_reconciled
+		end
+
+		it "will set the apps current stable timestamp to the most recent of all checked in client's stable timestamps" do
+			id1 = ::Leonidas::App::Client.new.id
+			id2 = ::Leonidas::App::Client.new.id
+			id3 = ::Leonidas::App::Client.new.id
+			subject.check_in! id1, [ id2, id3, "never-checks-in" ], Time.at(1)
+			subject.stable_timestamp.should eq Time.at(1)
+			subject.check_in! id2, [ id1 ], Time.at(2)
+			subject.stable_timestamp.should eq Time.at(2)
+			subject.check_in! id3, [ id1 ], Time.at(1)
+			subject.stable_timestamp.should eq Time.at(2)
 		end
 
 		it "will mark the app as reconciled when the client checking in is the last one not yet checked in" do
 			id1 = ::Leonidas::App::Client.new.id
 			id2 = ::Leonidas::App::Client.new.id
-			subject.check_in! id1, [ id2 ]
+			subject.check_in! id1, [ id2 ], Time.at(1)
 			subject.should_not be_reconciled
-			subject.check_in! id2, [ id1 ]
+			subject.check_in! id2, [ id1 ], Time.at(2)
 			subject.should be_reconciled
 		end
 

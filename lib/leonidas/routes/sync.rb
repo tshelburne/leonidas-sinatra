@@ -4,8 +4,12 @@ module Leonidas
 		class SyncApp < Sinatra::Base
 			include ::Leonidas::App::AppRepository
 
+			def current_client_id
+				params[:clientId]
+			end
+
 			def check_if_reconciled
-				halt({ success: false, message: 'reconcile required', data: {} }.to_json) unless @app.reconciled? or @app.has_checked_in? params[:clientId]
+				halt({ success: false, message: 'reconcile required', data: {} }.to_json) unless @app.reconciled? or @app.has_checked_in? current_client_id
 			end
 
 			def map_command_hashes(command_hashes)
@@ -13,11 +17,11 @@ module Leonidas
 			end
 
 			def all_external_clients
-				@all_external_clients ||= @app.client_list.select {|client| client[:id] != params[:clientId]}
+				@all_external_clients ||= @app.client_list.select {|client| client[:id] != current_client_id}
 			end
 
-			def timestamp_from_milliseconds(milliseconds)
-				Time.at(milliseconds/1000)
+			def timestamp_from_params(timestamp)
+				Time.at(timestamp.to_f/1000)
 			end
 
 			before do
@@ -32,7 +36,7 @@ module Leonidas
 
 				new_commands = all_external_clients.reduce([ ]) do |commands, client|
 					client_hash = params[:clients].select {|client_hash| client_hash[:id] == client[:id]}.first
-					min_timestamp = client_hash.nil? ? nil : timestamp_from_milliseconds(client_hash[:lastUpdate].to_f)
+					min_timestamp = client_hash.nil? ? nil : timestamp_from_params(client_hash[:lastUpdate])
 					commands.concat @app.commands_from_client(client[:id], min_timestamp)
 				end
 
@@ -51,7 +55,7 @@ module Leonidas
 				check_if_reconciled
 				
 				commands = map_command_hashes params[:commands]
-				@app.add_commands! params[:clientId], commands
+				@app.add_commands! current_client_id, commands
 
 				{
 					success: true,
@@ -61,11 +65,11 @@ module Leonidas
 			end 
 
 			post '/reconcile' do
-				@app.check_in! params[:clientId], params[:clients].map {|client_hash| client_hash[:id]}
+				@app.check_in! current_client_id, params[:clients].map {|client_hash| client_hash[:id]}, timestamp_from_params(params[:stableTimestamp])
 				
 				params[:commandList].each do |client_id, command_hashes|
 					commands = map_command_hashes command_hashes
-					@app.add_commands! client_id, commands#, true
+					@app.add_commands! client_id, commands
 				end
 
 				{ 

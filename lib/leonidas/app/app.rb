@@ -29,20 +29,18 @@ module Leonidas
 			end
 
 			def stable_timestamp
+				return @cached_reconcile_timestamp unless reconciled?
+
 				earliest_client = clients.min_by {|client| client.last_update }
 				earliest_client.nil? ? Time.at(0) : earliest_client.last_update
 			end
 
-			def add_commands!(client_id, commands, options={})
+			def add_commands!(client_id, commands)
 				commands.each {|command| raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command}
 				raise TypeError, "Argument '#{client_id}' is not a valid client id" unless has_client? client_id
 
-				client(client_id).add_commands! commands
-
-				# auto-caching enables us to add commands which have been run already, but are not currently in the client's command list
-				# this SHOULD only ever matter in instances of reconciliation when rebuilding stable commands (see SyncApp and tests)
-				cache_commands! commands, options[:autocache_as_stable_at] unless options[:autocache_as_stable_at].nil?
-				
+				client(client_id).add_commands! commands				
+				cache_commands! commands unless reconciled?
 				process_commands!
 			end
 
@@ -88,12 +86,14 @@ module Leonidas
 				@reconciled = false
 			end
 
-			def check_in!(client_id, other_client_ids)
+			def check_in!(client_id, other_client_ids, client_stable_timestamp)
 				unless reconciled?
 					@checked_in_clients << recreate_client!(client_id)
 					other_client_ids.each {|id| recreate_client! id}
+					@cached_reconcile_timestamp = @cached_reconcile_timestamp.nil? ? client_stable_timestamp : [ client_stable_timestamp, stable_timestamp ].max
 				end
 				check_reconciliation!
+				@cached_reconcile_timestamp = nil if reconciled?
 			end
 
 			def has_checked_in?(client_id)
@@ -104,6 +104,8 @@ module Leonidas
 				@reconciled.nil? ? true : @reconciled
 			end
 
+
+			# ====== PRIVATE ====== #
 
 			private
 
@@ -143,14 +145,13 @@ module Leonidas
 				@cached_stable_commands ||= [ ]
 			end
 
-			def cache_commands!(commands=nil, autocache_stable_timestamp=nil)
+			def cache_commands!(commands=nil)
 				if commands.nil?
 					@cached_active_commands = active_commands
 					@cached_stable_commands = stable_commands
 				else
-					# debugger
-					cached_active_commands.concat commands_since(autocache_stable_timestamp, commands)
-					cached_stable_commands.concat commands_through(autocache_stable_timestamp, commands)
+					cached_active_commands.concat commands_since(stable_timestamp, commands)
+					cached_stable_commands.concat commands_through(stable_timestamp, commands)
 				end
 			end
 
