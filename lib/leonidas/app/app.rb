@@ -40,7 +40,7 @@ module Leonidas
 				raise TypeError, "Argument '#{client_id}' is not a valid client id" unless has_client? client_id
 
 				client(client_id).add_commands! commands				
-				cache_commands! commands unless reconciled?
+				cache_commands! commands if (not reconciled?) && persistent_state?
 				process_commands!
 			end
 
@@ -52,12 +52,6 @@ module Leonidas
 			def process_commands!
 				current_active_commands = active_commands
 				current_stable_commands = stable_commands
-
-				puts "all active    - #{current_active_commands.map {|command| command.id}.inspect}"
-				puts "cached active - #{cached_active_commands.map {|command| command.id}.inspect}"
-				puts "all stable    - #{current_stable_commands.map {|command| command.id}.inspect}"
-				puts "cached stable - #{cached_stable_commands.map {|command| command.id}.inspect}"
-				puts "-----------------------------------------"
 
 				# rollback to previous stable state
 				processor.rollback cached_active_commands
@@ -150,7 +144,6 @@ module Leonidas
 					@cached_active_commands = active_commands
 					@cached_stable_commands = stable_commands
 				else
-					cached_active_commands.concat commands_since(stable_timestamp, commands)
 					cached_stable_commands.concat commands_through(stable_timestamp, commands)
 				end
 			end

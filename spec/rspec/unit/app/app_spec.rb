@@ -17,6 +17,15 @@ describe Leonidas::App::App do
 		subject.add_commands! @id2, [ @command2 ]
 		subject.add_commands! @id3, [ @command3 ]
 	end
+
+	def set_persistent!
+		subject.instance_variable_set :@persist_state, true
+	end
+
+	def set_unreconciled!
+		subject.instance_variable_set(:@clients, [ ])
+		subject.require_reconciliation!
+	end
 	
 	subject do
 		TestClasses::TestApp.new
@@ -144,44 +153,31 @@ describe Leonidas::App::App do
 		context "when the app is unreconciled" do
 
 			before :each do
-				subject.instance_variable_set(:@clients, [ ])
-				subject.require_reconciliation!
+				set_unreconciled!
 			end
+
+			context "and the app state is not persistent" do
 				
-			it "will affect the current state as if the active commands had already been run" do
-				subject.check_in! @id1, [ @id2, @id3 ], @command3.timestamp
-				subject.add_commands! @id1, [ @command1, @command4 ]
-				subject.current_state[:value].should eq 0
-				subject.add_commands! @id2, [ @command2 ]
-				subject.current_state[:value].should eq 0
-				subject.add_commands! @id3, [ @command3 ]
-				subject.current_state[:value].should eq 0
-			end
-
-		end
-
-		context "when the app is set to be persistent" do
-
-			before :each do
-				subject.instance_variable_set :@persist_state, true
-			end
-
-			it "will persist all commands which occured at or before the stable timestamp" do
-				subject.add_commands! @id1, [ @command1, @command4 ]
-				subject.add_commands! @id2, [ @command2 ]
-				subject.add_commands! @id3, [ @command3 ]
-				TestClasses::PersistentState.value.should eq 3
-			end
-
-			context "and the app is unreconciled" do
-				
-				before :each do
-					subject.instance_variable_set(:@clients, [ ])
-					subject.require_reconciliation!
+				it "will run all commands being added" do
+					subject.check_in! @id1, [ @id2, @id3 ], @command2.timestamp
+					subject.add_commands! @id1, [ @command1, @command4 ]
+					subject.current_state[:value].should eq 2
+					subject.add_commands! @id2, [ @command2 ]
+					subject.current_state[:value].should eq 4
+					subject.add_commands! @id3, [ @command3 ]
+					subject.current_state[:value].should eq 5
 				end
 
-				it "will affect the persisted state as if the stable commands had already been run" do
-				subject.check_in! @id1, [ @id2, @id3 ], @command3.timestamp
+			end
+
+			context "and the app state is persistent" do
+
+				before :each do
+					set_persistent!
+				end
+
+				it "will not run any stable commands being added" do
+					subject.check_in! @id1, [ @id2, @id3 ], @command2.timestamp
 					subject.add_commands! @id1, [ @command1, @command4 ]
 					TestClasses::PersistentState.value.should eq 0
 					subject.add_commands! @id2, [ @command2 ]
@@ -190,6 +186,31 @@ describe Leonidas::App::App do
 					TestClasses::PersistentState.value.should eq 0
 				end
 
+				it "will run any active commands being added" do
+					subject.check_in! @id1, [ @id2, @id3 ], @command2.timestamp
+					subject.add_commands! @id1, [ @command1, @command4 ]
+					subject.current_state[:value].should eq 1
+					subject.add_commands! @id2, [ @command2 ]
+					subject.current_state[:value].should eq 1
+					subject.add_commands! @id3, [ @command3 ]
+					subject.current_state[:value].should eq 2
+				end
+
+			end
+
+		end
+
+		context "when the app state is persistent" do
+
+			before :each do
+				set_persistent!
+			end
+
+			it "will persist all commands which occured at or before the stable timestamp" do
+				subject.add_commands! @id1, [ @command1, @command4 ]
+				subject.add_commands! @id2, [ @command2 ]
+				subject.add_commands! @id3, [ @command3 ]
+				TestClasses::PersistentState.value.should eq 3
 			end
 
 		end
@@ -240,10 +261,10 @@ describe Leonidas::App::App do
 			subject.current_state[:value].should eq 5
 		end
 
-		context "when the app is set to be persistent" do
+		context "when the app state is persistent" do
 
 			it "will persist all commands which occured at or before the stable timestamp" do
-				subject.instance_variable_set :@persist_state, true
+				set_persistent!
 				subject.process_commands!
 				TestClasses::PersistentState.value.should eq 3
 			end
@@ -253,7 +274,7 @@ describe Leonidas::App::App do
 	end
 
 	describe '#require_reconciliation!' do
-		
+
 		it "will mark the app as unreconciled" do
 			subject.require_reconciliation!
 			subject.should_not be_reconciled
@@ -262,9 +283,9 @@ describe Leonidas::App::App do
 	end
 
 	describe '#check_in!' do
-		
+
 		before :each do
-			subject.require_reconciliation!
+			set_unreconciled!
 		end
 
 		it "will mark the app as reconciled when no other clients are passed in" do
@@ -297,13 +318,13 @@ describe Leonidas::App::App do
 	end
 
 	describe '#reconciled?' do
-		
+
 		it "will default to true" do
 			subject.should be_reconciled
 		end
 
 		it "will return false when the app is marked as unreconciled" do
-			subject.require_reconciliation!
+			set_unreconciled!
 			subject.should_not be_reconciled
 		end
 
