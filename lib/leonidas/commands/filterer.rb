@@ -25,7 +25,8 @@ module Leonidas
 			private
 
 			def filter_commands(options={}, commands=nil)
-				filtered_commands = commands.nil? ? all_commands : commands
+				raise StandardError, "Includee class must include #all_commands" unless self.respond_to? :all_commands
+				filtered_commands = commands.nil? ? all_commands.dup : commands.dup
 
 				filtered_commands.select! {|command| command.timestamp >= get_timestamp(options[:from])} unless options[:from].nil?
 				filtered_commands.select! {|command| command.timestamp >  get_timestamp(options[:since])} unless options[:since].nil?
