@@ -14,7 +14,7 @@ module Leonidas
 			end
 
 			def to_hash
-				{ id: @id, name: @name, data: @data, clientId: @client_id, timestamp: @timestamp.to_i }
+				{ id: @id, name: @name, data: @data, clientId: @client_id, timestamp: @timestamp.as_milliseconds }
 			end
 
 		end
