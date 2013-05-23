@@ -116,7 +116,6 @@ describe Leonidas::Routes::SyncApp do
 	end
 
 	def client1_reconcile_request
-		# this is the environment when push / fails, and then post /reconcile
 		{
 			appName: "app-1",
 			appType: "TestClasses::TestApp",
@@ -144,7 +143,6 @@ describe Leonidas::Routes::SyncApp do
 	end
 
 	def client2_reconcile_request
-		# this is the environment when get /, push / fails, and then post /reconcile
 		{
 			appName: "app-1",
 			appType: "TestClasses::TestApp",
@@ -170,14 +168,13 @@ describe Leonidas::Routes::SyncApp do
 	end
 
 	def client3_reconcile_request
-		# this is the environment when get /, push / fails, and then post /reconcile
 		{
 			appName: "app-1",
 			appType: "TestClasses::TestApp",
 			clientId: @id3,
 			clients: [ 
 				{ id: @id1, lastUpdate: command_time(@command4).to_s }, 
-				{ id: @id2, lastUpdate: command_time(@command7).to_s } 
+				{ id: @id2, lastUpdate: command_time(@command4).to_s }
 			],
 			commandList: {
 				"#{@id1}" => [
@@ -191,6 +188,37 @@ describe Leonidas::Routes::SyncApp do
 					{ id: "33", name: "increment", data: { number: "2" }, clientId: @id3, timestamp: command_time(@command3).to_s },
 					{ id: "36", name: "multiply",  data: { number: "2" }, clientId: @id3, timestamp: command_time(@command6).to_s },
 					{ id: "37", name: "multiply",  data: { number: "3" }, clientId: @id3, timestamp: command_time(@command7).to_s }
+				]
+			},
+			stableTimestamp: command_time(@command4).to_s
+		}
+	end
+
+	def orphaned_client_reconcile_request
+		{
+			appName: "app-1",
+			appType: "TestClasses::TestApp",
+			clientId: "id-4",
+			clients: [ 
+				{ id: @id1, lastUpdate: command_time(@command4).to_s }, 
+				{ id: @id2, lastUpdate: command_time(@command4).to_s },
+				{ id: @id3, lastUpdate: command_time(@command6).to_s }
+			],
+			commandList: {
+				"id-4" => [
+					{ id: "42", name: "increment", data: { number: "1" }, clientId: "id-4", timestamp: (command_time(@command2)+5).to_s },
+					{ id: "45", name: "increment", data: { number: "2" }, clientId: "id-4", timestamp: (command_time(@command5)+5).to_s }
+				],
+				"#{@id1}" => [
+					{ id: "11", name: "increment", data: { number: "1" }, clientId: @id1, timestamp: command_time(@command1).to_s },
+					{ id: "14", name: "multiply",  data: { number: "3" }, clientId: @id1, timestamp: command_time(@command4).to_s }
+				],
+				"#{@id2}" => [
+					{ id: "22", name: "increment", data: { number: "2" }, clientId: @id2, timestamp: command_time(@command2).to_s }
+				],
+				"#{@id3}" => [
+					{ id: "33", name: "increment", data: { number: "2" }, clientId: @id3, timestamp: command_time(@command3).to_s },
+					{ id: "36", name: "multiply",  data: { number: "2" }, clientId: @id3, timestamp: command_time(@command6).to_s }
 				]
 			},
 			stableTimestamp: command_time(@command4).to_s
@@ -367,38 +395,19 @@ describe Leonidas::Routes::SyncApp do
 
 			before :each do
 				set_unreconciled!
-			end
-
-			it "will return a success response" do
 				reconcile!
-				post "/", orphaned_client_push_request
-				response_body[:success].should be_true
-				response_body[:message].should eq 'commands received'
-				response_body[:data].should eq({ })
-			end
-			
-			it "will create the client in the application" do
-				reconcile!
-				post "/", orphaned_client_push_request
-				@app.send(:has_client?, "id-4").should be_true
 			end
 
-			it "will run the active commands" do
-				reconcile!
+			it "will return a reconcile required response" do
 				post "/", orphaned_client_push_request
-				@app.current_state[:value].should eq 126
+				response_body['success'].should be_false
+				response_body['message'].should eq 'reconcile required'
+				response_body['data'].should eq({ })
 			end
 
-			context "and stable commands have been persisted" do
-
-				it "will not re-run the stable commands" do
-					set_persistent!
-					@app.state = { value: 18 }
-					reconcile!
-					post "/", orphaned_client_push_request
-					@app.current_state[:value].should eq 126
-				end
-				
+			it "will mark the app as unreconciled" do
+				post "/", orphaned_client_push_request
+				@app.should_not be_reconciled
 			end
 
 		end
@@ -513,6 +522,37 @@ describe Leonidas::Routes::SyncApp do
 						@app.should be_reconciled
 					end
 
+					context "and an unregistered client appears after false reconciliation" do
+				
+						before :each do
+							reconcile!
+							post "/", orphaned_client_push_request
+						end
+
+						it "will be fully reconciled when the last client checks in" do
+							post "/reconcile", orphaned_client_reconcile_request
+							@app.should_not be_reconciled	
+							post "/reconcile", client2_reconcile_request
+							@app.should_not be_reconciled
+							post "/reconcile", client1_reconcile_request
+							@app.should_not be_reconciled
+							post "/reconcile", client3_reconcile_request
+							@app.should be_reconciled
+						end
+
+						it "will run all the new commands passed in" do
+							post "/reconcile", orphaned_client_reconcile_request
+							@app.current_state[:value].should eq 129
+							post "/reconcile", client1_reconcile_request
+							@app.current_state[:value].should eq 129
+							post "/reconcile", client2_reconcile_request
+							@app.current_state[:value].should eq 129
+							post "/reconcile", client3_reconcile_request
+							@app.current_state[:value].should eq 129
+						end
+
+					end
+
 				end
 
 			end
@@ -544,41 +584,36 @@ describe Leonidas::Routes::SyncApp do
 
 					it "will be fully reconciled" do
 						post "/reconcile", client2_reconcile_request
+						@app.should_not be_reconciled
 						post "/reconcile", client1_reconcile_request
+						@app.should_not be_reconciled
 						post "/reconcile", client3_reconcile_request
 						@app.should be_reconciled
 					end
 
-				end
-
-			end
-
-			context "and an unregistered client appears after false reconciliation" do
+					context "and an unregistered client appears after false reconciliation" do
 				
-				it "will add the client" do
-					false.should be_true
-				end
+						before :each do
+							reconcile!
+							post "/", orphaned_client_push_request
+						end
 
-				it "will add the commands" do
-					false.should be_true
-				end
+						it "will be fully reconciled when the last client checks in" do
+							post "/reconcile", orphaned_client_reconcile_request
+							@app.should_not be_reconciled	
+							post "/reconcile", client2_reconcile_request
+							@app.should_not be_reconciled
+							post "/reconcile", client1_reconcile_request
+							@app.should_not be_reconciled
+							post "/reconcile", client3_reconcile_request
+							@app.should be_reconciled
+						end
 
-				it "will be marked as reconciled" do
-					false.should be_true
-				end
+						it "will run all the new commands passed in" do
+							post "/reconcile", orphaned_client_reconcile_request
+							@app.current_state[:value].should eq 129
+						end
 
-				context "and stable commands have been persisted" do
-
-					it "will run all the new commands passed in" do
-						false.should be_true
-					end
-
-				end
-
-				context "and stable commands haven't been persisted" do
-
-					it "will run all the new commands passed in" do
-						false.should be_true
 					end
 
 				end

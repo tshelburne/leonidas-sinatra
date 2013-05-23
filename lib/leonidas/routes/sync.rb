@@ -61,11 +61,19 @@ module Leonidas
 			post '/' do
 				ensure_reconciled
 				
+				commands = map_command_hashes params[:commands]
 				begin
-					commands = map_command_hashes params[:commands]
 					@app.add_commands! current_client_id, commands
+				rescue ArgumentError => e
+					# when the app has been unreconciled, it's possible we may have orphaned clients check in after false reconciliation
+					if @app.has_been_unreconciled? && e.message.match('not a valid client id')
+						@app.require_reconciliation!
+						ensure_reconciled
+					else
+						halt(respond false, e.message)
+					end
 				rescue => e
-					return respond false, e.message
+					halt(respond false, e.message)
 				end
 
 				respond true, 'commands received'

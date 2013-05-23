@@ -155,15 +155,6 @@ describe Leonidas::App::App do
 			subject.current_state[:value].should eq 5
 		end
 
-		it "will pre-cache stable commands when force cache is true" do
-			subject.add_commands! @id1, [ @command1, @command4 ], true
-			TestClasses::PersistentState.value.should eq 0
-			subject.add_commands! @id2, [ @command2 ], true
-			TestClasses::PersistentState.value.should eq 0
-			subject.add_commands! @id3, [ @command3 ], true
-			TestClasses::PersistentState.value.should eq 0
-		end
-
 		context "when the app is unreconciled" do
 
 			before :each do

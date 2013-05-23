@@ -39,12 +39,12 @@ module Leonidas
 				earliest_client.nil? ? Time.at(0) : earliest_client.last_update
 			end
 
-			def add_commands!(client_id, commands, force_cache=false)
+			def add_commands!(client_id, commands)
 				commands.each {|command| raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command}
 				raise ArgumentError, "Argument '#{client_id}' is not a valid client id" unless has_client? client_id
 
 				client(client_id).add_commands! commands				
-				cache_commands! commands if ((not reconciled?) && persistent_state?) || force_cache
+				cache_commands! commands if (not reconciled?) && persistent_state?
 				process_commands!
 			end
 
