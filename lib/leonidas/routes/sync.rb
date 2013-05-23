@@ -8,7 +8,7 @@ module Leonidas
 				params[:clientId]
 			end
 
-			def check_if_reconciled
+			def ensure_reconciled
 				halt(respond false, 'reconcile required', {}) unless @app.reconciled? or @app.has_checked_in? current_client_id
 			end
 
@@ -41,7 +41,7 @@ module Leonidas
 			end
 
 			get '/' do
-				check_if_reconciled
+				ensure_reconciled
 
 				new_commands = all_external_clients.reduce([ ]) do |commands, client|
 					client_hash = params[:clients].select {|client_hash| client_hash[:id] == client[:id]}.first
@@ -59,13 +59,13 @@ module Leonidas
 			end
 
 			post '/' do
-				check_if_reconciled
+				ensure_reconciled
 				
 				begin
 					commands = map_command_hashes params[:commands]
 					@app.add_commands! current_client_id, commands
-				rescue  => e
-					respond false, e.message
+				rescue => e
+					return respond false, e.message
 				end
 
 				respond true, 'commands received'

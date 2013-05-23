@@ -35,6 +35,16 @@ describe Leonidas::Routes::SyncApp do
 		command.timestamp.as_milliseconds
 	end
 
+	def set_persistent!
+		@app.instance_variable_set(:@persist_state, true)
+	end
+
+	def set_unreconciled!
+		memory_layer.clear_registry!
+		get "/", pull_request
+		reload_app
+	end
+
 	def pull_request
 		{ 
 			appName: "app-1", 
@@ -54,6 +64,18 @@ describe Leonidas::Routes::SyncApp do
 			clientId: @id1,
 			commands: [ 
 				{ id: "15", name: "increment", data: { number: "1" }, clientId: @id1, timestamp: command_time(@command5).to_s }
+			]
+		}
+	end
+
+	def orphaned_client_push_request
+		{ 
+			appName: "app-1",
+			appType: "TestClasses::TestApp",
+			clientId: "id-4",
+			commands: [
+				{ id: "42", name: "increment", data: { number: "1" }, clientId: "id-4", timestamp: command_time(@command2).to_s },
+				{ id: "45", name: "increment", data: { number: "2" }, clientId: "id-4", timestamp: command_time(@command5).to_s }
 			]
 		}
 	end
@@ -226,7 +248,7 @@ describe Leonidas::Routes::SyncApp do
 		context "when the app isn't fully reconciled" do
 
 			it "will return a reconcile required response" do
-				@app.require_reconciliation!
+				set_unreconciled!
 				get "/", pull_request
 				response_body["success"].should be_false
 				response_body["message"].should eq "reconcile required"
@@ -234,7 +256,7 @@ describe Leonidas::Routes::SyncApp do
 			end
 
 			it "will not return the reconcile required response if the client has already checked in" do
-				@app.require_reconciliation!
+				set_unreconciled!
 				post "/reconcile", client1_reconcile_request
 				get "/", pull_request
 				response_body["message"].should_not eq "reconcile required"
@@ -316,8 +338,11 @@ describe Leonidas::Routes::SyncApp do
 
 		context "when the app isn't fully reconciled" do
 
+			before :each do
+				set_unreconciled!
+			end
+
 			it "will return a reconcile required response" do
-				@app.require_reconciliation!
 				post "/", push_request
 				response_body["success"].should be_false
 				response_body["message"].should eq "reconcile required"
@@ -325,7 +350,6 @@ describe Leonidas::Routes::SyncApp do
 			end
 
 			it "will not return the reconcile required response if the client has already checked in" do
-				@app.require_reconciliation!
 				post "/reconcile", client1_reconcile_request
 				post "/", push_request
 				response_body["message"].should_not eq "reconcile required"
@@ -333,7 +357,11 @@ describe Leonidas::Routes::SyncApp do
 
 		end
 
-		context "when the app was previously unreconciled" do
+		context "when the app was previously unreconciled and the request comes from an unregistered client" do
+
+			before :each do
+				set_unreconciled!
+			end
 			
 			it "will create the client in the application" do
 				false.should be_true
@@ -367,9 +395,7 @@ describe Leonidas::Routes::SyncApp do
 	describe "post /reconcile" do
 
 		before :each do
-			memory_layer.clear_registry!
-			get "/", pull_request
-			reload_app
+			set_unreconciled!
 		end
 
 		it "will fail with an invalid app id" do
@@ -392,7 +418,7 @@ describe Leonidas::Routes::SyncApp do
 			context "and stable commands have been persisted" do
 				
 				before :each do
-					@app.instance_variable_set(:@persist_state, true)
+					set_persistent!
 					@app.state = { value: 15 }
 				end
 
@@ -431,7 +457,7 @@ describe Leonidas::Routes::SyncApp do
 			context "and stable commands have been persisted" do
 				
 				before :each do
-					@app.instance_variable_set(:@persist_state, true)
+					set_persistent!
 					@app.state = { value: 15 }
 				end
 
