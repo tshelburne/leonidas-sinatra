@@ -80,6 +80,11 @@ describe Leonidas::App::App do
 			subject.send(:has_client?, id).should be_true
 		end
 
+		it "will create the client with a specified id" do
+			subject.create_client! "new-client"
+			subject.send(:has_client?, 'new-client').should be_true
+		end
+
 	end
 
 	describe '#close_client!' do
@@ -135,7 +140,7 @@ describe Leonidas::App::App do
 		end
 
 		it "will reject a client id that doesn't exist in the application" do 
-			expect { subject.add_commands!("bad-id", [ @command1 ]) }.to raise_error(TypeError, "Argument 'bad-id' is not a valid client id")
+			expect { subject.add_commands!("bad-id", [ @command1 ]) }.to raise_error(ArgumentError, "Argument 'bad-id' is not a valid client id")
 		end
 
 		it "will add the commands to the given client" do

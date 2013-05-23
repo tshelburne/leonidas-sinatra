@@ -45,6 +45,12 @@ describe Leonidas::Routes::SyncApp do
 		reload_app
 	end
 
+	def reconcile!
+		post "/reconcile", client1_reconcile_request
+		post "/reconcile", client2_reconcile_request
+		post "/reconcile", client3_reconcile_request
+	end
+
 	def pull_request
 		{ 
 			appName: "app-1", 
@@ -74,8 +80,8 @@ describe Leonidas::Routes::SyncApp do
 			appType: "TestClasses::TestApp",
 			clientId: "id-4",
 			commands: [
-				{ id: "42", name: "increment", data: { number: "1" }, clientId: "id-4", timestamp: command_time(@command2).to_s },
-				{ id: "45", name: "increment", data: { number: "2" }, clientId: "id-4", timestamp: command_time(@command5).to_s }
+				{ id: "42", name: "increment", data: { number: "1" }, clientId: "id-4", timestamp: (command_time(@command2)+5).to_s },
+				{ id: "45", name: "increment", data: { number: "2" }, clientId: "id-4", timestamp: (command_time(@command5)+5).to_s }
 			]
 		}
 	end
@@ -362,21 +368,37 @@ describe Leonidas::Routes::SyncApp do
 			before :each do
 				set_unreconciled!
 			end
+
+			it "will return a success response" do
+				reconcile!
+				post "/", orphaned_client_push_request
+				response_body[:success].should be_true
+				response_body[:message].should eq 'commands received'
+				response_body[:data].should eq({ })
+			end
 			
 			it "will create the client in the application" do
-				false.should be_true
-			end
-
-			it "will add the commands" do
-				false.should be_true
+				reconcile!
+				post "/", orphaned_client_push_request
+				@app.send(:has_client?, "id-4").should be_true
 			end
 
 			it "will run the active commands" do
-				false.should be_true
+				reconcile!
+				post "/", orphaned_client_push_request
+				@app.current_state[:value].should eq 126
 			end
 
-			it "will not run the stable commands" do
-				false.should be_true
+			context "and stable commands have been persisted" do
+
+				it "will not re-run the stable commands" do
+					set_persistent!
+					@app.state = { value: 18 }
+					reconcile!
+					post "/", orphaned_client_push_request
+					@app.current_state[:value].should eq 126
+				end
+				
 			end
 
 		end
@@ -468,11 +490,7 @@ describe Leonidas::Routes::SyncApp do
 					@app.current_state[:value].should eq 35
 					post "/reconcile", client3_reconcile_request
 					@app.current_state[:value].should eq 99
-				end
-
-				it "will handle new stable commands being added which occured prior to the stable timestamp" do
-					
-				end
+				end 
 
 				it "will return a success message" do
 					post "/reconcile", client1_reconcile_request
