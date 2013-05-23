@@ -14,8 +14,12 @@ module Leonidas
 				@state
 			end
 
-			def create_client!
-				client = ::Leonidas::App::Client.new
+			def create_client!(id=nil)
+				unless id.nil?
+					return id if has_client? id
+				end 
+
+				client = ::Leonidas::App::Client.new id
 				clients << client
 				client.id
 			end
@@ -37,7 +41,7 @@ module Leonidas
 
 			def add_commands!(client_id, commands)
 				commands.each {|command| raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command}
-				raise TypeError, "Argument '#{client_id}' is not a valid client id" unless has_client? client_id
+				raise ArgumentError, "Argument '#{client_id}' is not a valid client id" unless has_client? client_id
 
 				client(client_id).add_commands! commands				
 				cache_commands! commands if (not reconciled?) && persistent_state?
@@ -83,8 +87,9 @@ module Leonidas
 
 			def check_in!(client_id, other_client_ids, client_stable_timestamp)
 				unless reconciled?
-					@checked_in_clients << recreate_client!(client_id)
-					other_client_ids.each {|id| recreate_client! id}
+					create_client!(client_id)
+					@checked_in_clients << client(client_id)
+					other_client_ids.each {|id| create_client! id}
 					@cached_reconcile_timestamp = @cached_reconcile_timestamp.nil? ? client_stable_timestamp : [ client_stable_timestamp, stable_timestamp ].max
 				end
 				check_reconciliation!
@@ -155,14 +160,6 @@ module Leonidas
 
 			def persistent_state?
 				@persist_state || false
-			end
-
-			def recreate_client!(id)
-				return client(id) if has_client? id
-
-				client = ::Leonidas::App::Client.new(id)
-				clients << client
-				client
 			end
 
 			def check_reconciliation!
