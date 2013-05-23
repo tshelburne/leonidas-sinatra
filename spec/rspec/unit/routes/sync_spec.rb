@@ -52,10 +52,6 @@ describe Leonidas::Routes::SyncApp do
 			appName: "app-1", 
 			appType: "TestClasses::TestApp",
 			clientId: @id1,
-			clients: [ 
-				{ id: @id2, lastUpdate: command_time(@command4).to_s }, 
-				{ id: @id3, lastUpdate: command_time(@command6).to_s } 
-			],
 			commands: [ 
 				{ id: "15", name: "increment", data: { number: "1" }, clientId: @id1, timestamp: command_time(@command5).to_s }
 			]
@@ -203,7 +199,7 @@ describe Leonidas::Routes::SyncApp do
 
 		context "when the app id is invalid" do
 		
-			it "will fail with an invalid app id" do
+			it "will fail" do
 				get "/", { appName: 'bad-name' }
 				response_code.should eq 404
 			end
@@ -285,9 +281,16 @@ describe Leonidas::Routes::SyncApp do
 			@app.add_commands! @id3, [ @command6 ]
 		end
 
+		it "will fail with an invalid client id" do
+			post "/", { appName: 'app-1', clientId: 'bad-id', commands: [ build_command(Time.now).to_hash ] }
+			response_body["success"].should be_false
+			response_body["message"].should eq "Argument 'bad-id' is not a valid client id"
+			response_body["data"].should eq({ })
+		end
+
 		context "when the app id is invalid" do
 		
-			it "will fail with an invalid app id" do
+			it "will fail" do
 				post "/", { appName: 'bad-name' }
 				response_code.should eq 404
 			end
@@ -326,6 +329,26 @@ describe Leonidas::Routes::SyncApp do
 				post "/reconcile", client1_reconcile_request
 				post "/", push_request
 				response_body["message"].should_not eq "reconcile required"
+			end
+
+		end
+
+		context "when the app was previously unreconciled" do
+			
+			it "will create the client in the application" do
+				false.should be_true
+			end
+
+			it "will add the commands" do
+				false.should be_true
+			end
+
+			it "will run the active commands" do
+				false.should be_true
+			end
+
+			it "will not run the stable commands" do
+				false.should be_true
 			end
 
 		end
@@ -480,6 +503,38 @@ describe Leonidas::Routes::SyncApp do
 						post "/reconcile", client1_reconcile_request
 						post "/reconcile", client3_reconcile_request
 						@app.should be_reconciled
+					end
+
+				end
+
+			end
+
+			context "and an unregistered client appears after false reconciliation" do
+				
+				it "will add the client" do
+					false.should be_true
+				end
+
+				it "will add the commands" do
+					false.should be_true
+				end
+
+				it "will be marked as reconciled" do
+					false.should be_true
+				end
+
+				context "and stable commands have been persisted" do
+
+					it "will run all the new commands passed in" do
+						false.should be_true
+					end
+
+				end
+
+				context "and stable commands haven't been persisted" do
+
+					it "will run all the new commands passed in" do
+						false.should be_true
 					end
 
 				end

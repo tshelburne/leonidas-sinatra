@@ -9,7 +9,7 @@ module Leonidas
 			end
 
 			def check_if_reconciled
-				halt({ success: false, message: 'reconcile required', data: {} }.to_json) unless @app.reconciled? or @app.has_checked_in? current_client_id
+				halt(respond false, 'reconcile required', {}) unless @app.reconciled? or @app.has_checked_in? current_client_id
 			end
 
 			def map_command_hashes(command_hashes)
@@ -22,6 +22,14 @@ module Leonidas
 
 			def timestamp_from_params(timestamp)
 				Time.at(timestamp.to_f/1000)
+			end
+
+			def respond(success, message, data={})
+				{
+					success: success,
+					message: message,
+					data: data
+				}.to_json
 			end
 
 
@@ -41,28 +49,26 @@ module Leonidas
 					commands.concat @app.commands_from_client(client[:id], min_timestamp)
 				end
 
-				{
-					success: true,
-					message: 'commands retrieved',
-					data: {
+				respond(true, 'commands retrieved',
+					{
 						commands: new_commands.map {|command| command.to_hash},
 						currentClients: all_external_clients,
 						stableTimestamp: @app.stable_timestamp.as_milliseconds
 					}
-				}.to_json
+				)
 			end
 
 			post '/' do
 				check_if_reconciled
 				
-				commands = map_command_hashes params[:commands]
-				@app.add_commands! current_client_id, commands
+				begin
+					commands = map_command_hashes params[:commands]
+					@app.add_commands! current_client_id, commands
+				rescue  => e
+					respond false, e.message
+				end
 
-				{
-					success: true,
-					message: 'commands received',
-					data: { }
-				}.to_json
+				respond true, 'commands received'
 			end 
 
 			post '/reconcile' do
@@ -73,11 +79,7 @@ module Leonidas
 					@app.add_commands! client_id, commands
 				end
 
-				{ 
-					success: true,
-					message: @app.reconciled? ? 'app fully reconciled' : 'app partially reconciled',
-					data: { }
-				}.to_json
+				respond true, @app.reconciled? ? 'app fully reconciled' : 'app partially reconciled'
 			end
 
 		end

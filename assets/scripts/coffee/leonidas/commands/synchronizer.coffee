@@ -18,7 +18,6 @@ class Synchronizer
 				data: 
 					appName: @client.appName
 					clientId: @client.id
-					clients: @externalClients
 					commands: (command.toHash() for command in unsyncedCommands)
 				error: => console.log "push error"
 				success: (response)=>
