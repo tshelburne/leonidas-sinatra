@@ -78,6 +78,7 @@ module Leonidas
 			def require_reconciliation!
 				@checked_in_clients = [ ]
 				@reconciled = false
+				@has_been_unreconciled = true
 			end
 
 			def check_in!(client_id, other_client_ids, client_stable_timestamp)
@@ -96,6 +97,10 @@ module Leonidas
 
 			def reconciled?
 				@reconciled.nil? ? true : @reconciled
+			end
+
+			def has_been_unreconciled?
+				@has_been_unreconciled || false
 			end
 
 

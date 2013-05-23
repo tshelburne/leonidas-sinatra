@@ -330,4 +330,17 @@ describe Leonidas::App::App do
 
 	end
 
+	describe '#has_been_unreconciled?' do
+		
+		it "will default to false" do
+			subject.should_not have_been_unreconciled
+		end
+
+		it "will return true when the app has been unreconciled before" do
+			set_unreconciled!
+			subject.should have_been_unreconciled
+		end
+
+	end
+
 end
