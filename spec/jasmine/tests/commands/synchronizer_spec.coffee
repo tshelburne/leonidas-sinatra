@@ -19,36 +19,6 @@ describe "Synchronizer", ->
 		processor = new Processor([ new IncrementHandler(client.state), new MultiplyHandler(client.state)])
 		synchronizer = new Synchronizer("http://mydomain.com/sync", client, organizer, processor)
 
-	describe "#push", ->
-
-		it "will not run if there are no commands to sync", ->
-			spyOn(window, "reqwest")
-			synchronizer.push()
-			expect(window.reqwest).not.toHaveBeenCalled()
-
-		describe "when successful", ->
-
-			beforeEach ->
-				spyOn(window, "reqwest").andCallFake( (params)-> params.success(mocks.syncPushResponse))
-				organizer.local.addCommands [ command1, command4 ]
-
-			it "will set the client's lastUpdate to the timestamp of the latest command passed down", ->
-				synchronizer.push()
-				expect(client.lastUpdate).toEqual command4.timestamp
-
-		describe "when unsuccessful", ->
-
-			beforeEach ->
-				spyOn(window, "reqwest").andCallFake( (params)-> params.success(mocks.reconcileRequiredResponse))
-				spyOn(synchronizer, "reconcile")
-				jasmine.Clock.useMock()
-				organizer.local.addCommands [ command1, command4 ]
-
-			it "will begin reconciling if reconciliation is required", ->
-				synchronizer.push()
-				jasmine.Clock.tick(2000)
-				expect(synchronizer.reconcile).toHaveBeenCalled()
-
 	describe "#pull", ->
 
 		beforeEach ->
@@ -88,6 +58,36 @@ describe "Synchronizer", ->
 
 			it "will begin reconciling if reconciliation is required", ->
 				synchronizer.pull()
+				jasmine.Clock.tick(2000)
+				expect(synchronizer.reconcile).toHaveBeenCalled()
+
+	describe "#push", ->
+
+		it "will not run if there are no commands to sync", ->
+			spyOn(window, "reqwest")
+			synchronizer.push()
+			expect(window.reqwest).not.toHaveBeenCalled()
+
+		describe "when successful", ->
+
+			beforeEach ->
+				spyOn(window, "reqwest").andCallFake( (params)-> params.success(mocks.syncPushResponse))
+				organizer.local.addCommands [ command1, command4 ]
+
+			it "will set the client's lastUpdate to the time the push was attempted", ->
+				synchronizer.push()
+				expect(client.lastUpdate).toEqual synchronizer.lastPushAttempt
+
+		describe "when unsuccessful", ->
+
+			beforeEach ->
+				spyOn(window, "reqwest").andCallFake( (params)-> params.success(mocks.reconcileRequiredResponse))
+				spyOn(synchronizer, "reconcile")
+				jasmine.Clock.useMock()
+				organizer.local.addCommands [ command1, command4 ]
+
+			it "will begin reconciling if reconciliation is required", ->
+				synchronizer.push()
 				jasmine.Clock.tick(2000)
 				expect(synchronizer.reconcile).toHaveBeenCalled()
 

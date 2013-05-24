@@ -5,28 +5,9 @@ Command = require "leonidas/commands/command"
 class Synchronizer
 
 	constructor: (@syncUrl, @client, @organizer, @processor)->
-		@stableTimestamp = new Date 0
+		@stableTimestamp = 0
 		@externalClients = [ ]
-
-	push: =>
-		unsyncedCommands = (command for command in @organizer.local.commandsSince(@client.lastUpdate))
-		unless unsyncedCommands.length is 0
-			reqwest(
-				url: "#{@syncUrl}"
-				type: "json"
-				method: "post"
-				data: 
-					appName: @client.appName
-					clientId: @client.id
-					commands: (command.toHash() for command in unsyncedCommands)
-				error: => console.log "push error"
-				success: (response)=>
-					if response.success
-						seconds = Math.max.apply @, (command.timestamp for command in unsyncedCommands)
-						@client.lastUpdate = new Date seconds
-					else
-						@reconcileTimeout = setTimeout(@reconcile, 1000) if response.message is "reconcile required" and not @reconcileTimeout?
-			)
+		@lastPushAttempt = 0
 
 	pull: =>
 		reqwest(
@@ -49,6 +30,27 @@ class Synchronizer
 				else
 					@reconcileTimeout = setTimeout(@reconcile, 1000) if response.message is "reconcile required" and not @reconcileTimeout?
 		)
+
+	push: =>
+		unsyncedCommands = (command for command in @organizer.local.commandsSince(@client.lastUpdate))
+		unless unsyncedCommands.length is 0
+			@lastPushAttempt = new Date().valueOf()
+			reqwest(
+				url: "#{@syncUrl}"
+				type: "json"
+				method: "post"
+				data: 
+					appName: @client.appName
+					clientId: @client.id
+					pushedAt: @lastPushAttempt
+					commands: (command.toHash() for command in unsyncedCommands)
+				error: => console.log "push error"
+				success: (response)=>
+					if response.success
+						@client.lastUpdate = @lastPushAttempt
+					else
+						@reconcileTimeout = setTimeout(@reconcile, 1000) if response.message is "reconcile required" and not @reconcileTimeout?
+			)
 
 	reconcile: =>
 		commandList = { }
