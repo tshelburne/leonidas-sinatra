@@ -27,9 +27,9 @@ describe Leonidas::Routes::SyncApp do
 	end
 
 	def add_stable_commands
-		@app.add_commands! @id1, [ @command1, @command4 ]
-		@app.add_commands! @id2, [ @command2 ]
-		@app.add_commands! @id3, [ @command3 ]
+		@app.add_commands! 'client-1', [ @command1, @command4 ]
+		@app.add_commands! 'client-2', [ @command2 ]
+		@app.add_commands! 'client-3', [ @command3 ]
 	end
 
 	def set_persistent!
@@ -90,7 +90,7 @@ describe Leonidas::Routes::SyncApp do
 
 		it "will mark the client as checked in" do
 			post "/reconcile", client1_reconcile_request
-			@app.should have_checked_in(@id1)
+			@app.should have_checked_in('client-1')
 		end
 
 		context "when a single client has a list of all commands" do

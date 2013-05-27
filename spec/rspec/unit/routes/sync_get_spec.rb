@@ -22,10 +22,18 @@ describe Leonidas::Routes::SyncApp do
 		Leonidas::MemoryLayer::MemoryRegistry
 	end
 
+	def reload_app
+		@app = memory_layer.retrieve_app @app.name
+	end
+
+	def command_time(command)
+		command.timestamp.as_milliseconds
+	end
+
 	def add_stable_commands
-		@app.add_commands! @id1, [ @command1, @command4 ]
-		@app.add_commands! @id2, [ @command2 ]
-		@app.add_commands! @id3, [ @command3 ]
+		@app.add_commands! 'client-1', [ @command1, @command4 ]
+		@app.add_commands! 'client-2', [ @command2 ]
+		@app.add_commands! 'client-3', [ @command3 ]
 	end
 
 	def set_unreconciled!
@@ -112,23 +120,23 @@ describe Leonidas::Routes::SyncApp do
 		context "when successful" do
 
 			before :each do
-				@app.add_commands! @id3, [ @command6, @command7 ]
-				@app.add_commands! @id2, [ @command8 ]
+				@app.add_commands! 'client-3', [ @command6, @command7 ]
+				@app.add_commands! 'client-2', [ @command8 ]
 			end
 
 			it "will return a list of new commands from all external clients" do
 				get "/", pull_request
 				response_body["data"]["commands"].should eq [ 
-					{ "id" => "28", "name" => "increment", "data" => { "number" => "3" }, "clientId" => @id2, "timestamp" => command_time(@command8) },
-					{ "id" => "37", "name" => "multiply",  "data" => { "number" => "3" }, "clientId" => @id3, "timestamp" => command_time(@command7) }
+					{ "id" => "28", "name" => "increment", "data" => { "number" => "3" }, "clientId" => 'client-2', "timestamp" => command_time(@command8) },
+					{ "id" => "37", "name" => "multiply",  "data" => { "number" => "3" }, "clientId" => 'client-3', "timestamp" => command_time(@command7) }
 				]
 			end
 
 			it "will return a list of clients and their last update" do
 				get "/", pull_request
 				response_body["data"]["currentClients"].should eq [
-					{ "id" => @id2, "lastUpdate" => command_time(@command8) }, 
-					{ "id" => @id3, "lastUpdate" => command_time(@command7) } 
+					{ "id" => 'client-2', "lastUpdate" => command_time(@command8) }, 
+					{ "id" => 'client-3', "lastUpdate" => command_time(@command7) } 
 				]
 			end
 
