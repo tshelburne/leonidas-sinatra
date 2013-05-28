@@ -10,7 +10,7 @@ Leonidas.rb is an integration built to support Leonidas commands on the server-s
 * Long-running app support in memory on the server side
 * Persistence layer wrappers to support resuming an application that has been closed in memory
 * Default behavior to losslessly resume application following browser failure or crash (unimplemented)
-* Default behavior to losslessly resume application following server failure or crash (in development)
+* Default behavior to losslessly resume application following server failure or crash
 
 ## Terminology
 
@@ -80,10 +80,10 @@ First, create at least one handler for commands in your system (I'm going to use
         ... find peasant in @state by peasantName
         peasant.status = "blissful"
 
-Then, create a client for your app (this represents a single command source, with it's own id and state):
+Then, create a client for your app (this represents a single command source, with it's own id and state). This requires at minimum a client id, app name, and state, but to work with the Ruby extension it will also need an appType for automatic server-error reconciliation:
 
     Client = require "leonidas/client"
-    var client = new Client("clientId", { peasants: [ ... ] })
+    var client = new Client("clientId", "Kingdom-Zamunda-asdfqwer", { peasants: [ ... ] }, "PeasantSubjugationApp")
 
 Now you can create a Commander (I would suggest using the default configuration, unless you need custom functionality in the nitty gritty):
 
