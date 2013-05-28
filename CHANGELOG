@@ -1,3 +1,5 @@
+v0.0.6 full client-as-authority reconciliation following a server crash or restart while app is live
+
 v0.0.5 step one into having client-as-authority reconciliation following server crash or restart
 
 v0.0.4 revised both frontend and backend code to use command rollbacks rather the state locking
