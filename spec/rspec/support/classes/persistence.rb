@@ -1,6 +1,8 @@
 module TestClasses
 
 	class PersistentState
+
+		@@value = 0
 		
 		def self.reset
 			@@value = 0

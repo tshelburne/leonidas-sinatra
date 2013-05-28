@@ -85,12 +85,20 @@ module Leonidas
 				@has_been_unreconciled = true
 			end
 
-			def check_in!(client_id, other_client_ids, client_stable_timestamp)
+			def check_in!(client_id, other_client_ids, client_stable_timestamp, all_commands)
 				unless reconciled?
+					# guarantee the current client exists
 					create_client!(client_id)
 					@checked_in_clients << client(client_id)
+					
+					# guarantee the referenced external clients exist
 					other_client_ids.each {|id| create_client! id}
+					
+					# set the cached timestamp to whatever the most recent stable timestamp of all checkins is
 					@cached_reconcile_timestamp = @cached_reconcile_timestamp.nil? ? client_stable_timestamp : [ client_stable_timestamp, stable_timestamp ].max
+
+					# add all commands
+					all_commands.each {|client_id, commands| add_commands! client_id, commands}
 				end
 				check_reconciliation!
 				@cached_reconcile_timestamp = nil if reconciled?

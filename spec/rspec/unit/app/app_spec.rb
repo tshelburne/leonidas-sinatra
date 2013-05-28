@@ -164,8 +164,7 @@ describe Leonidas::App::App do
 			context "and the app state is not persistent" do
 				
 				it "will run all commands being added" do
-					subject.check_in! @id1, [ @id2, @id3 ], @command2.timestamp
-					subject.add_commands! @id1, [ @command1, @command4 ]
+					subject.check_in! @id1, [ @id2, @id3 ], @command2.timestamp, { @id1 => [ @command1, @command4 ] }
 					subject.current_state[:value].should eq 2
 					subject.add_commands! @id2, [ @command2 ]
 					subject.current_state[:value].should eq 4
@@ -182,8 +181,7 @@ describe Leonidas::App::App do
 				end
 
 				it "will not run any stable commands being added" do
-					subject.check_in! @id1, [ @id2, @id3 ], @command2.timestamp
-					subject.add_commands! @id1, [ @command1, @command4 ]
+					subject.check_in! @id1, [ @id2, @id3 ], @command2.timestamp, { @id1 => [ @command1, @command4 ] }
 					TestClasses::PersistentState.value.should eq 0
 					subject.add_commands! @id2, [ @command2 ]
 					TestClasses::PersistentState.value.should eq 0
@@ -192,8 +190,7 @@ describe Leonidas::App::App do
 				end
 
 				it "will run any active commands being added" do
-					subject.check_in! @id1, [ @id2, @id3 ], @command2.timestamp
-					subject.add_commands! @id1, [ @command1, @command4 ]
+					subject.check_in! @id1, [ @id2, @id3 ], @command2.timestamp, { @id1 => [ @command1, @command4 ] }
 					subject.current_state[:value].should eq 1
 					subject.add_commands! @id2, [ @command2 ]
 					subject.current_state[:value].should eq 1
@@ -295,7 +292,7 @@ describe Leonidas::App::App do
 
 		it "will mark the app as reconciled when no other clients are passed in" do
 			id = ::Leonidas::App::Client.new.id
-			subject.check_in! id, [], Time.at(1)
+			subject.check_in! id, [], Time.at(1), { id => [ ] }
 			subject.should be_reconciled
 		end
 
@@ -303,21 +300,30 @@ describe Leonidas::App::App do
 			id1 = ::Leonidas::App::Client.new.id
 			id2 = ::Leonidas::App::Client.new.id
 			id3 = ::Leonidas::App::Client.new.id
-			subject.check_in! id1, [ id2, id3, "never-checks-in" ], Time.at(1)
+			subject.check_in! id1, [ id2, id3, "never-checks-in" ], Time.at(1), { id1 => [ ], id2 => [ ], id3 => [ ] }
 			subject.stable_timestamp.should eq Time.at(1)
-			subject.check_in! id2, [ id1 ], Time.at(2)
+			subject.check_in! id2, [ id1 ], Time.at(2), { id1 => [ ], id2 => [ ] }
 			subject.stable_timestamp.should eq Time.at(2)
-			subject.check_in! id3, [ id1 ], Time.at(1)
+			subject.check_in! id3, [ id1 ], Time.at(1), { id1 => [ ], id3 => [ ] }
 			subject.stable_timestamp.should eq Time.at(2)
 		end
 
 		it "will mark the app as reconciled when the client checking in is the last one not yet checked in" do
 			id1 = ::Leonidas::App::Client.new.id
 			id2 = ::Leonidas::App::Client.new.id
-			subject.check_in! id1, [ id2 ], Time.at(1)
+			subject.check_in! id1, [ id2 ], Time.at(1), { id1 => [ ], id2 => [ ] }
 			subject.should_not be_reconciled
-			subject.check_in! id2, [ id1 ], Time.at(2)
+			subject.check_in! id2, [ id1 ], Time.at(2), { id1 => [ ], id2 => [ ] }
 			subject.should be_reconciled
+		end
+
+		it "will add the passed in commands to the app" do
+			id1 = ::Leonidas::App::Client.new.id
+			id2 = ::Leonidas::App::Client.new.id
+			subject.check_in! id1, [ id2 ], Time.at(1), { id1 => [ build_command(Time.at(1)) ] }
+			subject.current_state[:value].should eq 1
+			subject.check_in! id2, [ id1 ], Time.at(2), { id2 => [ build_command(Time.at(2)) ] }
+			subject.current_state[:value].should eq 2
 		end
 
 	end

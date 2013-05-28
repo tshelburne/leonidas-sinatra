@@ -43,17 +43,17 @@ module TestMocks
 		}
 	end
 
-	def all_knowing_client_reconcile_request
-		general_reconcile_request(
+	def single_client_reconcile_request
+		@single_client_reconcile_request ||= general_reconcile_request(
 			'client-1', 
-			%w(11 22 33 14 15 36 37 28), 
-			{ 'client-2' => @base_milliseconds + 8000, 'client-3' => @base_milliseconds + 7000 }, 
+			%w(11 14 15), 
+			{ }, 
 			@base_milliseconds + 4000
 		)
 	end
 
 	def client1_reconcile_request
-		general_reconcile_request(
+		@client1_reconcile_request ||= general_reconcile_request(
 			'client-1', 
 			%w(11 22 33 14 15 36), 
 			{ 'client-2' => @base_milliseconds + 4000, 'client-3' => @base_milliseconds + 6000 }, 
@@ -62,7 +62,7 @@ module TestMocks
 	end
 
 	def client2_reconcile_request
-		general_reconcile_request(
+		@client2_reconcile_request ||= general_reconcile_request(
 			'client-2', 
 			%w(11 22 33 28), 
 			{ 'client-1' => @base_milliseconds + 4000, 'client-3' => @base_milliseconds + 7000 }, 
@@ -71,7 +71,7 @@ module TestMocks
 	end
 
 	def client3_reconcile_request
-		general_reconcile_request(
+		@client3_reconcile_request ||= general_reconcile_request(
 			'client-3', 
 			%w(11 22 33 14 36 37), 
 			{ 'client-1' => @base_milliseconds + 4000, 'client-2' => @base_milliseconds + 4000 }, 
@@ -80,10 +80,10 @@ module TestMocks
 	end
 
 	def orphaned_client_reconcile_request
-		general_reconcile_request(
+		@orphaned_client_reconcile_request ||= general_reconcile_request(
 			'orphan', 
 			%w(11 22 42 33 14 45 36), 
-			{ 'client-2' => @base_milliseconds + 4000, 'client-2' => @base_milliseconds + 4000, 'client-3' => @base_milliseconds + 6000 }, 
+			{ 'client-1' => @base_milliseconds + 4000, 'client-2' => @base_milliseconds + 4000, 'client-3' => @base_milliseconds + 6000 }, 
 			@base_milliseconds + 4000
 		)
 	end
@@ -93,9 +93,10 @@ module TestMocks
 	def general_reconcile_request(client_id, included_commands, client_updates, stable_timestamp)
 		command_list = { }
 
-		{ 'client-1' => %w(11 14 15), 'client-2' => %w(22 28), 'client-3' => %w(33 36 37) }.each do |client_id, command_ids|
-			unless (included_commands & command_ids).empty?
-				command_list[client_id] = command_ids.reduce([ ]) {|commands, id| commands << get_command(id) if included_commands.include? id }
+		{ 'client-1' => %w(11 14 15), 'client-2' => %w(22 28), 'client-3' => %w(33 36 37), 'orphan' => %w(42 45) }.each do |external_client_id, command_ids|
+			common_commands = included_commands & command_ids
+			unless common_commands.empty?
+				command_list[external_client_id] = common_commands.reduce([ ]) {|commands, id| commands << get_command(id) }
 			end
 		end
 
@@ -113,9 +114,11 @@ module TestMocks
 		[
 			{ id: "11", name: "increment", data: { number: "1" }, clientId: 'client-1', timestamp: (@base_milliseconds + 1000).to_s },
 			{ id: "22", name: "increment", data: { number: "2" }, clientId: 'client-2', timestamp: (@base_milliseconds + 2000).to_s },
+			{ id: "42", name: "increment", data: { number: "1" }, clientId: "orphan",   timestamp: (@base_milliseconds + 2005).to_s },
 			{ id: "33", name: "increment", data: { number: "2" }, clientId: 'client-3', timestamp: (@base_milliseconds + 3000).to_s },
 			{ id: "14", name: "multiply",  data: { number: "3" }, clientId: 'client-1', timestamp: (@base_milliseconds + 4000).to_s },
 			{ id: "15", name: "increment", data: { number: "1" }, clientId: 'client-1', timestamp: (@base_milliseconds + 5000).to_s },
+			{ id: "45", name: "increment", data: { number: "2" }, clientId: "orphan",   timestamp: (@base_milliseconds + 5005).to_s },
 			{ id: "36", name: "multiply",  data: { number: "2" }, clientId: 'client-3', timestamp: (@base_milliseconds + 6000).to_s },
 			{ id: "37", name: "multiply",  data: { number: "3" }, clientId: 'client-3', timestamp: (@base_milliseconds + 7000).to_s },
 			{ id: "28", name: "increment", data: { number: "3" }, clientId: 'client-2', timestamp: (@base_milliseconds + 8000).to_s }

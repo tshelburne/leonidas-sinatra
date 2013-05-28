@@ -76,13 +76,15 @@ module Leonidas
 			end 
 
 			post '/reconcile' do
-				@app.check_in! current_client_id, params[:clients].map {|client_hash| client_hash[:id]}, timestamp_from_params(params[:stableTimestamp])
-				
+				external_clients = params[:clients].nil? ? [] : params[:clients].map {|client_hash| client_hash[:id]}
+				current_client_stable_timestamp = timestamp_from_params(params[:stableTimestamp])
+				all_commands = { }
 				params[:commandList].each do |client_id, command_hashes|
-					commands = map_command_hashes command_hashes
-					@app.add_commands! client_id, commands
+					all_commands[client_id] = map_command_hashes(command_hashes) unless command_hashes.nil?
 				end
 
+				@app.check_in! current_client_id, external_clients, current_client_stable_timestamp, all_commands
+				
 				respond true, @app.reconciled? ? 'app fully reconciled' : 'app partially reconciled'
 			end
 
