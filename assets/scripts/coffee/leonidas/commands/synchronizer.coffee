@@ -16,6 +16,7 @@ class Synchronizer
 			method: "get"
 			data:
 				appName: @client.appName
+				appType: @client.appType
 				clientId: @client.id
 				clients: @externalClients
 			error: => console.log "pull error"
@@ -41,6 +42,7 @@ class Synchronizer
 				method: "post"
 				data: 
 					appName: @client.appName
+					appType: @client.appType
 					clientId: @client.id
 					pushedAt: @lastPushAttempt
 					commands: (command.toHash() for command in unsyncedCommands)
