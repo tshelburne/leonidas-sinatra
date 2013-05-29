@@ -72,6 +72,11 @@ describe Leonidas::Routes::SyncApp do
 			add_stable_commands
 		end
 
+		it "can handle an empty client list" do
+			get "/", { appName: 'app-1', clientId: 'client-1', clients: [ ] }
+			response_code.should eq 200
+		end
+
 		context "when the app id is invalid" do
 		
 			it "will fail" do

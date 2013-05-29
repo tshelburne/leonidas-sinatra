@@ -39,8 +39,10 @@ module Leonidas
 			get '/' do
 				ensure_reconciled
 
+				known_external_clients = params[:clients].nil? ? [ ] : params[:clients]
+
 				new_commands = all_external_clients.reduce([ ]) do |commands, client|
-					client_hash = params[:clients].select {|client_hash| client_hash[:id] == client[:id]}.first
+					client_hash = known_external_clients.select {|client_hash| client_hash[:id] == client[:id]}.first
 					min_timestamp = client_hash.nil? ? nil : timestamp_from_params(client_hash[:lastUpdate])
 					commands.concat @app.commands_from_client(client[:id], min_timestamp)
 				end
