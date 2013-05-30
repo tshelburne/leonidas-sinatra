@@ -6,7 +6,7 @@ class Synchronizer
 
 	constructor: (@syncUrl, @client, @organizer, @processor)->
 		@stableTimestamp = 0
-		@externalClients = [ ]
+		@externalClients = { }
 		@lastPushAttempt = 0
 
 	pull: =>
@@ -18,7 +18,7 @@ class Synchronizer
 				appName: @client.appName
 				appType: @client.appType
 				clientId: @client.id
-				clients: @externalClients
+				externalClients: @externalClients
 			error: => console.log "pull error"
 			success: (response)=>
 				if response.success
@@ -26,7 +26,7 @@ class Synchronizer
 					@processor.rollbackCommands @organizer.commandsSince(@stableTimestamp)
 					@organizer.external.addCommands newCommands
 					@processor.runCommands @organizer.commandsSince(@stableTimestamp)
-					@externalClients = response.data.currentClients
+					@externalClients = response.data.externalClients
 					@stableTimestamp = response.data.stableTimestamp
 				else
 					@reconcileTimeout = setTimeout(@reconcile, 1000) if response.message is "reconcile required" and not @reconcileTimeout?
@@ -69,7 +69,7 @@ class Synchronizer
 				appName: @client.appName
 				appType: @client.appType
 				clientId: @client.id
-				clients: @externalClients
+				externalClients: @externalClients
 				commandList: commandList
 				stableTimestamp: @stableTimestamp
 			error: => console.log "reconcile error"

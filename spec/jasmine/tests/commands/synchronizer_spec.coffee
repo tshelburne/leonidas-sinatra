@@ -32,8 +32,10 @@ describe "Synchronizer", ->
 
 			it "will update the list of external clients and their latest timestamps", ->
 				synchronizer.pull()
-				expect(synchronizer.externalClients).toEqual [ { id: "2345", lastUpdate: new Date(2013, 4, 2).getTime() }, { id: "3456", lastUpdate: new Date(2013, 4, 8).getTime() } ]
-
+				expect(synchronizer.externalClients).toEqual 
+					"2345": new Date(2013, 4, 2).getTime()
+					"3456": new Date(2013, 4, 8).getTime()
+					
 			it "will update the stable timestamp", ->
 				synchronizer.pull()
 				expect(synchronizer.stableTimestamp).toEqual new Date(2013, 4, 2).getTime()
