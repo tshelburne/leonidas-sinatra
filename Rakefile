@@ -24,7 +24,7 @@ namespace :test do
 	desc "Run Rspec tests"
   RSpec::Core::RakeTask.new(:rspec) do |t|
     t.rspec_opts = "-dcfd --require rspec/spec_helper"
-    # t.pattern = 'spec/rspec/**/sync_reconcile_spec.rb'
+    # t.pattern = 'spec/rspec/**/sync_*_spec.rb'
   end
 
 	desc "Run Jasmine tests"

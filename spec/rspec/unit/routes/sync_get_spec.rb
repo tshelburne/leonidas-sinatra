@@ -139,7 +139,7 @@ describe Leonidas::Routes::SyncApp do
 
 			it "will return a list of clients and their last update" do
 				get "/", pull_request
-				response_body["data"]["currentClients"].should eq [
+				response_body["data"]["externalClients"].should eq [
 					{ "id" => 'client-2', "lastUpdate" => command_time(@command8) }, 
 					{ "id" => 'client-3', "lastUpdate" => command_time(@command7) } 
 				]

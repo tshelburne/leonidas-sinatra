@@ -9,10 +9,10 @@ module TestMocks
 			appName: "app-1", 
 			appType: "TestClasses::TestApp",
 			clientId: 'client-1',
-			clients: [ 
-				{ id: 'client-2', lastUpdate: (@base_milliseconds + 4000).to_s }, 
-				{ id: 'client-3', lastUpdate: (@base_milliseconds + 6000).to_s }
-			]
+			externalClients: {
+				'client-2' => (@base_milliseconds + 4000).to_s, 
+				'client-3' => (@base_milliseconds + 6000).to_s
+			}
 		}
 	end
 
@@ -104,7 +104,7 @@ module TestMocks
 			appName: "app-1",
 			appType: "TestClasses::TestApp",
 			clientId: client_id,
-			clients: client_updates.map {|client_id, timestamp| { id: client_id, lastUpdate: timestamp.to_s } },
+			externalClients: client_updates,
 			commandList: command_list,
 			stableTimestamp: stable_timestamp.to_s
 		}
