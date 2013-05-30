@@ -26,7 +26,7 @@ class Synchronizer
 					@processor.rollbackCommands @organizer.commandsSince(@stableTimestamp)
 					@organizer.external.addCommands newCommands
 					@processor.runCommands @organizer.commandsSince(@stableTimestamp)
-					@externalClients = response.data.externalClients
+					@externalClients[client.id] = client.lastUpdate for client in response.data.externalClients
 					@stableTimestamp = response.data.stableTimestamp
 				else
 					@reconcileTimeout = setTimeout(@reconcile, 1000) if response.message is "reconcile required" and not @reconcileTimeout?
