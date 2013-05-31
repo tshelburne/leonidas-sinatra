@@ -22,7 +22,7 @@ class Synchronizer
 			error: => console.log "pull error"
 			success: (response)=>
 				if response.success
-					newCommands = (new Command(command.name, command.data, command.connection, new Date(command.timestamp), command.id) for command in response.data.commands)
+					newCommands = (new Command(command.name, command.data, command.clientId, new Date(command.timestamp), command.id) for command in response.data.commands)
 					@processor.rollbackCommands @organizer.commandsSince(@stableTimestamp)
 					@organizer.external.addCommands newCommands
 					@processor.runCommands @organizer.commandsSince(@stableTimestamp)
@@ -45,7 +45,7 @@ class Synchronizer
 					appType: @client.appType
 					clientId: @client.id
 					pushedAt: @lastPushAttempt
-					commands: (command.toHash() for command in unsyncedCommands)
+					commands: buildCommandsObject unsyncedCommands
 				error: => console.log "push error"
 				success: (response)=>
 					if response.success
@@ -56,10 +56,10 @@ class Synchronizer
 
 	reconcile: =>
 		commandList = { }
-		commandList[@client.id] = (command.toHash() for command in @organizer.local.commands)
-		for externalClient in @externalClients
-			commands = @organizer.commandsFor(externalClient.id) 
-			commandList["#{externalClient.id}"] = (command.toHash() for command in commands)
+		commandList[@client.id] = buildCommandsObject @organizer.local.commands
+		for externalClientId of @externalClients
+			commands = @organizer.commandsFor(externalClientId) 
+			commandList[externalClientId] = buildCommandsObject commands
 
 		reqwest(
 			url: "#{@syncUrl}/reconcile"
@@ -80,5 +80,10 @@ class Synchronizer
 				else
 					@reconcileTimeout = setTimeout(@reconcile, 1000) if response.message is "reconcile required"
 		)
+
+	buildCommandsObject = (commands)->
+		commandsObject = { }
+		commandsObject[command.id] = command.toHash() for command in commands
+		commandsObject
 
 return Synchronizer

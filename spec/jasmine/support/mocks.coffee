@@ -3,13 +3,13 @@ addMock "syncPullResponse",
 	message: 'commands retrieved'
 	data:
 		commands: [
-			{ id: 'command2', name: 'multiply',  data: { number: 2 }, connection: "2345", timestamp: new Date(2013, 4, 2).getTime() },
-			{ id: 'command6', name: 'increment', data: { number: 1 }, connection: "3456", timestamp: new Date(2013, 4, 6).getTime() },
-			{ id: 'command8', name: 'increment', data: { number: 3 }, connection: "3456", timestamp: new Date(2013, 4, 8).getTime() }
+			{ id: '22', name: 'multiply',  data: { number: 2 }, clientId: "client-2", timestamp: new Date(2013, 4, 2).getTime() },
+			{ id: '36', name: 'increment', data: { number: 1 }, clientId: "client-3", timestamp: new Date(2013, 4, 6).getTime() },
+			{ id: '38', name: 'increment', data: { number: 3 }, clientId: "client-3", timestamp: new Date(2013, 4, 8).getTime() }
 		]
 		externalClients: [
-			{ id: "2345", lastUpdate: new Date(2013, 4, 2).getTime() },
-			{ id: "3456", lastUpdate: new Date(2013, 4, 8).getTime() }
+			{ id: "client-2", lastUpdate: new Date(2013, 4, 2).getTime() },
+			{ id: "client-3", lastUpdate: new Date(2013, 4, 8).getTime() }
 		]
 		stableTimestamp: new Date(2013, 4, 2).getTime()
 
