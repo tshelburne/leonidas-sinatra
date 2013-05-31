@@ -22,10 +22,11 @@ class Synchronizer
 			error: => console.log "pull error"
 			success: (response)=>
 				if response.success
-					newCommands = (new Command(command.name, command.data, command.clientId, new Date(command.timestamp), command.id) for command in response.data.commands)
-					@processor.rollbackCommands @organizer.commandsSince(@stableTimestamp)
-					@organizer.external.addCommands newCommands
-					@processor.runCommands @organizer.commandsSince(@stableTimestamp)
+					if response.data.commands.length > 0
+						newCommands = (new Command(command.name, command.data, command.clientId, new Date(command.timestamp), command.id) for command in response.data.commands)
+						@processor.rollbackCommands @organizer.commandsSince(@stableTimestamp)
+						@organizer.external.addCommands newCommands
+						@processor.runCommands @organizer.commandsSince(@stableTimestamp)
 					@externalClients[client.id] = client.lastUpdate for client in response.data.externalClients
 					@stableTimestamp = response.data.stableTimestamp
 				else
