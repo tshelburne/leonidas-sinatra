@@ -4,17 +4,9 @@ module Leonidas
 		class SyncApp < Sinatra::Base
 			include ::Leonidas::App::AppRepository
 
-			error ::Leonidas::Errors::ParamRequired do
-				"Missing required parameter: #{env['sinatra.error'].message}" 
-			end
-
-			error ::Leonidas::Errors::ReconciliationRequired do
-				respond false, 'reconcile required', {}
-			end
-
-			def ensure_parameters(*params)
-				params.each do |param|
-					raise ::Leonidas::Errors::ParamRequired, param
+			def ensure_parameters(*parameters)
+				parameters.each do |param|
+					halt(respond false, "Missing required parameter: #{param}") if params[param].nil?
 				end
 			end
 
@@ -24,23 +16,23 @@ module Leonidas
 			end
 
 			def ensure_reconciled
-				halt(respond false, 'reconcile required', {}) unless @app.reconciled? or @app.has_checked_in? current_client_id
+				halt(respond false, 'reconcile required') unless @app.reconciled? or @app.has_checked_in? current_client_id
 			end
 
 			def current_client_id
 				params[:clientId]
 			end
 
-			def map_command_hashes(command_hashes)
-				command_hashes.map {|command_hash| ::Leonidas::Commands::Command.new(command_hash[:id], command_hash[:name], command_hash[:data], command_hash[:clientId], Time.at(command_hash[:timestamp].to_f/1000)) }
+			def map_commands_hash(commands_hash)
+				commands = [ ]
+				commands_hash.each do |id, details|
+					commands << ::Leonidas::Commands::Command.new(id, details[:name], details[:data], details[:clientId], Time.at(details[:timestamp].to_f/1000))
+				end
+				commands
 			end
 
 			def external_clients_from_app
 				@external_clients_from_app ||= @app.client_list.select {|client| client[:id] != current_client_id}
-			end
-
-			def external_clients_from_req
-				@external_clients_from_req ||= params[:externalClients].nil? ? [] : params[:externalClients].keys
 			end
 
 			def timestamp_from_params(timestamp)
@@ -55,7 +47,7 @@ module Leonidas
 			before do
 				content_type "application/json"
 
-				# ensure_parameters :appName, :clientId
+				ensure_parameters :appName, :clientId
 				ensure_app
 			end
 
@@ -80,7 +72,7 @@ module Leonidas
 			post '/' do
 				ensure_reconciled
 				
-				commands = map_command_hashes params[:commands]
+				commands = map_commands_hash params[:commands]
 				begin
 					@app.add_commands! current_client_id, commands
 				rescue ArgumentError => e
@@ -99,13 +91,14 @@ module Leonidas
 			end 
 
 			post '/reconcile' do
+				external_clients = params[:externalClients].nil? ? [] : params[:externalClients].keys
 				current_client_stable_timestamp = timestamp_from_params(params[:stableTimestamp])
 				all_commands = { }
-				params[:commandList].each do |client_id, command_hashes|
-					all_commands[client_id] = map_command_hashes(command_hashes) unless command_hashes.nil?
+				params[:commandList].each do |client_id, commands_hash|
+					all_commands[client_id] = map_commands_hash(commands_hash) unless commands_hash.nil?
 				end
 
-				@app.check_in! current_client_id, external_clients_from_req, current_client_stable_timestamp, all_commands
+				@app.check_in! current_client_id, external_clients, current_client_stable_timestamp, all_commands
 				
 				respond true, @app.reconciled? ? 'app fully reconciled' : 'app partially reconciled'
 			end

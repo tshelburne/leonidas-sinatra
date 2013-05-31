@@ -72,29 +72,43 @@ describe Leonidas::Routes::SyncApp do
 			add_stable_commands
 		end
 
+		it "will fail when no appName is provided" do
+			get "/", { clientId: 'client-1' }
+			response_body["success"].should be_false
+			response_body["message"].should eq "Missing required parameter: appName"
+			response_body["data"].should eq({})
+		end
+
+		it "will fail when no clientId is provided" do
+			get "/", { appName: 'app-1' }
+			response_body["success"].should be_false
+			response_body["message"].should eq "Missing required parameter: clientId"
+			response_body["data"].should eq({})
+		end
+
 		it "can handle an empty client list" do
 			get "/", { appName: 'app-1', clientId: 'client-1', clients: [ ] }
 			response_code.should eq 200
 		end
 
-		context "when the app id is invalid" do
+		context "when the app name is invalid" do
 		
 			it "will fail" do
-				get "/", { appName: 'bad-name' }
+				get "/", { appName: 'bad-name', clientId: 'client-1' }
 				response_code.should eq 404
 			end
 
 			context "and an app type is supplied" do
 
 				it "will return a reconcile required response" do
-					get "/", { appName: 'bad-name', appType: 'TestClasses::TestApp' }
+					get "/", { appName: 'bad-name', appType: 'TestClasses::TestApp', clientId: 'client-1' }
 					response_body["success"].should be_false
 					response_body["message"].should eq "reconcile required"
 					response_body["data"].should eq({ })
 				end
 
 				it "will create the app and set it to reconcile required" do
-					get "/", { appName: 'bad-name', appType: 'TestClasses::TestApp' }
+					get "/", { appName: 'bad-name', appType: 'TestClasses::TestApp', clientId: 'client-1' }
 					memory_layer.should have_app 'bad-name'
 					memory_layer.retrieve_app('bad-name').should_not be_reconciled
 				end

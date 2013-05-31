@@ -23,9 +23,9 @@ module TestMocks
 			appType: "TestClasses::TestApp",
 			clientId: 'client-1',
 			pushedAt: (@base_milliseconds + 10000).to_s,
-			commands: [ 
-				{ id: "15", name: "increment", data: { number: "1" }, clientId: 'client-1', timestamp: (@base_milliseconds + 5000).to_s }
-			]
+			commands: {
+				"15" => { name: "increment", data: { number: "1" }, clientId: 'client-1', timestamp: (@base_milliseconds + 5000).to_s }
+			}
 		}
 	end
 
@@ -36,10 +36,10 @@ module TestMocks
 			appType: "TestClasses::TestApp",
 			clientId: "orphan",
 			pushedAt: (@base_milliseconds + 10000).to_s,
-			commands: [
-				{ id: "42", name: "increment", data: { number: "1" }, clientId: "orphan", timestamp: (@base_milliseconds + 5000).to_s },
-				{ id: "45", name: "increment", data: { number: "2" }, clientId: "orphan", timestamp: (@base_milliseconds + 5000).to_s }
-			]
+			commands: {
+				"42" => { name: "increment", data: { number: "1" }, clientId: "orphan", timestamp: (@base_milliseconds + 5000).to_s },
+				"45" => { name: "increment", data: { number: "2" }, clientId: "orphan", timestamp: (@base_milliseconds + 5000).to_s }
+			}
 		}
 	end
 
@@ -96,7 +96,11 @@ module TestMocks
 		{ 'client-1' => %w(11 14 15), 'client-2' => %w(22 28), 'client-3' => %w(33 36 37), 'orphan' => %w(42 45) }.each do |external_client_id, command_ids|
 			common_commands = included_commands & command_ids
 			unless common_commands.empty?
-				command_list[external_client_id] = common_commands.reduce([ ]) {|commands, id| commands << get_command(id) }
+				client_commands = { }
+				common_commands.each do |id|
+					client_commands[id] = get_command(id)
+				end
+				command_list[external_client_id] = client_commands #common_commands.reduce({ }) {|commands, id| commands[id] = get_command(id) }
 			end
 		end
 
@@ -111,18 +115,18 @@ module TestMocks
 	end
 
 	def get_command(id)
-		[
-			{ id: "11", name: "increment", data: { number: "1" }, clientId: 'client-1', timestamp: (@base_milliseconds + 1000).to_s },
-			{ id: "22", name: "increment", data: { number: "2" }, clientId: 'client-2', timestamp: (@base_milliseconds + 2000).to_s },
-			{ id: "42", name: "increment", data: { number: "1" }, clientId: "orphan",   timestamp: (@base_milliseconds + 2005).to_s },
-			{ id: "33", name: "increment", data: { number: "2" }, clientId: 'client-3', timestamp: (@base_milliseconds + 3000).to_s },
-			{ id: "14", name: "multiply",  data: { number: "3" }, clientId: 'client-1', timestamp: (@base_milliseconds + 4000).to_s },
-			{ id: "15", name: "increment", data: { number: "1" }, clientId: 'client-1', timestamp: (@base_milliseconds + 5000).to_s },
-			{ id: "45", name: "increment", data: { number: "2" }, clientId: "orphan",   timestamp: (@base_milliseconds + 5005).to_s },
-			{ id: "36", name: "multiply",  data: { number: "2" }, clientId: 'client-3', timestamp: (@base_milliseconds + 6000).to_s },
-			{ id: "37", name: "multiply",  data: { number: "3" }, clientId: 'client-3', timestamp: (@base_milliseconds + 7000).to_s },
-			{ id: "28", name: "increment", data: { number: "3" }, clientId: 'client-2', timestamp: (@base_milliseconds + 8000).to_s }
-		].select {|command| command[:id] == id}.first
+		{
+			"11" => { name: "increment", data: { number: "1" }, clientId: 'client-1', timestamp: (@base_milliseconds + 1000).to_s },
+			"22" => { name: "increment", data: { number: "2" }, clientId: 'client-2', timestamp: (@base_milliseconds + 2000).to_s },
+			"42" => { name: "increment", data: { number: "1" }, clientId: "orphan",   timestamp: (@base_milliseconds + 2005).to_s },
+			"33" => { name: "increment", data: { number: "2" }, clientId: 'client-3', timestamp: (@base_milliseconds + 3000).to_s },
+			"14" => { name: "multiply",  data: { number: "3" }, clientId: 'client-1', timestamp: (@base_milliseconds + 4000).to_s },
+			"15" => { name: "increment", data: { number: "1" }, clientId: 'client-1', timestamp: (@base_milliseconds + 5000).to_s },
+			"45" => { name: "increment", data: { number: "2" }, clientId: "orphan",   timestamp: (@base_milliseconds + 5005).to_s },
+			"36" => { name: "multiply",  data: { number: "2" }, clientId: 'client-3', timestamp: (@base_milliseconds + 6000).to_s },
+			"37" => { name: "multiply",  data: { number: "3" }, clientId: 'client-3', timestamp: (@base_milliseconds + 7000).to_s },
+			"28" => { name: "increment", data: { number: "3" }, clientId: 'client-2', timestamp: (@base_milliseconds + 8000).to_s }
+		}[id]
 	end
 
 end

@@ -63,8 +63,22 @@ describe Leonidas::Routes::SyncApp do
 
 	describe "post /reconcile" do
 
-		it "will fail with an invalid app id" do
-			get "/reconcile", { appName: 'bad-name' }
+		it "will fail when no appName is provided" do
+			post "/reconcile", { clientId: 'client-1' }
+			response_body["success"].should be_false
+			response_body["message"].should eq "Missing required parameter: appName"
+			response_body["data"].should eq({})
+		end
+
+		it "will fail when no clientId is provided" do
+			post "/reconcile", { appName: 'app-1' }
+			response_body["success"].should be_false
+			response_body["message"].should eq "Missing required parameter: clientId"
+			response_body["data"].should eq({})
+		end
+
+		it "will fail with an invalid app name" do
+			get "/reconcile", { appName: 'bad-name', clientId: 'client-1' }
 			response_code.should eq 404
 		end
 

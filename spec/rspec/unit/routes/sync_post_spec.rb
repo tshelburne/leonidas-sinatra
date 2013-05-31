@@ -78,31 +78,45 @@ describe Leonidas::Routes::SyncApp do
 			@app.add_commands! 'client-3', [ @command6 ]
 		end
 
+		it "will fail when no appName is provided" do
+			post "/", { clientId: 'client-1' }
+			response_body["success"].should be_false
+			response_body["message"].should eq "Missing required parameter: appName"
+			response_body["data"].should eq({})
+		end
+
+		it "will fail when no clientId is provided" do
+			post "/", { appName: 'app-1' }
+			response_body["success"].should be_false
+			response_body["message"].should eq "Missing required parameter: clientId"
+			response_body["data"].should eq({})
+		end
+
 		it "will fail with an invalid client id" do
-			post "/", { appName: 'app-1', clientId: 'bad-id', commands: [ build_command(Time.now).to_hash ] }
+			post "/", { appName: 'app-1', clientId: 'bad-id', commands: { "11" => get_command("11") } }
 			response_body["success"].should be_false
 			response_body["message"].should eq "Argument 'bad-id' is not a valid client id"
 			response_body["data"].should eq({ })
 		end
 
-		context "when the app id is invalid" do
+		context "when the app name is invalid" do
 		
 			it "will fail" do
-				post "/", { appName: 'bad-name' }
+				post "/", { appName: 'bad-name', clientId: 'client-1' }
 				response_code.should eq 404
 			end
 
 			context "and an app type is supplied" do
 
 				it "will return a reconcile required response" do
-					post "/", { appName: 'bad-name', appType: 'TestClasses::TestApp' }
+					post "/", { appName: 'bad-name', appType: 'TestClasses::TestApp', clientId: 'client-1' }
 					response_body["success"].should be_false
 					response_body["message"].should eq "reconcile required"
 					response_body["data"].should eq({ })
 				end
 
 				it "will create the app and set it to reconcile required" do
-					post "/", { appName: 'bad-name', appType: 'TestClasses::TestApp' }
+					post "/", { appName: 'bad-name', appType: 'TestClasses::TestApp', clientId: 'client-1' }
 					memory_layer.should have_app 'bad-name'
 					memory_layer.retrieve_app('bad-name').should_not be_reconciled
 				end
