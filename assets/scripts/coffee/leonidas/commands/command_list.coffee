@@ -16,7 +16,7 @@ class CommandList
 	# private
 
 	generateUniqueId = (commands)-> 
-		candidate
+		candidate = "#{new Date().getTime()}-#{commands.length}"
 		until candidate not in (command.id for command in commands)
 			candidate = "#{new Date().getTime()}-#{commands.length}"
 		candidate

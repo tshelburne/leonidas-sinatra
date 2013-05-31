@@ -17,11 +17,15 @@ describe "CommandList", ->
 			commandList.addCommand command1
 			expect(commandList.commands).toEqual [ command1 ]
 
-		it "will generate and add a unique id to the command if the command id is null", ->
+		it "will generate and add a unique id to the command if the command id is null or undefined", ->
 			commandList.addCommand command1
 			commandList.addCommand command2
 			commandList.addCommand command3
 			commandList.addCommand command4
+			expect(command1.id).toBeDefined()
+			expect(command2.id).toBeDefined()
+			expect(command3.id).toBeDefined()
+			expect(command4.id).toBeDefined()
 			expect(command1.id).not.toBeNull()
 			expect(command2.id).not.toBeNull()
 			expect(command3.id).not.toBeNull()
@@ -35,6 +39,13 @@ describe "CommandList", ->
 		it "will add multiple local commands", ->
 			commandList.addCommands [ command1, command2 ]
 			expect(commandList.commands).toContain command for command in [ command1, command2 ]
+
+		it "will generate and add a unique id to each command if the command id is null or undefined", ->
+			commandList.addCommands [ command1, command2 ]
+			expect(command1.id).toBeDefined()
+			expect(command2.id).toBeDefined()
+			expect(command1.id).not.toBeNull()
+			expect(command2.id).not.toBeNull()
 
 	describe "#commandsThrough", ->
 
