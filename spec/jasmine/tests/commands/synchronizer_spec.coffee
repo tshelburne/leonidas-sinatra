@@ -181,7 +181,6 @@ describe "Synchronizer", ->
 			it "a list of all commands", ->
 				synchronizer.reconcile()
 				commandList = window.reqwest.mostRecentCall.args[0].data.commandList
-				jasmine.log commandList
 				expect(commandList['client-1']["11"]).toEqual command1.toHash()
 				expect(commandList['client-1']["14"]).toEqual command4.toHash()
 				expect(commandList['client-2']["22"]).toEqual command2.toHash()
