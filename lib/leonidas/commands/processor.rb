@@ -17,8 +17,8 @@ module Leonidas
 					raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command
 					@handlers.each do |handler|
 						if handler.handles? command
-							handler.run(command) 
-							handler.persist(command) if persist
+							handler.run_wrapper(command) 
+							handler.persist_wrapper(command) if persist
 						end
 					end
 				end
@@ -30,8 +30,8 @@ module Leonidas
 					raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command
 					@handlers.each do |handler|
 						if handler.handles? command
-							handler.rollback(command)
-							handler.rollback_persist(command) if persisted
+							handler.rollback_wrapper(command)
+							handler.rollback_persist_wrapper(command) if persisted
 						end
 					end
 				end
