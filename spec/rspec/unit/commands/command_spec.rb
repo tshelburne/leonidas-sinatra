@@ -35,6 +35,25 @@ describe Leonidas::Commands::Command do
 
 	end
 
+	describe '#has_been_persisted?' do
+		
+		it "will default to false" do
+			subject.should_not have_been_persisted
+		end
+
+		it "will return true when the command is marked as persisted" do
+			subject.mark_as_persisted!
+			subject.should have_been_persisted
+		end
+
+		it "will return false when the command is marked as not persisted" do
+			subject.mark_as_persisted!
+			subject.mark_as_not_persisted!
+			subject.should_not have_been_persisted
+		end
+
+	end
+
 	describe '#mark_as_run!' do 
 	
 		it "will mark the command as having been run" do
@@ -50,6 +69,25 @@ describe Leonidas::Commands::Command do
 			subject.mark_as_run!
 			subject.mark_as_not_run!
 			subject.should_not have_run
+		end
+	
+	end
+
+	describe '#mark_as_persisted!' do 
+	
+		it "will mark the command as having been run" do
+			subject.mark_as_persisted!
+			subject.should have_been_persisted
+		end
+	
+	end
+
+	describe '#mark_as_not_persisted!' do 
+	
+		it "will mark the command as not having been run" do
+			subject.mark_as_persisted!
+			subject.mark_as_not_persisted!
+			subject.should_not have_been_persisted
 		end
 	
 	end

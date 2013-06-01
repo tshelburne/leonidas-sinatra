@@ -12,6 +12,7 @@ module Leonidas
 				@client_id = client_id
 				@timestamp = timestamp
 				@has_run = false
+				@has_been_persisted = false
 			end
 
 			def to_hash
@@ -22,12 +23,24 @@ module Leonidas
 				@has_run
 			end
 
+			def has_been_persisted?
+				@has_been_persisted
+			end
+
 			def mark_as_run!
 				@has_run = true
 			end
 
 			def mark_as_not_run!
 				@has_run = false
+			end
+
+			def mark_as_persisted!
+				@has_been_persisted = true
+			end
+
+			def mark_as_not_persisted!
+				@has_been_persisted = false
 			end
 
 		end
