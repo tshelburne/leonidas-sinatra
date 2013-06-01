@@ -7,6 +7,26 @@ module Leonidas
 				command.name == @name
 			end
 
+			def run_wrapper(command)
+				run(command)
+				command.mark_as_run!
+			end
+
+			def persist_wrapper(command)
+				persist(command)
+				command.mark_as_persisted!
+			end
+
+			def rollback_wrapper(command)
+				rollback(command)
+				command.mark_as_not_run!
+			end
+
+			def rollback_persist_wrapper(command)
+				rollback_persist(command)
+				command.mark_as_not_persisted!
+			end
+
 			def run(command)
 				raise NoMethodError, 'Class must implement a #run method'
 			end
