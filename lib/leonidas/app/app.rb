@@ -39,8 +39,8 @@ module Leonidas
 				commands.each {|command| raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command}
 				raise ArgumentError, "Argument '#{client_id}' is not a valid client id" unless has_client? client_id
 
-				client(client_id).add_commands! commands				
-				cache_commands! commands if (not reconciled?) && persistent?
+				client(client_id).add_commands! commands	
+				stabilize_commands! commands if (not reconciled?) && persistent_state?
 				process_commands!
 			end
 
@@ -50,29 +50,22 @@ module Leonidas
 			end
 
 			def process_commands!
-				current_active_commands = active_commands
-				current_stable_commands = stable_commands
+				# find the oldest unrun command, AKA oldest among newly added commands
+				all_current_commands = all_commands
+				oldest_unrun_command = all_current_commands.select {|command| not command.has_run?}.min_by {|command| command.timestamp}
+				oldest_unpersisted_command = all_current_commands.select {|command| not command.has_been_persisted?}.min_by {|command| command.timestamp} if persistent_state?
+				oldest_active_command = oldest_unpersisted_command.nil? ? oldest_unrun_command : [ oldest_unrun_command, oldest_unpersisted_command ].min_by {|command| command.timestamp}
+				
+				# break the commands into lists of persistable and only runnable commands
+				active_commands = commands_from oldest_active_command, all_current_commands
+				persistable_commands = commands_between oldest_active_command, stable_timestamp, active_commands
+				runnable_commands = commands_since stable_timestamp, active_commands
 
-				# rollback to previous stable state
-				processor.rollback cached_active_commands
-
-				new_stable_commands = current_stable_commands.select {|command| not cached_stable_commands.include? command}
-				unless new_stable_commands.empty?
-					oldest_new_stable_command = new_stable_commands.min_by {|command| command.timestamp}
-
-					# rollback to the oldest of the new stable commands
-					cached_stable_commands_since_oldest  = commands_from(oldest_new_stable_command, @cached_stable_commands)
-					processor.rollback cached_stable_commands_since_oldest, persistent?
-					
-					# run all stable commands since the oldest new stable command to the new stable state
-					current_stable_commands_since_oldest = commands_from(oldest_new_stable_command, current_stable_commands)
-					processor.run current_stable_commands_since_oldest, persistent?
-				end
-
-				# run all active commands to new active state
-				processor.run current_active_commands
-
-				cache_commands!
+				# rollback those commands that have been run, and then run all commands
+				processor.rollback runnable_commands.select {|command| command.has_run?}
+				processor.rollback persistable_commands.select {|command| command.has_been_persisted?}, persistent_state?
+				processor.run persistable_commands, persistent_state?
+				processor.run runnable_commands
 			end
 
 			def require_reconciliation!
@@ -137,28 +130,11 @@ module Leonidas
 				clients.reduce([ ]) {|commands, client| commands + client.all_commands}
 			end
 
-			def active_commands
-				commands_since(stable_timestamp)
-			end
-
-			def stable_commands
-				commands_through(stable_timestamp)
-			end
-
-			def cached_active_commands
-				@cached_active_commands ||= [ ]
-			end
-
-			def cached_stable_commands
-				@cached_stable_commands ||= [ ]
-			end
-
-			def cache_commands!(commands=nil)
-				if commands.nil?
-					@cached_active_commands = active_commands
-					@cached_stable_commands = stable_commands
-				else
-					cached_stable_commands.concat commands_through(stable_timestamp, commands)
+			def stabilize_commands!(commands)
+				commands_to_stabilize = commands_through(stable_timestamp, commands)
+				commands_to_stabilize.each do |command|
+					command.mark_as_run!
+					command.mark_as_persisted!
 				end
 			end
 
