@@ -5,7 +5,7 @@ buildCommand = (timestamp, data={}, name="increment", clientId="client-1", comma
 	new Command(name, data, clientId, timestamp, commandId)
 
 buildClient = ->
-	new Client("client-1", "app-1", { integer: 1 }, 'TestClasses::TestApp', null)
+	new Client("client-1", "app-1", 'TestClasses::TestApp', null)
 
 globalize(buildCommand, "buildCommand")
 globalize(buildClient, "buildClient")

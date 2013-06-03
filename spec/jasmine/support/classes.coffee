@@ -5,9 +5,9 @@ globalize class IncrementHandler extends Handler
 	constructor: (@state)->
 		@name = "increment"
 
-	run: (command)-> @state.integer += command.data.number
+	run: (command)-> @state.value += command.data.number
 
-	rollback: (command)-> @state.integer -= command.data.number
+	rollback: (command)-> @state.value -= command.data.number
 
 
 globalize class MultiplyHandler extends Handler
@@ -15,6 +15,6 @@ globalize class MultiplyHandler extends Handler
 	constructor: (@state)->
 		@name = "multiply"
 
-	run: (command)-> @state.integer *= command.data.number
+	run: (command)-> @state.value *= command.data.number
 
-	rollback: (command)-> @state.integer /= command.data.number
+	rollback: (command)-> @state.value /= command.data.number

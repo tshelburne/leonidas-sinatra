@@ -8,7 +8,7 @@ module TestClasses
 		def initialize(name="app-1")
 			@name = name
 			@persist_commands = false
-			@state = { value: 0 }
+			@state = { value: 0 } # not crazy about this, but ruby integers are 'pass-by-value' only, so a hash fakes it
 		end
 
 		def handlers

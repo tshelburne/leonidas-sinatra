@@ -4,15 +4,17 @@ Synchronizer = require "leonidas/commands/synchronizer"
 Commander = require 'leonidas/commander'
 
 describe "Commander", ->
+	state = null
 	commander = null
 	client = null
 	organizer = null
 	synchronizer = null
 
 	beforeEach ->
+		state = { value: 1 }
 		client = buildClient()
 		organizer = new Organizer()
-		processor = new Processor([ new MultiplyHandler(client.state) ])
+		processor = new Processor([ new MultiplyHandler(state) ])
 		synchronizer = new Synchronizer("http://mydomain.com/sync", client, organizer, processor)
 		spyOn(synchronizer, "push")
 		spyOn(synchronizer, "pull")
@@ -21,7 +23,7 @@ describe "Commander", ->
 	describe "::create", ->
 
 		it "will create a Commander instance using the included classes", ->
-			commander = Commander.create(client, [ new MultiplyHandler({ integer: 1 }) ], "http://mydomain.com/sync")
+			commander = Commander.create(client, [ new MultiplyHandler(state) ], "http://mydomain.com/sync")
 			expect(commander.constructor).toEqual Commander
 
 	describe "#startSync", ->
@@ -74,4 +76,4 @@ describe "Commander", ->
 
 		it "will run the command to update the local client state", ->
 			commander.issueCommand "multiply", { number: 3 }
-			expect(client.state.integer).toEqual 3
+			expect(state.value).toEqual 3

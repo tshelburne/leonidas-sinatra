@@ -9,7 +9,3 @@ describe "Client", ->
 
 		it "will reject a null app name", ->
 			expect(-> new Client("client-id")).toThrow()
-
-		it "will create an empty state by default", ->
-			client = new Client("client-id", "app-name")
-			expect(client.state).toEqual {}

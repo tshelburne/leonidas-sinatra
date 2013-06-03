@@ -3,6 +3,7 @@ Processor = require 'leonidas/commands/processor'
 Synchronizer = require 'leonidas/commands/synchronizer'
 
 describe "Synchronizer", ->
+	state = null
 	command1 = command2 = command4 = command5 = command6 = command7 = command8 = null
 	client = null
 	organizer = null
@@ -10,6 +11,7 @@ describe "Synchronizer", ->
 	processor = null
 
 	beforeEach ->
+		state = { value: 1 }
 		client = buildClient()
 		organizer = new Organizer()
 		command1 = buildCommand(new Date(2013, 4, 1), { number: 1 }, "increment", "client-1", "11")
@@ -19,7 +21,7 @@ describe "Synchronizer", ->
 		command6 = buildCommand(new Date(2013, 4, 6), { number: 1 }, "increment", "client-3", "36")
 		command7 = buildCommand(new Date(2013, 4, 7), { number: 4 }, "increment", "client-1", "17")
 		command8 = buildCommand(new Date(2013, 4, 8), { number: 3 }, "increment", "client-3", "38")
-		processor = new Processor([ new IncrementHandler(client.state), new MultiplyHandler(client.state)])
+		processor = new Processor([ new IncrementHandler(state), new MultiplyHandler(state)])
 		synchronizer = new Synchronizer("http://mydomain.com/sync", client, organizer, processor)
 
 	describe "#reconcile", ->
