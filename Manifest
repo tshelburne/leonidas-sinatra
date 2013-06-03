@@ -47,13 +47,14 @@ spec/jasmine/tests/commands/command_spec.coffee
 spec/jasmine/tests/commands/handler_spec.coffee
 spec/jasmine/tests/commands/organizer_spec.coffee
 spec/jasmine/tests/commands/processor_spec.coffee
-spec/jasmine/tests/commands/synchronizer_spec.coffee
+spec/jasmine/tests/commands/synchronizer/synchronizer_pull_spec.coffee
+spec/jasmine/tests/commands/synchronizer/synchronizer_push_spec.coffee
+spec/jasmine/tests/commands/synchronizer/synchronizer_reconcile_spec.coffee
 spec/rspec/spec_helper.rb
 spec/rspec/support/classes/app.rb
 spec/rspec/support/classes/commands.rb
 spec/rspec/support/classes/persistence.rb
 spec/rspec/support/config.rb
-spec/rspec/support/mocks/app.rb
 spec/rspec/support/mocks/sync_requests.rb
 spec/rspec/support/objects.rb
 spec/rspec/unit/app/app_spec.rb
