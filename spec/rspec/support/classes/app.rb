@@ -3,21 +3,23 @@ module TestClasses
 	class TestApp
 		include ::Leonidas::App::App
 		
+		attr_reader :state
+
 		def initialize(name="app-1")
 			@name = name
-			@persist_state = false
+			@persist_commands = false
 			@state = { value: 0 }
 		end
 
 		def handlers
 			[ 
-				IncrementHandler.new(self), 
-				MultiplyHandler.new(self) 
+				IncrementHandler.new(@state), 
+				MultiplyHandler.new(@state) 
 			]
 		end
 
 		def state=(val)
-			@state = val.dup
+			@state[:value] = val
 		end
 
 	end

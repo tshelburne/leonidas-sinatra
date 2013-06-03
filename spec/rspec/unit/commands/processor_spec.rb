@@ -2,8 +2,8 @@ describe Leonidas::Commands::Processor do
 	include TestObjects
 
 	subject do
-		@app = TestMocks::MockApp.new
-		described_class.new([ TestClasses::IncrementHandler.new(@app), TestClasses::MultiplyHandler.new(@app) ])
+		@app = TestClasses::TestApp.new
+		described_class.new(@app.handlers)
 	end
 
 	before :each do
@@ -17,7 +17,7 @@ describe Leonidas::Commands::Processor do
 
 		it "will run a list of commands in order by timestamp" do
 			subject.run([ @command3, @command1, @command2 ])
-			@app.current_state[:value].should eq 7
+			@app.state[:value].should eq 7
 		end
 
 		it "will persist the list of commands when persist is true" do 
@@ -32,7 +32,7 @@ describe Leonidas::Commands::Processor do
 		it "will rollback the list of commands in reverse order by timestamp" do
 			subject.run([ @command3, @command1, @command2 ])
 			subject.rollback([ @command3, @command2 ])
-			@app.current_state[:value].should eq 1
+			@app.state[:value].should eq 1
 		end
 
 		it "will rollback the persistence of commands if persisted is true" do

@@ -53,7 +53,8 @@ module TestClasses
 		end
 
 		def build_stable_state(app)
-			app.state = { value: 0 }
+			app.state = 0
+			app.state
 		end
 
 	end

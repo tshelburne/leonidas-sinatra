@@ -54,7 +54,7 @@ describe Leonidas::PersistenceLayer::Persister do
 		end
 
 		it "will set the app current state to the active state" do 
-			subject.load("app-1").current_state[:value].should eq 1
+			subject.load("app-1").state[:value].should eq 1
 		end
 	
 	end

@@ -33,7 +33,7 @@ describe Leonidas::Routes::SyncApp do
 	end
 
 	def set_persistent!
-		@app.instance_variable_set(:@persist_state, true)
+		@app.instance_variable_set(:@persist_commands, true)
 	end
 
 	def set_unreconciled!
@@ -171,7 +171,7 @@ describe Leonidas::Routes::SyncApp do
 
 			it "will run the list of commands" do
 				post "/", push_request
-				@app.current_state[:value].should eq 32
+				@app.state[:value].should eq 32
 			end
 			
 		end

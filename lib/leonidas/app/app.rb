@@ -10,10 +10,6 @@ module Leonidas
 				self.class.to_s
 			end
 
-			def current_state
-				@state
-			end
-
 			def create_client!(id=nil)
 				unless id.nil?
 					return id if has_client? id
@@ -44,7 +40,7 @@ module Leonidas
 				raise ArgumentError, "Argument '#{client_id}' is not a valid client id" unless has_client? client_id
 
 				client(client_id).add_commands! commands				
-				cache_commands! commands if (not reconciled?) && persistent_state?
+				cache_commands! commands if (not reconciled?) && persistent?
 				process_commands!
 			end
 
@@ -66,11 +62,11 @@ module Leonidas
 
 					# rollback to the oldest of the new stable commands
 					cached_stable_commands_since_oldest  = commands_from(oldest_new_stable_command, @cached_stable_commands)
-					processor.rollback cached_stable_commands_since_oldest, persistent_state?
+					processor.rollback cached_stable_commands_since_oldest, persistent?
 					
 					# run all stable commands since the oldest new stable command to the new stable state
 					current_stable_commands_since_oldest = commands_from(oldest_new_stable_command, current_stable_commands)
-					processor.run current_stable_commands_since_oldest, persistent_state?
+					processor.run current_stable_commands_since_oldest, persistent?
 				end
 
 				# run all active commands to new active state
@@ -166,8 +162,8 @@ module Leonidas
 				end
 			end
 
-			def persistent_state?
-				@persist_state || false
+			def persistent?
+				@persist_commands || false
 			end
 
 			def check_reconciliation!

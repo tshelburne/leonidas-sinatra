@@ -29,7 +29,7 @@ describe Leonidas::Routes::SyncApp do
 	end
 
 	def set_persistent!
-		@app.instance_variable_set(:@persist_state, true)
+		@app.instance_variable_set(:@persist_commands, true)
 	end
 
 	def reconcile!
@@ -104,12 +104,12 @@ describe Leonidas::Routes::SyncApp do
 				
 				before :each do
 					set_persistent!
-					@app.state = { value: 3 }
+					@app.state = 3
 				end
 
 				it "will run any new commands passed in" do
 					post "/reconcile", single_client_reconcile_request
-					@app.current_state[:value].should eq 4
+					@app.state[:value].should eq 4
 				end
 				
 			end
@@ -118,7 +118,7 @@ describe Leonidas::Routes::SyncApp do
 				
 				it "will run all commands passed in" do
 					post "/reconcile", single_client_reconcile_request
-					@app.current_state[:value].should eq 4
+					@app.state[:value].should eq 4
 				end
 
 			end
@@ -143,16 +143,16 @@ describe Leonidas::Routes::SyncApp do
 				
 				before :each do
 					set_persistent!
-					@app.state = { value: 15 }
+					@app.state = 15
 				end
 
 				it "will run all the new commands passed in" do
 					post "/reconcile", client1_reconcile_request
-					@app.current_state[:value].should eq 32
+					@app.state[:value].should eq 32
 					post "/reconcile", client2_reconcile_request
-					@app.current_state[:value].should eq 35
+					@app.state[:value].should eq 35
 					post "/reconcile", client3_reconcile_request
-					@app.current_state[:value].should eq 99
+					@app.state[:value].should eq 99
 				end 
 
 			end
@@ -161,11 +161,11 @@ describe Leonidas::Routes::SyncApp do
 
 				it "will run all the new commands passed in" do
 					post "/reconcile", client2_reconcile_request
-					@app.current_state[:value].should eq 8
+					@app.state[:value].should eq 8
 					post "/reconcile", client1_reconcile_request
-					@app.current_state[:value].should eq 35
+					@app.state[:value].should eq 35
 					post "/reconcile", client3_reconcile_request
-					@app.current_state[:value].should eq 99
+					@app.state[:value].should eq 99
 				end
 
 			end
@@ -201,13 +201,13 @@ describe Leonidas::Routes::SyncApp do
 
 					it "will run all the new commands passed in" do
 						post "/reconcile", orphaned_client_reconcile_request
-						@app.current_state[:value].should eq 129
+						@app.state[:value].should eq 129
 						post "/reconcile", client1_reconcile_request
-						@app.current_state[:value].should eq 129
+						@app.state[:value].should eq 129
 						post "/reconcile", client2_reconcile_request
-						@app.current_state[:value].should eq 129
+						@app.state[:value].should eq 129
 						post "/reconcile", client3_reconcile_request
-						@app.current_state[:value].should eq 129
+						@app.state[:value].should eq 129
 					end
 
 				end

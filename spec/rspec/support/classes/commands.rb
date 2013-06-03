@@ -2,13 +2,13 @@ module TestClasses
 
 	class IncrementHandler < ::Leonidas::Commands::Handler
 
-		def initialize(app)
-			@app = app
+		def initialize(state)
+			@state = state
 			@name = "increment"
 		end
 
 		def run(command)
-			@app.current_state[:value] += command.data[:number].to_i
+			@state[:value] += command.data[:number].to_i
 		end
 
 		def persist(command)
@@ -16,7 +16,7 @@ module TestClasses
 		end
 
 		def rollback(command)
-			@app.current_state[:value] -= command.data[:number].to_i
+			@state[:value] -= command.data[:number].to_i
 		end
 
 		def rollback_persist(command)
@@ -26,13 +26,13 @@ module TestClasses
 
 	class MultiplyHandler < ::Leonidas::Commands::Handler
 
-		def initialize(app)
-			@app = app
+		def initialize(state)
+			@state = state
 			@name = "multiply"
 		end
 
 		def run(command)
-			@app.current_state[:value] *= command.data[:number].to_i
+			@state[:value] *= command.data[:number].to_i
 		end
 
 		def persist(command)
@@ -40,7 +40,7 @@ module TestClasses
 		end
 
 		def rollback(command)
-			@app.current_state[:value] /= command.data[:number].to_i
+			@state[:value] /= command.data[:number].to_i
 		end
 
 		def rollback_persist(command)

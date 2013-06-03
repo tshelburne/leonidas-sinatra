@@ -59,14 +59,6 @@ describe Leonidas::App::App do
 		end
 
 	end
-
-	describe '#current_state' do 
-		
-		it "will return the current state of the application" do
-			subject.current_state.should eq({ value: 0 })
-		end
-
-	end
 	
 	describe '#create_client!' do
 		
@@ -152,7 +144,7 @@ describe Leonidas::App::App do
 			subject.add_commands! @id1, [ @command1, @command4 ]
 			subject.add_commands! @id2, [ @command2 ]
 			subject.add_commands! @id3, [ @command3 ]
-			subject.current_state[:value].should eq 5
+			subject.state[:value].should eq 5
 		end
 
 		context "when the app is unreconciled" do
@@ -165,11 +157,11 @@ describe Leonidas::App::App do
 				
 				it "will run all commands being added" do
 					subject.check_in! @id1, [ @id2, @id3 ], @command2.timestamp, { @id1 => [ @command1, @command4 ] }
-					subject.current_state[:value].should eq 2
+					subject.state[:value].should eq 2
 					subject.add_commands! @id2, [ @command2 ]
-					subject.current_state[:value].should eq 4
+					subject.state[:value].should eq 4
 					subject.add_commands! @id3, [ @command3 ]
-					subject.current_state[:value].should eq 5
+					subject.state[:value].should eq 5
 				end
 
 			end
@@ -191,11 +183,11 @@ describe Leonidas::App::App do
 
 				it "will run any active commands being added" do
 					subject.check_in! @id1, [ @id2, @id3 ], @command2.timestamp, { @id1 => [ @command1, @command4 ] }
-					subject.current_state[:value].should eq 1
+					subject.state[:value].should eq 1
 					subject.add_commands! @id2, [ @command2 ]
-					subject.current_state[:value].should eq 1
+					subject.state[:value].should eq 1
 					subject.add_commands! @id3, [ @command3 ]
-					subject.current_state[:value].should eq 2
+					subject.state[:value].should eq 2
 				end
 
 			end
@@ -255,12 +247,12 @@ describe Leonidas::App::App do
 
 		it "will set the current state to the state when all active commands have been run" do
 			subject.process_commands!
-			subject.current_state[:value].should eq 5
+			subject.state[:value].should eq 5
 		end
 
 		it "will run idempotently" do
 			4.times { subject.process_commands! }
-			subject.current_state[:value].should eq 5
+			subject.state[:value].should eq 5
 		end
 
 		context "when the app state is persistent" do
@@ -321,9 +313,9 @@ describe Leonidas::App::App do
 			id1 = ::Leonidas::App::Client.new.id
 			id2 = ::Leonidas::App::Client.new.id
 			subject.check_in! id1, [ id2 ], Time.at(1), { id1 => [ build_command(Time.at(1)) ] }
-			subject.current_state[:value].should eq 1
+			subject.state[:value].should eq 1
 			subject.check_in! id2, [ id1 ], Time.at(2), { id2 => [ build_command(Time.at(2)) ] }
-			subject.current_state[:value].should eq 2
+			subject.state[:value].should eq 2
 		end
 
 	end
