@@ -23,7 +23,7 @@ Leonidas.rb is an integration built to support Leonidas commands on the server-s
 
 ### Javascript
 
-* Client - A wrapper around the client-side application state, representing a single client connection to the server
+* Client - A wrapper around the client-side details, representing a single client connection to the server
 * Commander - The command abstraction, used to start and stop syncing, and issue commands
 * Local Command - A command that originated on this client
 * External Command - A command that came from the server
@@ -31,7 +31,7 @@ Leonidas.rb is an integration built to support Leonidas commands on the server-s
 ### Ruby
 
 * App - A server side application which keeps track of state and client connections
-* Connection - The server side implementation of a client containing a list of commands 
+* Client - The server side implementation of a client containing a list of commands 
 * Repository - The mechanism for retrieving an active application
 * Persister - A class responsible for providing the methods necessary to persist an app in a particular system
 * State Builder - A class responsible for rebuilding the state of a persisted application to be loaded into memory
@@ -67,28 +67,30 @@ First, create at least one handler for commands in your system (I'm going to use
 
     class PeasantHitHandler extends Handler # gives you automatic testing by command name
 
-      constructor: (@state)-> # this is temporary - I would much rather be passing in @peasants
+      constructor: (@peasants)->
         @name = "peasant-hit" # this will be tested against by #handles - for more customized conditions, override handles
 
       run: (command)->
         peasantName = command.data.peasantName
-        ... find peasant in @state by peasantName
+        ... find peasant in @peasants by peasantName
         peasant.status = "humbled"
 
       rollback: (command)->
         peasantName = command.data.peasantName
-        ... find peasant in @state by peasantName
+        ... find peasant in @peasants by peasantName
         peasant.status = "blissful"
 
-Then, create a client for your app (this represents a single command source, with it's own id and state). This requires at minimum a client id, app name, and state, but to work with the Ruby extension it will also need an appType for automatic server-error reconciliation:
+Then, create a client for your app. This requires at minimum a client id and app name, but to work with the Ruby extension it will also need an appType for automatic server-error reconciliation:
 
     Client = require "leonidas/client"
-    var client = new Client("clientId", "Kingdom-Zamunda-asdfqwer", { peasants: [ ... ] }, "PeasantSubjugationApp")
+    var client = new Client("clientId", "Kingdom-Zamunda-asdfqwer", "PeasantSubjugationApp")
 
 Now you can create a Commander (I would suggest using the default configuration, unless you need custom functionality in the nitty gritty):
+    
+    peasants = ... # list of patients
 
     Commander = require "leonidas/commander"
-    var supremeRuler = Commander.default(client, [ new PeasantHitHandler(client.state) ], "http://mydomain.com/my/sync/url")
+    var supremeRuler = Commander.default(client, [ new PeasantHitHandler(peasants) ], "http://mydomain.com/my/sync/url")
 
 With the commander you can start and stop syncing and issue commands to your heart's content:
 
@@ -105,15 +107,15 @@ First, you should create at least one command handler. Note that the handler wil
     
     class PeasantHitHandler < ::Leonidas::Commands::Handler
 
-      def initialize(app) # similar problem - have to make sure object references work properly
-        @app = app
+      def initialize(peasants)
+        @peasants = peasants
         @name = "peasant-hit"
       end
 
       # note that if you need a property from data to be anything other than a string, you will likely have to type-cast it before using it
       def run(command) 
         peasant_name = command.data[:peasantName] # probably camel-cased - it came from js, after all
-        ... # find peasant in @app.current_state.peasants by peasant_name
+        ... # find peasant in @peasants by peasant_name
         peasant.status = :humbled
       end
 
@@ -123,7 +125,7 @@ First, you should create at least one command handler. Note that the handler wil
 
       def rollback(command)
         peasant_name = command.data[:peasantName]
-        ... # find peasant in @app.current_state.peasants by peasant_name
+        ... # find peasant in @peasants by peasant_name
         peasant.status = :blissful
       end
 
@@ -141,12 +143,12 @@ Then, you can create an App (note that #initialize must be able to take no argum
       def initialize(name="Kingdom-Zamunda")
         @name = "#{name}-#{SecureRandom.uuid}" # this name must be unique amongst all instances of apps
         @persist_state = true # this means that commands with be persisted when they are run
-        @state = { peasants: [ ... ] } # this is what handlers will be affecting
+        @peasants = [ ... ] # this is what handlers will be affecting
       end
 
       def handlers # this is provided for the processor to initialize itself upon invocation
         [
-          PeasantHitHandler.new(self)
+          PeasantHitHandler.new(@peasants)
         ]
       end
 
