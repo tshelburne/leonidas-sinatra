@@ -19,7 +19,7 @@ describe Leonidas::App::App do
 	end
 
 	def set_persistent!
-		subject.instance_variable_set :@persist_state, true
+		subject.instance_variable_set :@persist_commands, true
 	end
 
 	def set_unreconciled!
