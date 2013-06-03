@@ -40,7 +40,7 @@ module Leonidas
 				raise ArgumentError, "Argument '#{client_id}' is not a valid client id" unless has_client? client_id
 
 				client(client_id).add_commands! commands	
-				stabilize_commands! commands if (not reconciled?) && persistent_state?
+				stabilize_commands! commands if (not reconciled?) && persistent?
 				process_commands!
 			end
 
@@ -53,9 +53,19 @@ module Leonidas
 				# find the oldest unrun command, AKA oldest among newly added commands
 				all_current_commands = all_commands
 				oldest_unrun_command = all_current_commands.select {|command| not command.has_run?}.min_by {|command| command.timestamp}
-				oldest_unpersisted_command = all_current_commands.select {|command| not command.has_been_persisted?}.min_by {|command| command.timestamp} if persistent_state?
-				oldest_active_command = oldest_unpersisted_command.nil? ? oldest_unrun_command : [ oldest_unrun_command, oldest_unpersisted_command ].min_by {|command| command.timestamp}
+				oldest_unpersisted_command = all_current_commands.select {|command| not command.has_been_persisted?}.min_by {|command| command.timestamp} if persistent?
 				
+				# this just doesn't seem necessary... review for a better / prettier method
+				if oldest_unrun_command.nil? && oldest_unpersisted_command.nil?
+					return
+				elsif oldest_unrun_command.nil?
+					oldest_active_command = oldest_unpersisted_command
+				elsif oldest_unpersisted_command.nil?
+					oldest_active_command = oldest_unrun_command
+				else
+					oldest_active_command = [ oldest_unrun_command, oldest_unpersisted_command ].min_by {|command| command.timestamp}
+				end
+
 				# break the commands into lists of persistable and only runnable commands
 				active_commands = commands_from oldest_active_command, all_current_commands
 				persistable_commands = commands_between oldest_active_command, stable_timestamp, active_commands
@@ -63,8 +73,8 @@ module Leonidas
 
 				# rollback those commands that have been run, and then run all commands
 				processor.rollback runnable_commands.select {|command| command.has_run?}
-				processor.rollback persistable_commands.select {|command| command.has_been_persisted?}, persistent_state?
-				processor.run persistable_commands, persistent_state?
+				processor.rollback persistable_commands.select {|command| command.has_been_persisted?}, persistent?
+				processor.run persistable_commands, persistent?
 				processor.run runnable_commands
 			end
 

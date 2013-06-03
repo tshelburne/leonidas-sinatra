@@ -3,7 +3,7 @@ describe Leonidas::Commands::Handler do
 	include TestClasses
 
 	def actual_handler
-		TestClasses::IncrementHandler.new(@app)
+		TestClasses::IncrementHandler.new(@app.state)
 	end
 
 	before :each do
@@ -22,7 +22,7 @@ describe Leonidas::Commands::Handler do
 		end
 	
 		it "will return false if the command name doesn't match the handler name" do
-			TestClasses::MultiplyHandler.new(@app).handles?(@command).should be_false
+			TestClasses::MultiplyHandler.new(@app.state).handles?(@command).should be_false
 		end
 
 	end
@@ -31,7 +31,7 @@ describe Leonidas::Commands::Handler do
 		
 		it "will run the command" do
 			actual_handler.run_wrapper @command
-			@app.current_state[:value].should eq 1
+			@app.state[:value].should eq 1
 		end
 
 		it "will mark the command as having run" do
@@ -59,7 +59,7 @@ describe Leonidas::Commands::Handler do
 		
 		it "will rollback the command" do
 			actual_handler.rollback_wrapper @command
-			@app.current_state[:value].should eq -1
+			@app.state[:value].should eq -1
 		end
 
 		it "will mark the command as not having been run" do
