@@ -13,6 +13,10 @@ module Leonidas
 				filter_commands({ through: timestamp }, commands)
 			end
 
+			def commands_between(from_timestamp, through_timestamp, commands=nil)
+				filter_commands({ from: from_timestamp, through: through_timestamp }, commands)
+			end
+
 			# exclusive of timestamp
 			def commands_since(timestamp, commands=nil)
 				filter_commands({ since: timestamp }, commands)
@@ -20,6 +24,10 @@ module Leonidas
 
 			def commands_to(timestamp, commands=nil)
 				filter_commands({ to: timestamp }, commands)
+			end
+
+			def commands_inside(since_timestamp, to_timestamp, commands=nil)
+				filter_commands({ since: since_timestamp, to: to_timestamp }, commands)
 			end
 
 			private

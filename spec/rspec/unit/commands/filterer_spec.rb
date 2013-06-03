@@ -75,6 +75,62 @@ describe Leonidas::Commands::Filterer do
 
 	end
 
+	describe '#commands_from' do 
+
+		it "will return a list of commands after the given timestamp" do
+			subject.commands_from(@command2.timestamp).should include @command3
+			subject.commands_from(@command2.timestamp).should include @command4
+			subject.commands_from(@command2.timestamp).should_not include @command1
+		end
+
+		it "will include commands at the given timestamp" do
+			subject.commands_from(@command2.timestamp).should include @command2
+		end
+
+		context "when a list of commands is passed in as the second argument" do
+			
+			it "will run the function against the specified commands" do
+				subject.commands_from(2, [ @command1, @command2, @command3 ]).should eq [ @command2, @command3 ]
+			end
+
+			it "will not affect the list of commands passed in" do
+				commands = [ @command1, @command2, @command3 ]
+				subject.commands_from(2, commands)
+				commands.should eq [ @command1, @command2, @command3 ]
+			end
+
+		end
+	
+	end
+
+	describe '#commands_since' do 
+
+		it "will return a list of commands after the given timestamp" do
+			subject.commands_since(@command2.timestamp).should include @command3
+			subject.commands_since(@command2.timestamp).should include @command4
+			subject.commands_since(@command2.timestamp).should_not include @command1
+		end
+
+		it "will exclude commands at the given timestamp" do
+			subject.commands_since(@command2.timestamp).should_not include @command2
+		end
+
+		context "when a list of commands is passed in as the second argument" do
+			
+			it "will run the function against the specified commands" do
+				subject.commands_since(2, [ @command1, @command2, @command3 ]).should eq [ @command3 ]
+			end
+
+			it "will not affect the list of commands passed in" do
+				commands = [ @command1, @command2, @command3 ]
+				subject.commands_since(2, commands)
+				commands.should eq [ @command1, @command2, @command3 ]
+			end
+
+		end
+	
+	end
+
 	describe '#commands_through' do 
 	
 		it "will return a list of commands before the given timestamp" do
@@ -131,27 +187,27 @@ describe Leonidas::Commands::Filterer do
 
 	end
 
-	describe '#commands_from' do 
+	describe '#commands_between' do 
 
-		it "will return a list of commands after the given timestamp" do
-			subject.commands_from(@command2.timestamp).should include @command3
-			subject.commands_from(@command2.timestamp).should include @command4
-			subject.commands_from(@command2.timestamp).should_not include @command1
+		it "will return a list of commands between the given from and through timestamps" do
+			subject.commands_between(@command2.timestamp, @command4.timestamp).should include @command3
+			subject.commands_between(@command2.timestamp, @command4.timestamp).should_not include @command1
 		end
 
-		it "will include commands at the given timestamp" do
-			subject.commands_from(@command2.timestamp).should include @command2
+		it "will include commands at the given timestamps" do
+			subject.commands_between(@command2.timestamp, @command4.timestamp).should include @command2
+			subject.commands_between(@command2.timestamp, @command4.timestamp).should include @command4
 		end
 
 		context "when a list of commands is passed in as the second argument" do
 			
 			it "will run the function against the specified commands" do
-				subject.commands_from(2, [ @command1, @command2, @command3 ]).should eq [ @command2, @command3 ]
+				subject.commands_between(2, 3, [ @command1, @command2, @command3 ]).should eq [ @command2, @command3 ]
 			end
 
 			it "will not affect the list of commands passed in" do
 				commands = [ @command1, @command2, @command3 ]
-				subject.commands_from(2, commands)
+				subject.commands_between(2, 3, commands)
 				commands.should eq [ @command1, @command2, @command3 ]
 			end
 
@@ -159,27 +215,27 @@ describe Leonidas::Commands::Filterer do
 	
 	end
 
-	describe '#commands_since' do 
+	describe '#commands_inside' do 
 
-		it "will return a list of commands after the given timestamp" do
-			subject.commands_since(@command2.timestamp).should include @command3
-			subject.commands_since(@command2.timestamp).should include @command4
-			subject.commands_since(@command2.timestamp).should_not include @command1
+		it "will return a list of commands inside the given since and to timestamps" do
+			subject.commands_inside(@command2.timestamp, @command4.timestamp).should include @command3
+			subject.commands_inside(@command2.timestamp, @command4.timestamp).should_not include @command1
 		end
 
-		it "will exclude commands at the given timestamp" do
-			subject.commands_since(@command2.timestamp).should_not include @command2
+		it "will exclude commands at the given timestamps" do
+			subject.commands_inside(@command2.timestamp, @command4.timestamp).should_not include @command2
+			subject.commands_inside(@command2.timestamp, @command4.timestamp).should_not include @command4
 		end
 
 		context "when a list of commands is passed in as the second argument" do
 			
 			it "will run the function against the specified commands" do
-				subject.commands_since(2, [ @command1, @command2, @command3 ]).should eq [ @command3 ]
+				subject.commands_inside(1, 3, [ @command1, @command2, @command3 ]).should eq [ @command2 ]
 			end
 
 			it "will not affect the list of commands passed in" do
 				commands = [ @command1, @command2, @command3 ]
-				subject.commands_since(2, commands)
+				subject.commands_inside(1, 3, commands)
 				commands.should eq [ @command1, @command2, @command3 ]
 			end
 
