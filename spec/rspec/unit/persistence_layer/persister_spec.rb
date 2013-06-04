@@ -14,7 +14,9 @@ describe Leonidas::PersistenceLayer::Persister do
 		@app = TestClasses::TestApp.new
 		id1 = @app.create_client!
 		id2 = @app.create_client!
-		@app.add_commands! id1, [ build_command(Time.now) ]
+		command = build_command(Time.now)
+		@app.add_commands! id1, [ command ]
+		command.mark_as_not_run! # we would not do the same for persistence, since the loader should build the state from that
 		@persister = TestClasses::TestAppPersister.new([ @app ])
 	end
 
