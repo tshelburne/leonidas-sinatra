@@ -23,7 +23,7 @@ namespace :test do
 
 	desc "Run Rspec tests"
   RSpec::Core::RakeTask.new(:rspec) do |t|
-    t.rspec_opts = "-dcfd --require rspec/spec_helper"
+    t.rspec_opts = "-dcfd --require rspec/spec_helper --example 'and an unregistered client appears after false reconciliation will run all the new commands passed in'"
     # t.pattern = 'spec/rspec/**/app_spec.rb'
   end
 

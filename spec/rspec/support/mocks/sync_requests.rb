@@ -100,7 +100,7 @@ module TestMocks
 				common_commands.each do |id|
 					client_commands[id] = get_command(id)
 				end
-				command_list[external_client_id] = client_commands #common_commands.reduce({ }) {|commands, id| commands[id] = get_command(id) }
+				command_list[external_client_id] = client_commands
 			end
 		end
 

@@ -39,7 +39,8 @@ module Leonidas
 				commands.each {|command| raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command}
 				raise ArgumentError, "Argument '#{client_id}' is not a valid client id" unless has_client? client_id
 
-				client(client_id).add_commands! commands	
+				debugger if client_id == 'orphan'
+				client(client_id).add_commands! commands
 				stabilize_commands! commands if (not reconciled?) && persistent?
 				process_commands!
 			end
@@ -50,7 +51,7 @@ module Leonidas
 			end
 
 			def process_commands!
-				# find the oldest unrun command, AKA oldest among newly added commands
+				# find the oldest unrun or unpersisted command, AKA oldest among newly added commands
 				all_current_commands = all_commands
 				oldest_unrun_command = all_current_commands.select {|command| not command.has_run?}.min_by {|command| command.timestamp}
 				oldest_unpersisted_command = all_current_commands.select {|command| not command.has_been_persisted?}.min_by {|command| command.timestamp} if persistent?
@@ -141,8 +142,7 @@ module Leonidas
 			end
 
 			def stabilize_commands!(commands)
-				commands_to_stabilize = commands_through(stable_timestamp, commands)
-				commands_to_stabilize.each do |command|
+				commands_through(stable_timestamp, commands).each do |command|
 					command.mark_as_run!
 					command.mark_as_persisted!
 				end
