@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = "leonidas"
-  s.version = "0.0.7"
+  s.version = "0.0.8"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tim Shelburne"]
-  s.date = "2013-06-03"
+  s.date = "2013-06-05"
   s.description = ""
   s.email = "shelburt02@gmail.com"
   s.executables = ["leonidas.js"]

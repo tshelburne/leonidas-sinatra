@@ -1,3 +1,5 @@
+v0.0.8 added has_run? to server side, and fixed bug related to new clients opening existing apps
+
 v0.0.7 removed state from ruby app and js client - the concept of state only exists in the handlers that affect it
 
 v0.0.6 full client-as-authority reconciliation following a server crash or restart while app is live
