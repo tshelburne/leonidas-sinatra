@@ -7,9 +7,13 @@ class Organizer
 		@local    = new CommandList()
 		@external = new CommandList()
 
+	commandsFrom: (timestamp)-> (command for command in @allCommands() when command.timestamp >= timestamp)
+
 	commandsThrough: (timestamp)-> (command for command in @allCommands() when command.timestamp <= timestamp)
 
 	commandsSince: (timestamp)-> (command for command in @allCommands() when command.timestamp > timestamp)
+
+	commandsTo: (timestamp)-> (command for command in @allCommands() when command.timestamp < timestamp)
 
 	allCommands: -> 
 		allCommands = (command for command in @local.commands)
