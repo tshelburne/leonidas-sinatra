@@ -56,17 +56,17 @@ describe Leonidas::Commands::Processor do
 			[ @command3, @command2 ].each {|command| command.should_not have_run}
 		end
 
-		context "when persist is true" do
+		context "when the command has been persisted" do
 
 			it "will rollback the persistence of commands if persisted is true" do
 				subject.run(@all_commands, true)
-				subject.rollback([ @command3, @command2 ], true)
+				subject.rollback([ @command3, @command2 ])
 				TestClasses::PersistentState.value.should eq 1
 			end
 
-			it "will mark the commands as persisted" do 
+			it "will mark the commands as not persisted" do 
 			subject.run(@all_commands, true)
-			subject.rollback([ @command3, @command2 ], true)
+			subject.rollback([ @command3, @command2 ])
 			[ @command3, @command2 ].each {|command| command.should_not have_been_persisted}
 			end
 

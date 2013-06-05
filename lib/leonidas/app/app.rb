@@ -39,7 +39,6 @@ module Leonidas
 				commands.each {|command| raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command}
 				raise ArgumentError, "Argument '#{client_id}' is not a valid client id" unless has_client? client_id
 
-				debugger if client_id == 'orphan'
 				client(client_id).add_commands! commands
 				stabilize_commands! commands if (not reconciled?) && persistent?
 				process_commands!
@@ -74,7 +73,7 @@ module Leonidas
 
 				# rollback those commands that have been run, and then run all commands
 				processor.rollback runnable_commands.select {|command| command.has_run?}
-				processor.rollback persistable_commands.select {|command| command.has_been_persisted?}, persistent?
+				processor.rollback persistable_commands.select {|command| command.has_run?}
 				processor.run persistable_commands, persistent?
 				processor.run runnable_commands
 			end

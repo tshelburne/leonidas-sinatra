@@ -24,14 +24,14 @@ module Leonidas
 				end
 			end
 
-			def rollback(commands, persisted=false)
+			def rollback(commands)
 				commands.sort! {|command1, command2| command2.timestamp <=> command1.timestamp}
 				commands.each do |command|
 					raise TypeError, "Argument must be a Leonidas::Commands::Command" unless command.is_a? ::Leonidas::Commands::Command
 					@handlers.each do |handler|
 						if handler.handles? command
 							handler.rollback_wrapper(command)
-							handler.rollback_persist_wrapper(command) if persisted
+							handler.rollback_persist_wrapper(command) if command.has_been_persisted?
 						end
 					end
 				end
