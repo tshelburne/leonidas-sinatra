@@ -16,8 +16,6 @@ describe "Commander", ->
 		organizer = new Organizer()
 		processor = new Processor([ new MultiplyHandler(state) ])
 		synchronizer = new Synchronizer("http://mydomain.com/sync", client, organizer, processor)
-		spyOn(synchronizer, "push")
-		spyOn(synchronizer, "pull")
 		commander = new Commander(client, organizer, processor, synchronizer)
 
 	describe "::create", ->
@@ -29,22 +27,27 @@ describe "Commander", ->
 	describe "#startSync", ->
 
 		beforeEach -> 
-      jasmine.Clock.useMock()
+			jasmine.log synchronizer
+			jasmine.Clock.useMock()
+			spyOn(synchronizer, "push")
+			spyOn(synchronizer, "pull")
 
 		it "will set the synchronizer to begin pushing updates", ->
-     	commander.startSync()
-     	jasmine.Clock.tick(5500)
-     	expect(synchronizer.push.calls.length).toEqual 5
+			commander.startSync()
+			jasmine.Clock.tick(5500)
+			expect(synchronizer.push.calls.length).toEqual 5
 
 		it "will set the synchronizer to begin pulling updates", ->
-     	commander.startSync()
-     	jasmine.Clock.tick(11000)
-     	expect(synchronizer.pull.calls.length).toEqual 2
+			commander.startSync()
+			jasmine.Clock.tick(11000)
+			expect(synchronizer.pull.calls.length).toEqual 2
 
 	describe "#stopSync", ->
 
 		beforeEach -> 
-      jasmine.Clock.useMock()
+			jasmine.Clock.useMock()
+			spyOn(synchronizer, "push")
+			spyOn(synchronizer, "pull")
 
 		it "will stop the synchronizer from pushing updates", ->
 			commander.startSync()
@@ -59,6 +62,10 @@ describe "Commander", ->
 			expect(synchronizer.pull).not.toHaveBeenCalled()
 
 	describe "#forceSync", ->
+
+		beforeEach ->
+			spyOn(synchronizer, "push")
+			spyOn(synchronizer, "pull")
 
 		it "will immediately push any updates", ->
 			commander.forceSync()
@@ -77,3 +84,15 @@ describe "Commander", ->
 		it "will run the command to update the local client state", ->
 			commander.issueCommand "multiply", { number: 3 }
 			expect(state.value).toEqual 3
+
+	describe "#isOnline", ->
+
+		it "will return true when the synchronizer is able to communicate with the server", ->
+			spyOn(window, 'reqwest').andCallFake( (params)-> params.success(mocks.reconcileRequiredResponse))
+			commander.forceSync()
+			expect(commander.isOnline()).toBeTruthy()
+
+		it "will return false when the synchronizer isn't able to communicate with the server", ->
+			spyOn(window, 'reqwest').andCallFake( (params)-> params.error())
+			commander.forceSync()
+			expect(commander.isOnline()).toBeFalsy()
