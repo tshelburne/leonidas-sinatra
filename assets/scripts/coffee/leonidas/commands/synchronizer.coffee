@@ -8,6 +8,7 @@ class Synchronizer
 		@stableTimestamp = 0
 		@externalClients = { }
 		@lastPushAttempt = 0
+		@connectionSuccessful = true
 
 	pull: =>
 		reqwest(
@@ -19,8 +20,9 @@ class Synchronizer
 				appType: @client.appType
 				clientId: @client.id
 				externalClients: @externalClients
-			error: => console.log "pull error"
+			error: => @connectionSuccessful = false
 			success: (response)=>
+				@connectionSuccessful = true
 				if response.success
 					if response.data.commands.length > 0
 						newCommands = (new Command(command.name, command.data, command.clientId, new Date(command.timestamp), command.id) for command in response.data.commands)
@@ -48,8 +50,9 @@ class Synchronizer
 					clientId: @client.id
 					pushedAt: @lastPushAttempt
 					commands: buildCommandsObject unsyncedCommands
-				error: => console.log "push error"
+				error: => @connectionSuccessful = false
 				success: (response)=>
+					@connectionSuccessful = true
 					if response.success
 						@client.lastUpdate = @lastPushAttempt
 					else
@@ -74,14 +77,17 @@ class Synchronizer
 				externalClients: @externalClients
 				commandList: commandList
 				stableTimestamp: @stableTimestamp
-			error: => console.log "reconcile error"
+			error: => @connectionSuccessful = false
 			success: (response)=>
+				@connectionSuccessful = true
 				if response.success
 					clearInterval @reconcileTimeout
 					@reconcileTimeout = null
 				else
 					@reconcileTimeout = setTimeout(@reconcile, 1000) if response.message is "reconcile required"
 		)
+
+	isOnline: -> @connectionSuccessful
 
 	buildCommandsObject = (commands)->
 		commandsObject = { }

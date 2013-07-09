@@ -31,4 +31,6 @@ class Commander
 		@organizer.local.addCommand command
 		@processor.runCommand command
 
+	isOnline: -> @synchronizer.isOnline()
+
 return Commander
