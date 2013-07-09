@@ -16,6 +16,7 @@ assets/scripts/coffee/leonidas/commands/synchronizer.coffee
 assets/scripts/js/lib/reqwest.js
 bin/leonidas.js
 config/assets.rb
+leonidas.gemspec
 lib/leonidas.rb
 lib/leonidas/app/app.rb
 lib/leonidas/app/client.rb
@@ -50,6 +51,7 @@ spec/jasmine/tests/commands/processor_spec.coffee
 spec/jasmine/tests/commands/synchronizer/synchronizer_pull_spec.coffee
 spec/jasmine/tests/commands/synchronizer/synchronizer_push_spec.coffee
 spec/jasmine/tests/commands/synchronizer/synchronizer_reconcile_spec.coffee
+spec/jasmine/tests/commands/synchronizer/synchronizer_spec.coffee
 spec/rspec/spec_helper.rb
 spec/rspec/support/classes/app.rb
 spec/rspec/support/classes/commands.rb
