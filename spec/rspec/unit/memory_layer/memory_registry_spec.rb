@@ -31,6 +31,22 @@ describe Leonidas::MemoryLayer::MemoryRegistry do
 
 	end
 
+	describe '::all_apps' do
+		
+		it "will return all registered apps" do
+			app1 = TestClasses::TestApp.new 'app-1'
+			app2 = TestClasses::TestApp.new 'app-2'
+			subject.register_app! app1
+			subject.register_app! app2
+			subject.all_apps.should eq [ app1, app2 ]
+		end
+
+		it "will return an empty array if no apps have been registered" do
+			subject.all_apps.should be_empty
+		end
+
+	end
+
 	describe '::retrieve_app' do 
 	
 		it "will return nil if the requested app isn't registered" do

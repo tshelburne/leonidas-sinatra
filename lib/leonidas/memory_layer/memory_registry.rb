@@ -11,6 +11,10 @@ module Leonidas
 				@@apps[app.name] = app
 			end
 
+			def self.all_apps
+				@@apps.map {|app_name, app| app}
+			end
+
 			def self.retrieve_app(name)
 				@@apps[name]
 			end
