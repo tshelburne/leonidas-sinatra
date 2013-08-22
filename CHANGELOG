@@ -1,3 +1,5 @@
+v0.0.10 added the leonidas console for introspection into running apps
+
 v0.0.9 added support to check if leonidas believes online connectivity is available
 
 v0.0.8 added has_run? to server side, and fixed bug related to new clients opening existing apps
