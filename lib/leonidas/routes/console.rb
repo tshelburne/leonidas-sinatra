@@ -49,6 +49,7 @@ module Leonidas
 			end
 
 			get '/app/:app_name/client/:client_id' do
+				ensure_app!
 				ensure_client!
 
 				haml :client

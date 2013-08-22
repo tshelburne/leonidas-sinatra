@@ -1,0 +1,36 @@
+%h3 
+	Client Details
+	%button close client
+%p 
+	%strong ID: 
+	= @client.id
+%p 
+	%strong Last Update: 
+	= @client.last_update
+
+%h4 Commands
+%table
+	%tr
+		%th Name
+		%th Data
+		%th Timestamp
+		%th Run?
+		%th Persisted?
+	- @client.commands.each do |command|
+		%tr
+			%td= @command.name
+			%td= @command.data
+			%td= @command.timestamp
+			%td= @command.has_run? ? 'Y' : 'N'
+			%td= @command.has_been_persisted? ? 'Y' : 'N'
+
+%hr/
+
+%h3 App Details
+%p 
+	%strong Name: 
+	= @app.name 
+%p 
+	%strong Type: 
+	= @app.app_type 
+%a.button{ href: url("/app/#{@app.name}") } view
