@@ -24,6 +24,18 @@ module Leonidas
 				clients.delete client(id) if has_client? id
 			end
 
+			def clients
+				@clients ||= [ ]
+			end
+
+			def client(id)
+				clients.select {|client| client.id == id}.first
+			end
+
+			def has_client?(id)
+				not client(id).nil?
+			end
+
 			def client_list
 				clients.map {|client| client.to_hash}
 			end
@@ -119,18 +131,6 @@ module Leonidas
 			# ====== PRIVATE ====== #
 
 			private
-
-			def clients
-				@clients ||= [ ]
-			end
-
-			def client(id)
-				clients.select {|client| client.id == id}.first
-			end
-
-			def has_client?(id)
-				not client(id).nil?
-			end
 
 			def processor
 				@processor ||= ::Leonidas::Commands::Processor.new(handlers)

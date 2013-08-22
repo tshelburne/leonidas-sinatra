@@ -84,7 +84,47 @@ describe Leonidas::App::App do
 		it "will remove the client" do 
 			id = subject.create_client!
 			subject.close_client! id
-			subject.send(:has_client?, id).should be_false
+			subject.client(id).should be_nil
+		end
+
+	end
+
+	describe '#clients' do
+		
+		it "will return a list of all clients" do
+			create_clients_and_commands
+			subject.clients.map {|client| client.id}.should eq [ @id1, @id2, @id3 ]
+		end
+
+		it "will return an empty array if no clients are open" do
+			subject.clients.should be_empty
+		end
+
+	end
+
+	describe '#client' do
+		
+		it "will return the client with the given id" do
+			id = subject.create_client!
+			subject.client(id).should be_a Leonidas::App::Client
+			subject.client(id).id.should eq id
+		end
+
+		it "will return nil when the client does not exist" do
+			subject.client('bad id').should be_nil
+		end
+
+	end
+
+	describe '#has_client?' do
+		
+		it "will return true when the client has been created" do
+			id = subject.create_client!
+			subject.should have_client(id)
+		end
+
+		it "will return false when the client has not been created" do
+			subject.should_not have_client("bad id")
 		end
 
 	end
