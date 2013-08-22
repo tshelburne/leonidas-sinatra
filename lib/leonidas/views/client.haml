@@ -26,11 +26,12 @@
 
 %hr/
 
-%h3 App Details
+%h3 
+	App Details
+	%a.button{ href: url("/app/#{@app.name}") } view app
 %p 
 	%strong Name: 
 	= @app.name 
 %p 
 	%strong Type: 
 	= @app.app_type 
-%a.button{ href: url("/app/#{@app.name}") } view
