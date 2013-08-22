@@ -81,6 +81,10 @@ describe Leonidas::MemoryLayer::MemoryRegistry do
 			subject.close_app! "app-1"
 			subject.should_not have_app "app-1"
 		end
+
+		it "will not raise an error if the app does not exist" do
+			expect { subject.close_app! 'bad name' }.to_not raise_error
+		end
 	
 	end
 
