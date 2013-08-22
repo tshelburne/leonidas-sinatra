@@ -1,0 +1,15 @@
+%h2 App #{@app.name} 
+%h3.subheader #{@app.app_type} 
+%h3 Open Clients
+%table
+	%tr
+		%th ID
+		%th Last Update
+		%th Actions
+	- @app.clients.each do |client|
+		%tr 
+			%td= client.id
+			%td= client.last_update
+			%td
+				%a.button{ href: url("/app/#{app.name}/client/#{client.id}") } view
+				%button close

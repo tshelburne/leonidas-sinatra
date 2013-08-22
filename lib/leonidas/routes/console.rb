@@ -5,6 +5,7 @@ module Leonidas
 
 			set :views, "#{settings.root}/../views"
 			set :public_folder, "#{settings.views}/public"
+			set :layout, :layout
 
 			def app_registry
 				::Leonidas::MemoryLayer::MemoryRegistry
@@ -16,6 +17,14 @@ module Leonidas
 
 			def app
 				@app ||= app_registry.retrieve_app params[:app_name]
+			end
+
+			def ensure_client!
+				raise Sinatra::NotFound if client.nil?
+			end
+
+			def client
+				@client ||= app.client params[:client_id]
 			end
 
 			get '/' do
@@ -36,6 +45,13 @@ module Leonidas
 			get '/app/:app_name' do
 				ensure_app!
 
+				haml :application
+			end
+
+			get '/app/:app_name/client/:client_id' do
+				ensure_client!
+
+				haml :client
 			end
 
 		end
