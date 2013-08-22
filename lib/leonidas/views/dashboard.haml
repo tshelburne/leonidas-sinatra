@@ -1,0 +1,10 @@
+%h2 Open Applications
+- @apps_by_type.each do |app_type, apps|
+	%h3= app_type
+	%ul.circle
+		- apps.each do |app|
+			%li 
+				%span= app.name
+				%a.button{ href: url("/app/#{app.name}") } view
+				%button close
+	%hr/

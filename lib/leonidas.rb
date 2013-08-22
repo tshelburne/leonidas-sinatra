@@ -5,7 +5,7 @@ require 'leonidas/symbols'
 %w(configuration_expression).each {|file| require "leonidas/dsl/#{file}"}
 %w(memory_registry).each {|file| require "leonidas/memory_layer/#{file}"}
 %w(state_loader persister state_builder).each {|file| require "leonidas/persistence_layer/#{file}"}
-%w(sync).each {|file| require "leonidas/routes/#{file}"}
+%w(console sync).each {|file| require "leonidas/routes/#{file}"}
 
 module Leonidas
 	def self.bootstrap(config_path)
