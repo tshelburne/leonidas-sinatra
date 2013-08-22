@@ -1,10 +1,20 @@
 %h2 Open Applications
 - @apps_by_type.each do |app_type, apps|
-	%h3= app_type
-	%ul.circle
+	%h3.subheader= app_type
+	%table
+		%tr
+			%th Name
+			%th Clients
+			%th Stable Timestamp
+			%th Reconciled?
+			%th Actions
 		- apps.each do |app|
-			%li 
-				%span= app.name
-				%a.button{ href: url("/app/#{app.name}") } view
-				%button close
+			%tr 
+				%td= app.name
+				%td= app.clients.length
+				%td= app.stable_timestamp
+				%td= !app.reconciled? ? 'N' : (app.has_been_unreconciled? ? 'Y' : 'N/A')
+				%td
+					%a.button{ href: url("/app/#{app.name}") } view
+					%a.button{ href: "" } close
 	%hr/
