@@ -7,6 +7,22 @@ module Leonidas
 			set :public_folder, "#{settings.views}/public"
 			set :layout, :layout
 
+			helpers do
+				
+				def close_app_link app
+					close_form url("/app/#{app.name}/close"), "app"
+				end
+
+				def close_client_link app, client
+					close_form url("/app/#{app.name}/client/#{client.id}/close"), "client"
+				end
+
+				def close_form action, type
+					haml :'partials/close_form', layout: false, locals: { action: action, type: type }
+				end
+
+			end
+
 			def app_registry
 				::Leonidas::MemoryLayer::MemoryRegistry
 			end

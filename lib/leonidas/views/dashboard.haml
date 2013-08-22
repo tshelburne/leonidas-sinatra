@@ -16,6 +16,5 @@
 				%td= !app.reconciled? ? 'N' : (app.has_been_unreconciled? ? 'Y' : 'N/A')
 				%td
 					%a.button{ href: url("/app/#{app.name}") } view
-					%form{ action: url("/app/#{app.name}/close"), method: 'post', onsubmit: "return confirm('Are you sure you want to close the app?');" }
-						%button close
+					= close_app_link app
 	%hr/

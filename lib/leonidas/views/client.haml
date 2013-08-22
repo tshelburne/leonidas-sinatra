@@ -1,7 +1,6 @@
 %h3 
 	Client Details
-	%form{ action: url("/app/#{@app.name}/client/#{@client.id}/close"), method: 'post', onsubmit: "return confirm('Are you sure you want to close the client?');" }
-		%button close
+	= close_client_link @app, @client
 %p 
 	%strong ID: 
 	= @client.id
