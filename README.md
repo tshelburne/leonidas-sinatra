@@ -254,6 +254,17 @@ This will mean the frontend syncUrl you pass in Commander.default would look som
 
 Voilá, your app should be good to go.
 
+## Managing your apps
+
+Along with creating an app, you might like to be able to view general stats on what is running, or even force close certain apps and / or clients. To view the Leonidas Console, you can mount the Sinatra app below (I recommend using HTTP Authentication at bare minimum, since these routes do provide some basic control over applications in your system):
+
+    Leonidas::Routes::ConsoleApp.use Rack::Auth::Basic do |username, password|
+      username == 'username' and password == "password"
+    end
+    map '/leonidas-console' do
+      run Leonidas::Routes::ConsoleApp
+    end
+
 ## If (and when) it isn't
 
 Please feel free to contribute, or submit issues to the tracker!
