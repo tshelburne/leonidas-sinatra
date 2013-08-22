@@ -1,6 +1,7 @@
 %h3 
 	App Details
-	%button close app
+	%form{ action: url("/app/#{@app.name}/close"), method: 'post', onsubmit: "return confirm('Are you sure you want to close the app?');" }
+		%button close app
 	%a.button{ href: url("/dashboard") } view all apps
 %p 
 	%strong Name: 
@@ -21,4 +22,5 @@
 			%td= client.last_update
 			%td
 				%a.button{ href: url("/app/#{app.name}/client/#{client.id}") } view
-				%button close
+				%form{ action: url("/app/#{@app.name}/client/#{client.id}/close"), method: 'post', onsubmit: "return confirm('Are you sure you want to close the client?');" }
+					%button close

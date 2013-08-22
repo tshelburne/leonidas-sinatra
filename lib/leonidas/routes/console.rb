@@ -48,11 +48,25 @@ module Leonidas
 				haml :application
 			end
 
+			post '/app/:app_name/close' do
+				app_registry.close_app! params[:app_name]
+
+				redirect to('/dashboard')
+			end
+
 			get '/app/:app_name/client/:client_id' do
 				ensure_app!
 				ensure_client!
 
 				haml :client
+			end
+
+			post '/app/:app_name/client/:client_id/close' do
+				ensure_app!
+
+				app.close_client! params[:client_id]
+
+				redirect to("/app/#{app.name}")
 			end
 
 		end
