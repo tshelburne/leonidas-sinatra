@@ -20,5 +20,5 @@
 			%td= client.id
 			%td= client.last_update
 			%td
-				%a.button{ href: url("/app/#{@app.name}/client/#{client.id}") } view
+				= view_client_link @app, client
 				= close_client_link @app, client

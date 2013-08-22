@@ -8,9 +8,21 @@ module Leonidas
 			set :layout, :layout
 
 			helpers do
+
+				def view_dashboard_link
+					"<a class='button' href='#{url('/dashboard')}'>view all apps</a>"
+				end
+
+				def view_app_link app
+					"<a class='button' href='#{url("/app/#{app.name}")}'>view</a>"
+				end
 				
 				def close_app_link app
 					close_form url("/app/#{app.name}/close"), "app"
+				end
+
+				def view_client_link app, client
+					"<a class='button' href='#{url("/app/#{app.name}/client/#{client.id}")}'>view</a>"
 				end
 
 				def close_client_link app, client

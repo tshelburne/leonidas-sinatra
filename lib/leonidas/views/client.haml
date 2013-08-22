@@ -28,7 +28,7 @@
 
 %h3 
 	App Details
-	%a.button{ href: url("/app/#{@app.name}") } view app
+	= view_app_link @app
 %p 
 	%strong Name: 
 	= @app.name 
