@@ -1,5 +1,14 @@
-%h2 App #{@app.name} 
-%h3.subheader #{@app.app_type} 
+%h3 
+	App Details
+	%button close app
+	%a.button{ href: url("/dashboard") } view all apps
+%p 
+	%strong Name: 
+	= @app.name 
+%p 
+	%strong Type: 
+	= @app.app_type 
+
 %h3 Open Clients
 %table
 	%tr
