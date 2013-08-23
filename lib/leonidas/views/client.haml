@@ -18,11 +18,11 @@
 		%th Persisted?
 	- @client.commands.each do |command|
 		%tr
-			%td= @command.name
-			%td= @command.data
-			%td= @command.timestamp
-			%td= @command.has_run? ? 'Y' : 'N'
-			%td= @command.has_been_persisted? ? 'Y' : 'N'
+			%td= command.name
+			%td= command.data
+			%td= command.timestamp
+			%td= command.has_run? ? 'Y' : 'N'
+			%td= command.has_been_persisted? ? 'Y' : 'N'
 
 %hr/
 
