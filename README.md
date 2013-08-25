@@ -142,7 +142,7 @@ Then, you can create an App (note that #initialize must be able to take no argum
 
       def initialize(name="Kingdom-Zamunda")
         @name = "#{name}-#{SecureRandom.uuid}" # this name must be unique amongst all instances of apps
-        @persist_state = true # this means that commands with be persisted when they are run
+        @persist_commands = true # this means that commands with be persisted when they are run
         @peasants = [ ... ] # this is what handlers will be affecting
       end
 
