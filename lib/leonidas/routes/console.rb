@@ -1,3 +1,5 @@
+require 'sinatra/base'
+
 module Leonidas
 	module Routes
 
