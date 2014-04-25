@@ -1,6 +1,6 @@
 require 'sinatra/base'
 
-module Leonidas
+module LeonidasSinatra
 	module Routes
 
 		class ConsoleApp < Sinatra::Base

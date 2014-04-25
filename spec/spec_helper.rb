@@ -1,4 +1,5 @@
-require 'leonidas'
-%w(app commands persistence).each {|file| require_relative "support/classes/#{file}"}
-%w(sync_requests).each {|file| require_relative "support/mocks/#{file}"}
+require 'leonidas-sinatra'
+require_relative "support/classes/app"
+require_relative "support/classes/commands"
+require_relative "support/mocks/sync_requests"
 require_relative 'support/objects'

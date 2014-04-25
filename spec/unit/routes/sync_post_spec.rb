@@ -1,7 +1,7 @@
 require 'rack/test'
 require 'json'
 
-describe Leonidas::Routes::SyncApp do
+describe LeonidasSinatra::Routes::SyncApp do
 	include Rack::Test::Methods
 	include TestObjects
 	include TestMocks

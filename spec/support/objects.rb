@@ -5,8 +5,4 @@ module TestObjects
 		::Leonidas::Commands::Command.new(id, name, data, client_id, timestamp)
 	end
 
-	def build_client
-		::Leonidas::App::Client.new
-	end
-
 end

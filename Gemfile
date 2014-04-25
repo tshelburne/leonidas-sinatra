@@ -1,5 +1,7 @@
 source :rubygems
 
+gem 'leonidas', path: "#{__FILE__}/../../leonidas-rb"
+
 gem 'rack'
 gem 'rack-test'
 gem 'echoe'
